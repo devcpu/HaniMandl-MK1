@@ -1,0 +1,55 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-added-large-files
+  - id: check-case-conflict
+  - id: check-executables-have-shebangs
+  - id: check-symlinks
+  - id: fix-byte-order-marker
+  - id: detect-private-key
+  - id: mixed-line-ending
+  - id: check-merge-conflict
+
+
+- repo: https://github.com/pre-commit/mirrors-csslint
+  rev: v1.0.5
+  hooks:
+  - id: csslint
+
+#-   repo: https://github.com/Lucas-C/pre-commit-hooks-java
+#    rev: master
+#    hooks:
+#    -   id: validate-html
+
+- repo: https://github.com/bmorcos/pre-commit-hooks-cpp
+  rev: 9a5aa38207bf557961110d6a4f7e3a9d352911f9
+  hooks:
+  - id: clang-format
+    exclude: (^attic|^build|^doc)
+    args: [-style=file]
+  - id: cpplint
+    exclude: (^attic|^build|^doc)
+  - id: cppcheck
+    exclude: (^attic|^build|^doc)
+    args: [--language=c++,--inline-suppr]
+
+- repo: local
+  hooks:
+  - id: compile
+    name: test compile
+    description: check if sources can compiled
+    entry: platformio run --environment esp32
+    pass_filenames: false
+    language: system
+#  - id: TODO
+#    name: TODO Fixer
+#    entry: .todo-checker
+#    exclude: (^attic|^build|^doc)
+#    types: [file]
+#    language: script
