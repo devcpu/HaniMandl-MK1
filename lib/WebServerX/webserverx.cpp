@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
+ * File: /webserverx.cpp
+ * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/WebServerX
+ * Description:
+ * -----
+ * Created Date: 2023-08-12 16:28
+ * Author: Johannes G.  Arlt
+ * -----
+ * Last Modified: 2023-08-12 18:10
+ * Modified By: Johannes G.  Arlt
+ */
+
 #include <webserverx.h>
 
 extern Preferences preferences;
@@ -20,7 +35,7 @@ struct HTML_Error {
   String ErrorMsg;
   boolean isSended;
 
-public:
+ public:
   void setErrorMsg(String msg) {
     if (ErrorMsg == "") {
       ErrorMsg = msg;
@@ -93,7 +108,7 @@ void WebserverStart(void) {
   WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/");
     // first run wizard
-    if (cfg.call == "CHANGEME") { // first run wizard
+    if (cfg.call == "CHANGEME") {  // first run wizard
       request->redirect("/cc");
     }
     request->send(SPIFFS, "/main.html", "text/html", false, ProcessorDefault);
@@ -113,7 +128,7 @@ void WebserverStart(void) {
     if (request->params() > 0) {
       log_e("/cc");
       handleRequestConfigCall(request);
-      if (cfg.APCredentials.auth_tocken == "letmein42") { // first run wizard
+      if (cfg.APCredentials.auth_tocken == "letmein42") {  // first run wizard
         request->redirect("/ca");
       }
       request->redirect("/");
@@ -321,8 +336,8 @@ String systemInfoProcessor(const String &var) {
 String getSystemInfoTable(void) {
 #ifdef ESP32
   uint64_t chipid = chipid =
-      ESP.getEfuseMac(); // The chip ID is essentially its MAC address(length:
-                         // 6 bytes).
+      ESP.getEfuseMac();  // The chip ID is essentially its MAC address(length:
+                          // 6 bytes).
 #endif
 
   FlashMode_t ideMode = ESP.getFlashChipMode();
@@ -401,53 +416,53 @@ String getSystemInfoTable(void) {
 String getResetReason(RESET_REASON reason) {
   String retvar;
   switch (reason) {
-  case 1:
-    retvar = "POWERON_RESET";
-    break; /**<1, Vbat power on reset*/
-  case 3:
-    retvar = "SW_RESET";
-    break; /**<3, Software reset digital core*/
-  case 4:
-    retvar = "OWDT_RESET";
-    break; /**<4, Legacy watch dog reset digital core*/
-  case 5:
-    retvar = "DEEPSLEEP_RESET";
-    break; /**<5, Deep Sleep reset digital core*/
-  case 6:
-    retvar = "SDIO_RESET";
-    break; /**<6, Reset by SLC module, reset digital core*/
-  case 7:
-    retvar = "TG0WDT_SYS_RESET";
-    break; /**<7, Timer Group0 Watch dog reset digital core*/
-  case 8:
-    retvar = "TG1WDT_SYS_RESET";
-    break; /**<8, Timer Group1 Watch dog reset digital core*/
-  case 9:
-    retvar = "RTCWDT_SYS_RESET";
-    break; /**<9, RTC Watch dog Reset digital core*/
-  case 10:
-    retvar = "INTRUSION_RESET";
-    break; /**<10, Instrusion tested to reset CPU*/
-  case 11:
-    retvar = "TGWDT_CPU_RESET";
-    break; /**<11, Time Group reset CPU*/
-  case 12:
-    retvar = "SW_CPU_RESET";
-    break; /**<12, Software reset CPU*/
-  case 13:
-    retvar = "RTCWDT_CPU_RESET";
-    break; /**<13, RTC Watch dog Reset CPU*/
-  case 14:
-    retvar = "EXT_CPU_RESET";
-    break; /**<14, for APP CPU, reseted by PRO CPU*/
-  case 15:
-    retvar = "RTCWDT_BROWN_OUT_RESET";
-    break; /**<15, Reset when the vdd voltage is not stable*/
-  case 16:
-    retvar = "RTCWDT_RTC_RESET";
-    break; /**<16, RTC Watch dog reset digital core and rtc module*/
-  default:
-    retvar = "NO_MEAN";
+    case 1:
+      retvar = "POWERON_RESET";
+      break; /**<1, Vbat power on reset*/
+    case 3:
+      retvar = "SW_RESET";
+      break; /**<3, Software reset digital core*/
+    case 4:
+      retvar = "OWDT_RESET";
+      break; /**<4, Legacy watch dog reset digital core*/
+    case 5:
+      retvar = "DEEPSLEEP_RESET";
+      break; /**<5, Deep Sleep reset digital core*/
+    case 6:
+      retvar = "SDIO_RESET";
+      break; /**<6, Reset by SLC module, reset digital core*/
+    case 7:
+      retvar = "TG0WDT_SYS_RESET";
+      break; /**<7, Timer Group0 Watch dog reset digital core*/
+    case 8:
+      retvar = "TG1WDT_SYS_RESET";
+      break; /**<8, Timer Group1 Watch dog reset digital core*/
+    case 9:
+      retvar = "RTCWDT_SYS_RESET";
+      break; /**<9, RTC Watch dog Reset digital core*/
+    case 10:
+      retvar = "INTRUSION_RESET";
+      break; /**<10, Instrusion tested to reset CPU*/
+    case 11:
+      retvar = "TGWDT_CPU_RESET";
+      break; /**<11, Time Group reset CPU*/
+    case 12:
+      retvar = "SW_CPU_RESET";
+      break; /**<12, Software reset CPU*/
+    case 13:
+      retvar = "RTCWDT_CPU_RESET";
+      break; /**<13, RTC Watch dog Reset CPU*/
+    case 14:
+      retvar = "EXT_CPU_RESET";
+      break; /**<14, for APP CPU, reseted by PRO CPU*/
+    case 15:
+      retvar = "RTCWDT_BROWN_OUT_RESET";
+      break; /**<15, Reset when the vdd voltage is not stable*/
+    case 16:
+      retvar = "RTCWDT_RTC_RESET";
+      break; /**<16, RTC Watch dog reset digital core and rtc module*/
+    default:
+      retvar = "NO_MEAN";
   }
   return retvar;
 }
@@ -986,9 +1001,9 @@ bool handleRequestChangeMode(AsyncWebServerRequest *request) {
  */
 String GetBuildDateAndTime(void) {
   // "2017-03-07T11:08:02" - ISO8601:2004
-  char bdt[21]; // Flawfinder: ignore
+  char bdt[21];  // Flawfinder: ignore
   char *p;
-  char mdate[] = __DATE__; // "Mar  7 2017"
+  char mdate[] = __DATE__;  // "Mar  7 2017"
   char *smonth = mdate;
   int day = 0;
   int year = 0;
@@ -997,20 +1012,20 @@ String GetBuildDateAndTime(void) {
   for (char *str = strtok_r(mdate, " ", &p); str && i < 3;
        str = strtok_r(nullptr, " ", &p)) {
     switch (i++) {
-    case 0: // Month
-      smonth = str;
-      break;
-    case 1:            // Day
-      day = atoi(str); // Flawfinder: ignore
-      break;
-    case 2:             // Year
-      year = atoi(str); // Flawfinder: ignore
+      case 0:  // Month
+        smonth = str;
+        break;
+      case 1:             // Day
+        day = atoi(str);  // Flawfinder: ignore
+        break;
+      case 2:              // Year
+        year = atoi(str);  // Flawfinder: ignore
     }
   }
 
   int month = (strstr(kMonthNamesEnglish, smonth) - kMonthNamesEnglish) / 3 + 1;
   snprintf_P(bdt, sizeof(bdt), "%04d-%02d-%02d %s", year, month, day, __TIME__);
-  return String(bdt); // 2017-03-07T11:08:02
+  return String(bdt);  // 2017-03-07T11:08:02
 }
 
 /**
@@ -1061,16 +1076,16 @@ String table2DGenerator(String data[][2], uint8_t size, boolean bold) {
 }
 
 String readSPIFFS2String(const char *path) {
-  char buf[64] = {0}; // Flawfinder: ignore
+  char buf[64] = {0};  // Flawfinder: ignore
   if (!SPIFFS.exists(path)) {
     snprintf(buf, sizeof(buf), "ERROR, %s do not exists.", path);
     log_e("%s", buf);
     return String(buf);
   }
-  File f = SPIFFS.open(path, "r"); // Flawfinder: ignore
+  File f = SPIFFS.open(path, "r");  // Flawfinder: ignore
   String retvar;
   while (f.available()) {
-    retvar += static_cast<char>(f.read()); // Flawfinder: ignore
+    retvar += static_cast<char>(f.read());  // Flawfinder: ignore
   }
   return retvar;
 }
@@ -1086,26 +1101,26 @@ String readSPIFFS2String(const char *path) {
  */
 String optionsFeldGenerator(String selected, const char *name, String data[][2],
                             uint8_t size) {
-  log_e("%s", name);
-  log_e("%s", selected);
-  char buf[1200] = {0};    // Flawfinder: ignore
-  char zbuf[1200] = {0};   // Flawfinder: ignore
-  char selectxt[32] = {0}; // Flawfinder: ignore
+  log_d("%s", name);
+  log_d("%s", selected);
+  char buf[1200] = {0};     // Flawfinder: ignore
+  char zbuf[1200] = {0};    // Flawfinder: ignore
+  char selectxt[32] = {0};  // Flawfinder: ignore
   snprintf(zbuf, sizeof(zbuf), "\n\n<select name='%s'>\n", name);
-  strncat(buf, zbuf, sizeof(buf) - 1);
+  strncat(buf, zbuf, sizeof(buf) - 1);  // Flawfinder: ignore
   for (uint8_t i = 0; i < size; i++) {
     if (selected.compareTo(data[i][1]) == 0) {
-      strncpy(selectxt, " selected ", sizeof(selectxt) - 1);
-    } else {
-      strncpy(selectxt, "", sizeof(selectxt) - 1);
+      strncpy(selectxt, " selected ",               // Flawfinder: ignore
+              sizeof(selectxt) - 1);                // Flawfinder: ignore
+    } else {                                        // Flawfinder: ignore
+      strncpy(selectxt, "", sizeof(selectxt) - 1);  // Flawfinder: ignore
     }
     snprintf(zbuf, sizeof(zbuf), "<option value=\"%s\"%s>%s</option>\n",
              data[i][1].c_str(), selectxt, data[i][0].c_str());
-    strncat(buf, zbuf, sizeof(buf) - 1);
-  } // END for
+    strncat(buf, zbuf, sizeof(buf) - 1);  // Flawfinder: ignore
+  }                                       // END for
 
-  strncat(buf, "</select>\n\n", sizeof(buf) - 1);
-
+  strncat(buf, "</select>\n\n", sizeof(buf) - 1);  // Flawfinder: ignore
   log_e("%s", name);
 
   return String(buf);
@@ -1177,7 +1192,7 @@ void sendGPSDataJson(void) {
   // AsyncJsonResponse * response = new AsyncJsonResponse();
   // JsonVariant& root = response->getRoot();
   globalClient->server()->cleanupClients();
-  char tmpbuf[32] = {0}; // Flawfinder: ignore
+  char tmpbuf[32] = {0};  // Flawfinder: ignore
   StaticJsonDocument<1024> root;
   root["isValidTime"] = gps.time.isValid();
   root["isValidGPS"] = gps.date.isValid();
@@ -1209,11 +1224,11 @@ void sendGPSDataJson(void) {
   // serializeJson(root, Serial);
 
   AsyncWebSocketMessageBuffer *buffer = globalClient->server()->makeBuffer(
-      len); //  creates a buffer (len + 1) for you.
+      len);  //  creates a buffer (len + 1) for you.
   if (buffer) {
     serializeJson(root, reinterpret_cast<char *>(buffer->get()), len + 1);
     if (!globalClient->queueIsFull() &&
-        globalClient->status() == WS_CONNECTED) { // paranoia?
+        globalClient->status() == WS_CONNECTED) {  // paranoia?
       globalClient->server()->textAll(buffer);
     } else {
       ESP_LOGE(TAG, "can't send to websocket");
@@ -1235,7 +1250,7 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
     }
     return new_var;
   } else {
-    char buf[32] = {0}; // Flawfinder: ignore
+    char buf[32] = {0};  // Flawfinder: ignore
     snprintf(buf, sizeof(buf),
              "ERR> key %s not found in request,  no value written", key);
     log_e("%s", buf);
@@ -1254,7 +1269,7 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
     setPrefsDouble(key, new_var.toDouble());
     return new_var;
   } else {
-    char buf[32] = {0}; // Flawfinder: ignore
+    char buf[32] = {0};  // Flawfinder: ignore
     snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
              key);
     log_e("%s", buf);
@@ -1271,7 +1286,7 @@ String getWebParam(AsyncWebServerRequest *request, const char *key) {
       return new_var;
     }
   } else {
-    char buf[32] = {0}; // Flawfinder: ignore
+    char buf[32] = {0};  // Flawfinder: ignore
     snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
              key);
     log_e("%s", buf);

@@ -1,14 +1,27 @@
+/*
+ * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
+ * File: /webserverx.h
+ * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/WebServerX
+ * Description:
+ * -----
+ * Created Date: 2023-08-12 17:43
+ * Author: Johannes G.  Arlt
+ * -----
+ * Last Modified: 2023-08-12 18:17
+ * Modified By: Johannes G.  Arlt
+ */
 
-#ifndef LIB_WEBSERVERX_H_
-#define LIB_WEBSERVERX_H_
+#ifndef LIB_WEBSERVERX_WEBSERVERX_H_
+#define LIB_WEBSERVERX_WEBSERVERX_H_
 
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #ifdef ESP32
-#include <rom/rtc.h>
-#endif
 #include <ArduinoJson.h>
 #include <AsyncWebSocket.h>
+#include <rom/rtc.h>
 
 void WebserverStart(void);
 
@@ -67,7 +80,7 @@ String ProcessorWXInfo(const String &var);
 
 #ifdef ESP32
 String getResetReason(RESET_REASON reason);
-#endif
+#endif /* ESP32 */
 
 String getWebParam(AsyncWebServerRequest *request, const char *key,
                    String *prefsvar);
@@ -75,4 +88,4 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
                    double *prefsvar);
 String getWebParam(AsyncWebServerRequest *request, const char *key);
 
-#endif // LIB_WEBSERVERX_H_
+#endif  // LIB_WEBSERVERX_WEBSERVERX_H_

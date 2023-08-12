@@ -40,8 +40,11 @@ repos:
   rev: v1.1.0
   hooks:
   - id: detect-missing-css-classes
+    args:
+    - --css-files-dir=data
+    - --html-files-dir=data
   - id: forbid-html-img-without-alt-text
-  - id: forbid-non-std-html-attributes
+  # - id: forbid-non-std-html-attributes
   - id: html-tags-blacklist
   - id: html-attributes-blacklist
 
@@ -69,22 +72,15 @@ repos:
   - id: clang-format
     exclude: (^attic|^build|^doc)
     # LLVM, GNU, Google, Chromium, Microsoft, Mozilla, WebKit
-    args: [-style=LLVM]
+    args: [-style=Google]
   - id: cpplint
     exclude: (^attic|^build|^doc)
+    args: [
+      --filter=-build/include_subdir
+    ]
   - id: cppcheck
     exclude: (^attic|^build|^doc)
     args: [--language=c++,--inline-suppr]
-
-- repo: https://github.com/pocc/pre-commit-hooks
-  rev: v1.3.5
-  hooks:
-  - id: clang-tidy
-    exclude: (^attic|^build|^doc)
-  - id: oclint
-    exclude: (^attic|^build|^doc)
-  - id: uncrustify
-    exclude: (^attic|^build|^doc)
 
 
 - repo: local

@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
+ * File: /ESPFS.cpp
+ * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/ESPFS
+ * Description:
+ * -----
+ * Created Date: 2023-08-12 17:47
+ * Author: Johannes G.  Arlt
+ * -----
+ * Last Modified: 2023-08-12 17:51
+ * Modified By: Johannes G.  Arlt
+ */
+
 #include <Arduino.h>
 #include <ESPFS.h>
 

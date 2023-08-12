@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
+ * File: /WiFiManagerX.cpp
+ * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/WiWiManagerX
+ * Description:
+ * -----
+ * Created Date: 2023-08-12 15:55
+ * Author: Johannes G.  Arlt
+ * -----
+ * Last Modified: 2023-08-12 18:20
+ * Modified By: Johannes G.  Arlt
+ */
+
 #include <WiFiManagerX.h>
 
 AsyncWebServer server(80);
@@ -9,12 +24,12 @@ Ticker ticker;
 // char static_gw[16] = "10.0.1.1";
 // char static_sn[16] = "255.255.255.0";
 
-const int WIFI_LED = 21; // TODO move to central place
+const int WIFI_LED = 21;  // TODO(janusz) move to central place
 
 void tick() {
   // toggle state
-  int state = digitalRead(WIFI_LED); // get the current state of WIFI_LED pin
-  digitalWrite(WIFI_LED, !state);    // set pin to the opposite state
+  int state = digitalRead(WIFI_LED);  // get the current state of WIFI_LED pin
+  digitalWrite(WIFI_LED, !state);     // set pin to the opposite state
 }
 
 // gets called when WiFiManager enters configuration mode
@@ -34,15 +49,16 @@ bool setupWifiManager() {
 
   // wifiManager.resetSettings();
 
-  // TODO move to central config.h
+  // TODO(janusz) move to central config.h
   IPAddress _ip = IPAddress(172, 19, 19, 15);
   IPAddress _gw = IPAddress(192, 168, 42, 101);
   IPAddress _sn = IPAddress(255, 255, 255, 0);
   IPAddress _dns1 = IPAddress(192, 168, 42, 101);
   IPAddress _dns2 = IPAddress(8, 8, 8, 8);
   wifiManager.setSTAStaticIPConfig(_ip, _gw, _sn, _dns1, _dns2);
-  if (!wifiManager.autoConnect("HaniMandlMKI",
-                               "Honigkuchen")) { // TODO move to config.h
+  if (!wifiManager.autoConnect(
+          "HaniMandlMKI",
+          "Honigkuchen")) {  // TODO(janusz) move to config.h
     log_e("failed to connect, we should reset as see if it connects");
     delay(3000);
     ESP.restart();

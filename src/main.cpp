@@ -1,7 +1,23 @@
-#include "esp_log.h"
+/*
+ * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
+ * File: /main.cpp
+ * Project: /home/jan/git/esp32/HaniMandl-MK1/src
+ * Description:
+ * -----
+ * Created Date: 2023-08-12 15:55
+ * Author: Johannes G.  Arlt
+ * -----
+ * Last Modified: 2023-08-12 17:52
+ * Modified By: Johannes G.  Arlt
+ */
+
 #include <Arduino.h>
 #include <ESPFS.h>
 #include <WiFiManagerX.h>
+
+#include "esp_log.h"
 
 extern AsyncWebServer server;
 // extern DNSServer dns;
@@ -31,7 +47,7 @@ void setup() {
 
 static void donothing() {
   static int counter = 0;
-  static char looper[9] = "|/-\\|/-\\";
+  static char looper[12] = "|/-\\|/-\\";  // Flawfinder: ignore
   if (counter == 8) {
     counter = 0;
   }
