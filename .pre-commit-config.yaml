@@ -34,7 +34,8 @@ repos:
   hooks:
   - id: clang-format
     exclude: (^attic|^build|^doc)
-    args: [-style=file]
+    # LLVM, GNU, Google, Chromium, Microsoft, Mozilla, WebKit
+    args: [-style=LLVM]
   - id: cpplint
     exclude: (^attic|^build|^doc)
   - id: cppcheck

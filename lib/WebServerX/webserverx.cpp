@@ -13,13 +13,14 @@ AsyncWebServer *WebServer;
 AsyncWebSocket *ws;
 AsyncWebSocketClient *globalClient = NULL;
 
-String mainmenue("<form action='.' method='get'><button>Main Menue</button></form><br />");
+String mainmenue(
+    "<form action='.' method='get'><button>Main Menue</button></form><br />");
 
 struct HTML_Error {
   String ErrorMsg;
   boolean isSended;
 
- public:
+public:
   void setErrorMsg(String msg) {
     if (ErrorMsg == "") {
       ErrorMsg = msg;
@@ -82,10 +83,12 @@ void WebserverStart(void) {
   WebServer->serveStatic("/hanimandlmk1.css", SPIFFS, "/hanimandlmk1.css");
   WebServer->serveStatic("/rebootinfo", SPIFFS, "/reboot.html");
 
-  WebServer->on("/hanimandlmk1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    log_e("/hanimandlmk1.js");
-    request->send(SPIFFS, "/hanimandlmk1.js", "application/javascript", false, ProcessorJS);
-  });
+  WebServer->on("/hanimandlmk1.js", HTTP_GET,
+                [](AsyncWebServerRequest *request) {
+                  log_e("/hanimandlmk1.js");
+                  request->send(SPIFFS, "/hanimandlmk1.js",
+                                "application/javascript", false, ProcessorJS);
+                });
 
   WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/");
@@ -99,7 +102,8 @@ void WebserverStart(void) {
   // System Info
   WebServer->on("/si", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/si");
-    request->send(SPIFFS, "/main.html", "text/html", false, systemInfoProcessor);
+    request->send(SPIFFS, "/main.html", "text/html", false,
+                  systemInfoProcessor);
   });
 
   // Configure Call
@@ -114,7 +118,8 @@ void WebserverStart(void) {
       }
       request->redirect("/");
     } else {
-      request->send(SPIFFS, "/main.html", "text/html", false, ProcessorConfigCall);
+      request->send(SPIFFS, "/main.html", "text/html", false,
+                    ProcessorConfigCall);
     }
   });
 
@@ -127,7 +132,8 @@ void WebserverStart(void) {
       request->redirect("/");
     }
 
-    request->send(SPIFFS, "/main.html", "text/html", false, ProcessorSendMessage);
+    request->send(SPIFFS, "/main.html", "text/html", false,
+                  ProcessorSendMessage);
   });
 
   // Change Mode
@@ -139,17 +145,19 @@ void WebserverStart(void) {
     if (request->params() == 2) {
       log_e("got 2 params");
       changed = handleRequestChangeMode(request);
-      log_e("new run_mode: %d / new_wifi_mode %d", static_cast<uint8_t>(cfg.current_run_mode),
-               static_cast<uint8_t>(cfg.current_wifi_mode));
+      log_e("new run_mode: %d / new_wifi_mode %d",
+            static_cast<uint8_t>(cfg.current_run_mode),
+            static_cast<uint8_t>(cfg.current_wifi_mode));
       // @FIXME cast error? see debug console
       log_e("new run_mode: %d / new_wifi_mode %d\n",
-               static_cast<uint8_t>(getPrefsDouble(PREFS_CURRENT_SYSTEM_MODE)),
-               static_cast<uint8_t>(getPrefsDouble(PREFS_CURRENT_WIFI_MODE)));
+            static_cast<uint8_t>(getPrefsDouble(PREFS_CURRENT_SYSTEM_MODE)),
+            static_cast<uint8_t>(getPrefsDouble(PREFS_CURRENT_WIFI_MODE)));
       request->redirect("/");
     }
     if (changed) {
     } else {
-      request->send(SPIFFS, "/main.html", "text/html", false, ProcessorChangeMode);
+      request->send(SPIFFS, "/main.html", "text/html", false,
+                    ProcessorChangeMode);
     }
   });
 
@@ -180,7 +188,8 @@ void WebserverStart(void) {
       }
     }
 
-    request->send(SPIFFS, "/main.html", "text/html", false, ProcessorConfigWifiAP);
+    request->send(SPIFFS, "/main.html", "text/html", false,
+                  ProcessorConfigWifiAP);
   });
 
   // Config Gateway
@@ -191,7 +200,8 @@ void WebserverStart(void) {
       handleRequestConfigGateway(request);
       request->redirect("/");
     }
-    request->send(SPIFFS, "/main.html", "text/html", false, ProcessorConfigGateway);
+    request->send(SPIFFS, "/main.html", "text/html", false,
+                  ProcessorConfigGateway);
   });
 
   // reboot
@@ -212,7 +222,8 @@ void WebserverStart(void) {
         log_e("ERR: wrong request");
       }
     }
-    request->send(SPIFFS, "/main.html", "text/html", false, ProcessorConfigWLAN);
+    request->send(SPIFFS, "/main.html", "text/html", false,
+                  ProcessorConfigWLAN);
   });
 
   // Config Web Admin
@@ -239,8 +250,8 @@ void WebserverStart(void) {
   log_e("HTTP WebServer started");
 }
 
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data,
-               size_t len) {
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+               AwsEventType type, void *arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
     log_e("Websocket client connection received");
     globalClient = client;
@@ -309,8 +320,9 @@ String systemInfoProcessor(const String &var) {
 
 String getSystemInfoTable(void) {
 #ifdef ESP32
-  uint64_t chipid = chipid = ESP.getEfuseMac(); // The chip ID is essentially its MAC address(length:
-                                                // 6 bytes).
+  uint64_t chipid = chipid =
+      ESP.getEfuseMac(); // The chip ID is essentially its MAC address(length:
+                         // 6 bytes).
 #endif
 
   FlashMode_t ideMode = ESP.getFlashChipMode();
@@ -333,7 +345,8 @@ String getSystemInfoTable(void) {
       {"CycleCount: ", String(ESP.getCycleCount())},
       {"FlashChipMode: ", String(ESP.getFlashChipMode())},
       {"FlashChipSize: ", String(ESP.getFlashChipSize() / 1024 / 1024) + "MB"},
-      {"FlashChipSpeed: ", String(ESP.getFlashChipSpeed() / 1024 / 1024) + "MHz"},
+      {"FlashChipSpeed: ",
+       String(ESP.getFlashChipSpeed() / 1024 / 1024) + "MHz"},
       {"SketchSize: ", String(ESP.getSketchSize() / 1024) + "kB"},
       {"FreeSketchSpace: ", String(ESP.getFreeSketchSpace() / 1024) + "kB"},
       {"SketchMD5: ", String(ESP.getSketchMD5())},
@@ -353,12 +366,13 @@ String getSystemInfoTable(void) {
 #endif
       // size = 5
       {"Flash ide  size:", String(ESP.getFlashChipSize() / 1024) + "kB"},
-      {"Flash ide speed:", String(ESP.getFlashChipSpeed() / 1000 / 1000) + "MHz"},
-      {"Flash ide mode:",
-       String(
-           (ideMode == FM_QIO
-                ? "QIO"
-                : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"))},
+      {"Flash ide speed:",
+       String(ESP.getFlashChipSpeed() / 1000 / 1000) + "MHz"},
+      {"Flash ide mode:", String((ideMode == FM_QIO    ? "QIO"
+                                  : ideMode == FM_QOUT ? "QOUT"
+                                  : ideMode == FM_DIO  ? "DIO"
+                                  : ideMode == FM_DOUT ? "DOUT"
+                                                       : "UNKNOWN"))},
       {"Sketch size:", String(ESP.getSketchSize() / 1024) + "kB"},
       // size = 10
       {"Free sketch size:", String(ESP.getFreeSketchSpace() / 1024) + "kB"},
@@ -379,7 +393,8 @@ String getSystemInfoTable(void) {
       {"BME280", String(cfg.hardware.BME280)},
   };
 
-  return table2DGenerator(systemdata, 33, true) + table2DGenerator(hwdata, 4, true) + "<br /><br />" + mainmenue;
+  return table2DGenerator(systemdata, 33, true) +
+         table2DGenerator(hwdata, 4, true) + "<br /><br />" + mainmenue;
 }
 
 #ifdef ESP32
@@ -460,11 +475,15 @@ String ProcessorConfigCall(const String &var) {
 
   // remember! if you add or remove some items here, you ahve to change
   String aprs_symbol_options[][2] = {
-      {"Home", "/-"},     {"Campground", "/;"},     {"Motorcycle", "/<"}, {"Rail", "/="},         {"Canoe", "/C"},
-      {"Tractor", "/F"},  {"Baloon", "/B"},         {"Bus", "/U"},        {"Heli", "/X"},         {"Yacht", "/Y"},
-      {"Jogger", "/["},   {"WX Station", "/_"},     {"Ambulance", "/a"},  {"Fire Station", "/d"}, {"Fire Truck", "/f"},
-      {"Hospital", "/h"}, {"IOTO", "/i"},           {"Jeep", "/j"},       {"Truck", "/k"},        {"Power Boat", "/s"},
-      {"Van", "/v"},      {"Weater Station", "/w"}, {"Shelter", "/z"},    {"Horse", "/e"},        {"Bike", "/b"},
+      {"Home", "/-"},           {"Campground", "/;"},   {"Motorcycle", "/<"},
+      {"Rail", "/="},           {"Canoe", "/C"},        {"Tractor", "/F"},
+      {"Baloon", "/B"},         {"Bus", "/U"},          {"Heli", "/X"},
+      {"Yacht", "/Y"},          {"Jogger", "/["},       {"WX Station", "/_"},
+      {"Ambulance", "/a"},      {"Fire Station", "/d"}, {"Fire Truck", "/f"},
+      {"Hospital", "/h"},       {"IOTO", "/i"},         {"Jeep", "/j"},
+      {"Truck", "/k"},          {"Power Boat", "/s"},   {"Van", "/v"},
+      {"Weater Station", "/w"}, {"Shelter", "/z"},      {"Horse", "/e"},
+      {"Bike", "/b"},
   };
 
   // ESP_LOGW(TAG, "xxx aprs_options xxx");
@@ -510,14 +529,16 @@ String ProcessorConfigCall(const String &var) {
   }
 
   if (var == PREFS_APRS_SYMBOL) {
-    return optionsFeldGenerator(cfg.aprs_symbol, PREFS_APRS_SYMBOL, aprs_symbol_options,
-                                sizeof(aprs_symbol_options) / sizeof(aprs_symbol_options[0]));
+    return optionsFeldGenerator(
+        cfg.aprs_symbol, PREFS_APRS_SYMBOL, aprs_symbol_options,
+        sizeof(aprs_symbol_options) / sizeof(aprs_symbol_options[0]));
     // return String(cfg.aprs_symbol.symbol);
   }
 
   if (var == "aprs_ext_options") {
-    return optionsFeldGenerator(cfg.aprs_call_ext, PREFS_APRS_CALL_EX, aprs_options,
-                                sizeof(aprs_symbol_options) / sizeof(aprs_symbol_options[0]));
+    return optionsFeldGenerator(
+        cfg.aprs_call_ext, PREFS_APRS_CALL_EX, aprs_options,
+        sizeof(aprs_symbol_options) / sizeof(aprs_symbol_options[0]));
   }
 
   if (var == PREFS_APRS_CALL_EX) {
@@ -764,9 +785,11 @@ String ProcessorSendMessage(const String &var) {
   }
 
   if (var == MSG_FORM_WIDE) {
-    String options[][2] = {{"local", "0"}, {"WIDE1-1", "1"}, {"WIDE2-2", "2"}, {"WIDE3-3", "3"}};
+    String options[][2] = {
+        {"local", "0"}, {"WIDE1-1", "1"}, {"WIDE2-2", "2"}, {"WIDE3-3", "3"}};
 
-    return optionsFeldGenerator(send_msg_form_tmp.wide, MSG_FORM_WIDE, options, sizeof(options) / sizeof(options[0]));
+    return optionsFeldGenerator(send_msg_form_tmp.wide, MSG_FORM_WIDE, options,
+                                sizeof(options) / sizeof(options[0]));
   }
 
   if (var == MSG_FORM_MSG) {
@@ -915,16 +938,19 @@ String ProcessorChangeMode(const String &var) {
 
     // @TODO change cfg.current_run_mode to String to elimate
     // optionsFeldGenerator()
-    return optionsFeldGenerator(String(cfg.current_run_mode), PREFS_CURRENT_SYSTEM_MODE, options,
+    return optionsFeldGenerator(String(cfg.current_run_mode),
+                                PREFS_CURRENT_SYSTEM_MODE, options,
                                 sizeof(options) / sizeof(options[0]));
   }
 
   // enum wifi_mode {wifi_off, wifi_ap, wifi_client};
   if (var == PREFS_CURRENT_WIFI_MODE) {
-    String options[][2] = {{"Wifi OFF", "0"}, {"Wifi AP", "1"}, {"WLAN Connect", "2"}};
+    String options[][2] = {
+        {"Wifi OFF", "0"}, {"Wifi AP", "1"}, {"WLAN Connect", "2"}};
     // @TODO change cfg.current_wifi_mode to String to elimate
     // optionsFeldGenerator()
-    return optionsFeldGenerator(String(cfg.current_wifi_mode), PREFS_CURRENT_WIFI_MODE, options,
+    return optionsFeldGenerator(String(cfg.current_wifi_mode),
+                                PREFS_CURRENT_WIFI_MODE, options,
                                 sizeof(options) / sizeof(options[0]));
   }
 
@@ -940,7 +966,8 @@ bool handleRequestChangeMode(AsyncWebServerRequest *request) {
   log_e("handleRequestChangeMode");
   if (request->hasParam(PREFS_CURRENT_SYSTEM_MODE)) {
     String new_run_mode = getWebParam(request, PREFS_CURRENT_SYSTEM_MODE);
-    rv = setPrefsUInt(PREFS_CURRENT_SYSTEM_MODE, static_cast<int>(new_run_mode.toInt()));
+    rv = setPrefsUInt(PREFS_CURRENT_SYSTEM_MODE,
+                      static_cast<int>(new_run_mode.toInt()));
     cfg.current_run_mode = (run_mode) static_cast<int>(new_run_mode.toInt());
   }
 
@@ -967,7 +994,8 @@ String GetBuildDateAndTime(void) {
   int year = 0;
 
   uint8_t i = 0;
-  for (char *str = strtok_r(mdate, " ", &p); str && i < 3; str = strtok_r(nullptr, " ", &p)) {
+  for (char *str = strtok_r(mdate, " ", &p); str && i < 3;
+       str = strtok_r(nullptr, " ", &p)) {
     switch (i++) {
     case 0: // Month
       smonth = str;
@@ -1056,7 +1084,8 @@ String readSPIFFS2String(const char *path) {
  * @param size count elements
  * @return String
  */
-String optionsFeldGenerator(String selected, const char *name, String data[][2], uint8_t size) {
+String optionsFeldGenerator(String selected, const char *name, String data[][2],
+                            uint8_t size) {
   log_e("%s", name);
   log_e("%s", selected);
   char buf[1200] = {0};    // Flawfinder: ignore
@@ -1070,8 +1099,8 @@ String optionsFeldGenerator(String selected, const char *name, String data[][2],
     } else {
       strncpy(selectxt, "", sizeof(selectxt) - 1);
     }
-    snprintf(zbuf, sizeof(zbuf), "<option value=\"%s\"%s>%s</option>\n", data[i][1].c_str(), selectxt,
-             data[i][0].c_str());
+    snprintf(zbuf, sizeof(zbuf), "<option value=\"%s\"%s>%s</option>\n",
+             data[i][1].c_str(), selectxt, data[i][0].c_str());
     strncat(buf, zbuf, sizeof(buf) - 1);
   } // END for
 
@@ -1118,7 +1147,8 @@ void showRequest(AsyncWebServerRequest *request) {
   for (i = 0; i < params; i++) {
     AsyncWebParameter *p = request->getParam(i);
     if (p->isFile()) {
-      log_e("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
+      log_e("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
+            p->size());
     } else if (p->isPost()) {
       log_e("_POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
     } else {
@@ -1152,11 +1182,13 @@ void sendGPSDataJson(void) {
   root["isValidTime"] = gps.time.isValid();
   root["isValidGPS"] = gps.date.isValid();
 
-  snprintf(tmpbuf, sizeof(tmpbuf), "%02d:%02d:%02d", cfg.gps_time.hour, cfg.gps_time.minute, cfg.gps_time.second);
+  snprintf(tmpbuf, sizeof(tmpbuf), "%02d:%02d:%02d", cfg.gps_time.hour,
+           cfg.gps_time.minute, cfg.gps_time.second);
   root["time"] = tmpbuf;
   // log_e("%s", tmpbuf);
 
-  snprintf(tmpbuf, sizeof(tmpbuf), "%4d-%02d-%02d", cfg.gps_time.year, cfg.gps_time.month, cfg.gps_time.day);
+  snprintf(tmpbuf, sizeof(tmpbuf), "%4d-%02d-%02d", cfg.gps_time.year,
+           cfg.gps_time.month, cfg.gps_time.day);
   root["date"] = tmpbuf;
   // log_e("%s", tmpbuf);
 
@@ -1176,10 +1208,12 @@ void sendGPSDataJson(void) {
   // log_e("%d", len); // @FIXME remove
   // serializeJson(root, Serial);
 
-  AsyncWebSocketMessageBuffer *buffer = globalClient->server()->makeBuffer(len); //  creates a buffer (len + 1) for you.
+  AsyncWebSocketMessageBuffer *buffer = globalClient->server()->makeBuffer(
+      len); //  creates a buffer (len + 1) for you.
   if (buffer) {
     serializeJson(root, reinterpret_cast<char *>(buffer->get()), len + 1);
-    if (!globalClient->queueIsFull() && globalClient->status() == WS_CONNECTED) { // paranoia?
+    if (!globalClient->queueIsFull() &&
+        globalClient->status() == WS_CONNECTED) { // paranoia?
       globalClient->server()->textAll(buffer);
     } else {
       ESP_LOGE(TAG, "can't send to websocket");
@@ -1189,7 +1223,8 @@ void sendGPSDataJson(void) {
   // serializeJsonPretty(root, Serial);
 }
 
-String getWebParam(AsyncWebServerRequest *request, const char *key, String *prefsvar) {
+String getWebParam(AsyncWebServerRequest *request, const char *key,
+                   String *prefsvar) {
   String new_var = "";
   if (request->hasParam(key)) {
     new_var = request->getParam(key)->value();
@@ -1201,14 +1236,16 @@ String getWebParam(AsyncWebServerRequest *request, const char *key, String *pref
     return new_var;
   } else {
     char buf[32] = {0}; // Flawfinder: ignore
-    snprintf(buf, sizeof(buf), "ERR> key %s not found in request,  no value written", key);
+    snprintf(buf, sizeof(buf),
+             "ERR> key %s not found in request,  no value written", key);
     log_e("%s", buf);
     return String("");
   }
   return new_var;
 }
 
-String getWebParam(AsyncWebServerRequest *request, const char *key, double *prefsvar) {
+String getWebParam(AsyncWebServerRequest *request, const char *key,
+                   double *prefsvar) {
   String new_var = "";
   if (request->hasParam(key)) {
     new_var = request->getParam(key)->value();
@@ -1218,7 +1255,8 @@ String getWebParam(AsyncWebServerRequest *request, const char *key, double *pref
     return new_var;
   } else {
     char buf[32] = {0}; // Flawfinder: ignore
-    snprintf(buf, sizeof(buf), "key %s not found in request, no value written", key);
+    snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
+             key);
     log_e("%s", buf);
     return String("");
   }
@@ -1234,7 +1272,8 @@ String getWebParam(AsyncWebServerRequest *request, const char *key) {
     }
   } else {
     char buf[32] = {0}; // Flawfinder: ignore
-    snprintf(buf, sizeof(buf), "key %s not found in request, no value written", key);
+    snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
+             key);
     log_e("%s", buf);
     return String("");
   }
