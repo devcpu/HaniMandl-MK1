@@ -1,9 +1,11 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
+fail_fast: false
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.4.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
@@ -38,6 +40,17 @@ repos:
   - id: cppcheck
     exclude: (^attic|^build|^doc)
     args: [--language=c++,--inline-suppr]
+
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  - id: clang-tidy
+    exclude: (^attic|^build|^doc)
+  - id: oclint
+    exclude: (^attic|^build|^doc)
+  - id: uncrustify
+    exclude: (^attic|^build|^doc)
+
 
 - repo: local
   hooks:
