@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-12 18:20
+ * Last Modified: 2023-08-13 02:37
  * Modified By: Johannes G.  Arlt
  */
 
@@ -18,13 +18,14 @@
 AsyncWebServer server(80);
 DNSServer dns;
 Ticker ticker;
+extern HMConfig cfg;
 
 // default custom static IP
 // char static_ip[16] = "10.0.1.59";
 // char static_gw[16] = "10.0.1.1";
 // char static_sn[16] = "255.255.255.0";
 
-const int WIFI_LED = 21;  // TODO(janusz) move to central place
+const int WIFI_LED = CONFIG_WIFI_LED;  // TODO(janusz) move to central place
 
 void tick() {
   // toggle state
@@ -68,7 +69,8 @@ bool setupWifiManager() {
   // if you get here you have connected to the WiFi
   log_i("connected...yeey :)");
   log_i("local ip");
-  log_i("%s", WiFi.localIP().toString());
+  // log_i(WiFi.localIP().toString.c_str());
+  cfg.myIP = WiFi.localIP();
 
   ticker.detach();
   // keep LED on

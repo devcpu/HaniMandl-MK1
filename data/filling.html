@@ -1,0 +1,52 @@
+<!--
+Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+License MIT License
+-----
+File: /Running.html
+Project: /home/jan/git/esp32/HaniMandl-MK1/data
+Description:
+-----
+Created Date: 2023-08-12 19:09
+Author: Johannes G.  Arlt
+-----
+Last Modified: 2023-08-12 19:28
+Modified By: Johannes G.  Arlt
+-->
+
+<div id='error' name='error'></div>
+<table>
+    <tr>
+        <td>Los-Nummer:</td>
+        <td>Datum:</td>
+        <td>Gewicht:</td>
+        <td>Anzahl</td>
+    </tr>
+    <tr>
+        <td>%los_number%</td>
+        <td>%date_filling%</td>
+        <td>%weight_filling%</td>
+        <td>%glass_count%</td>
+    </tr>
+</table>
+
+<fieldset>
+    <form action='start' method='post'><button>START</button></form><br />
+    <form action='stop' method='post'><button>STOP</button></form><br />
+
+</fieldset>
+
+<fieldset>
+    <legend>Modi:</legend>
+    <form action='hand' method='post'><button>Handbetrieb</button></form><br />
+    <form action='auto' method='post'><button>Automatik</button></form><br />
+</fieldset>
+
+<fieldset>
+    <legend>Feinjustierung:</legend>
+    <form action='amg' method='post'><button>Winkel grob größer</button></form><br />
+    <form action='aml' method='post'><button>Winkel grob kleiner</button></form><br />
+    <form action='afg' method='post'><button>Winkel fein größer</button></form><br />
+    <form action='afl' method='post'><button>Winkel fein kleiner</button></form><br />
+    <form action='wfg' method='post'><button>Gewicht fein größer</button></form><br />
+    <form action='wfl' method='post'><button>Gewicht fein kleiner</button></form><br />
+</fieldset>

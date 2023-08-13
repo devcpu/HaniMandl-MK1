@@ -9,39 +9,39 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-12 17:52
+ * Last Modified: 2023-08-13 02:14
  * Modified By: Johannes G.  Arlt
  */
 
 #include <Arduino.h>
 #include <ESPFS.h>
+#include <HMConfig.h>
+#include <WebServerX.h>
 #include <WiFiManagerX.h>
 
 #include "esp_log.h"
 
-extern AsyncWebServer server;
+HMConfig cfg;
+
 // extern DNSServer dns;
 // extern Ticker ticker;
+
 void notFound(AsyncWebServerRequest *request) {
   request->send(404, "text/plain", "Not found");
 }
 
 void setup() {
   Serial.begin(115200);
-  delay(500);
+  delay(1000);
   log_i("Start Setup");
   if (!ESPFSInit()) {
     delay(10000);
     ESP.restart();
   }
   setupWifiManager();
+  WebserverStart();
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hello, world");
-  });
-  server.onNotFound(notFound);
-  server.begin();
-
+  log_e("%s", cfg.beekeeping.c_str());
   log_i("Setup done! Starting loop ... ");
 }
 
