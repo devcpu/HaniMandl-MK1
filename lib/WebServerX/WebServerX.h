@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 04:16
+ * Last Modified: 2023-08-13 15:42
  * Modified By: Johannes G.  Arlt
  */
 
@@ -27,17 +27,35 @@
 #include <rom/rtc.h>
 #endif
 
+extern HMConfig cfg;
+
 static const char kMonthNamesEnglish[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 static const String mainmenue(
     "<form action='.' method='get'><button>Main Menue</button></form><br />");
 static const String htmltitle = HONEY_FARM_NAME;
 static const String h3title = PROGRAMM_NAME;
 
+#define DEFAULT_RROCESS\
+    if (var == "HTMLTILE") {\
+        return htmltitle;\
+    }\
+    if (var == "H3TITLE") {\
+        return h3title;\
+    }\
+    if (var == "ERRORMSG") {\
+        return html_error.getErrorMsg();\
+    }\
+return String("wrong placeholder " + var);
+
+
+
 void WebserverStart(void);
 
 String ProcessorJS(const String &var);
 String ProcessorDefault(const String &var);
 String systemInfoProcessor(const String &var);
+
+String ProcessorFilling(const String &var);
 
 String getSystemInfoTable(void);
 String getSystemInfoTable();

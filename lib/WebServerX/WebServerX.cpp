@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 04:19
+ * Last Modified: 2023-08-13 17:30
  * Modified By: Johannes G.  Arlt
  */
 
@@ -36,15 +36,7 @@ struct HTML_Error {
 
 HTML_Error html_error;
 
-extern HMConfig cfg;
-
 // extern QueueHandle_t LoRaTXQueue;
-
-// #include "CallBackList.h"
-
-// @TODO remove together with restart()
-
-extern HMConfig cfg;
 
 AsyncWebServer *WebServer;
 AsyncWebSocket *ws;
@@ -83,42 +75,51 @@ void WebserverStart(void) {
   .##.....##..#######...#######.....##....########.##....##
   */
 
-  WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    log_d("/");
-    log_d("wie weiter?");
-    // first run wizard
-    if (cfg.beekeeping == "") {  // first run wizard
-      log_d("redirect setup");
-      request->redirect("/setup");
-    }
-    log_d("master.html");
-    request->send(SPIFFS, "/master.html", "text/html", false, ProcessorDefault);
-  });
+/*
+.##.....##.########.########.########...........######...########.########
+.##.....##....##.......##....##.....##.........##....##..##..........##...
+.##.....##....##.......##....##.....##.........##........##..........##...
+.#########....##.......##....########..........##...####.######......##...
+.##.....##....##.......##....##................##....##..##..........##...
+.##.....##....##.......##....##................##....##..##..........##...
+.##.....##....##.......##....##........#######..######...########....##...
+*/
 
-  // System Info
-  WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
-    log_e("/systeminfo");
-    request->send(SPIFFS, "/master.html", "text/html", false,
-                  systemInfoProcessor);
-  });
+/* ---------------------------------- main ---------------------------------- */
+   WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+        log_d("/");
+        // first run wizard
+        if (cfg.beekeeping == "") {  // first run wizard
+            log_d("redirect to setup");
+            request->redirect("/setup");
+        }
+        log_d("master.html");
+        request->send(SPIFFS, "/master.html", "text/html", false, ProcessorDefault);
+    });
+
+   WebServer->on("/filling", HTTP_GET, [](AsyncWebServerRequest *request) {
+        showRequest(request);
+        request->send(SPIFFS, "/master.html", "text/html", false, ProcessorFilling);
+    });
+
 
   // // Configure Call
-  // WebServer->on("/cc", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/cc");
-  //   showRequest(request);
-  //   if (request->params() > 0) {
-  //     log_e("/cc");
-  //     handleRequestConfigCall(request);
-  //     if (cfg.APCredentials.auth_tocken == "letmein42") {  // first run
-  //     wizard
-  //       request->redirect("/ca");
-  //     }
-  //     request->redirect("/");
-  //   } else {
-  //     request->send(SPIFFS, "/master.html", "text/html", false,
-  //                   ProcessorConfigCall);
-  //   }
-  // });
+//   WebServer->on("/cc", HTTP_GET, [](AsyncWebServerRequest *request) {
+//     log_e("/cc");
+//     showRequest(request);
+//     if (request->params() > 0) {
+//       log_e("/cc");
+//       handleRequestConfigCall(request);
+//       if (cfg.APCredentials.auth_tocken == "letmein42") {  // first run
+//       wizard
+//         request->redirect("/ca");
+//       }
+//       request->redirect("/");
+//     } else {
+//       request->send(SPIFFS, "/master.html", "text/html", false,
+//                     ProcessorConfigCall);
+//     }
+//   });
 
   // // Send Message
   // WebServer->on("/sm", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -191,23 +192,8 @@ void WebserverStart(void) {
   //                 ProcessorConfigWifiAP);
   // });
 
-  // // Config Gateway
-  // WebServer->on("/cg", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/cg");
-  //   showRequest(request);
-  //   if (request->params()) {
-  //     handleRequestConfigGateway(request);
-  //     request->redirect("/");
-  //   }
-  //   request->send(SPIFFS, "/master.html", "text/html", false,
-  //                 ProcessorConfigGateway);
-  // });
 
-  // reboot
-  WebServer->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
-    log_e("/reboot");
-    reboot(request);
-  });
+
 
   // // ConfigWLAN
   // WebServer->on("/cl", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -232,33 +218,60 @@ void WebserverStart(void) {
   //   // handle Request in /ca
   // });
 
-  // Config Web Admin
-  // WebServer->on("/APRSSymbol", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/APRSSymbol");
-  //   showRequest(request);
-  //   request->send(SPIFFS, "/APRS_Symbol_Chart.pdf", "application/pdf",
-  //   false);
-  // });
+/*
+.##.....##.########.########.########..........########...#######...######..########
+.##.....##....##.......##....##.....##.........##.....##.##.....##.##....##....##...
+.##.....##....##.......##....##.....##.........##.....##.##.....##.##..........##...
+.#########....##.......##....########..........########..##.....##..######.....##...
+.##.....##....##.......##....##................##........##.....##.......##....##...
+.##.....##....##.......##....##................##........##.....##.##....##....##...
+.##.....##....##.......##....##........#######.##.........#######...######.....##...
+*/  
 
-  WebServer->on("/bb", HTTP_GET, [](AsyncWebServerRequest *request) {
-    log_e("/bb");
-    showRequest(request);
-    // no Processor !
-  });
 
-  WebServer->begin();
-  log_e("HTTP WebServer started");
-}
+    WebServer->on("/adjust", HTTP_POST, [](AsyncWebServerRequest *request) {
+        // showRequest(request);
+        String v;
+        if (request->params() == 1) {
+            log_d("request->params() == 1");
+            if(request->hasParam("angle_rough", true)) {
+                log_d("request->hasParam('angle_rough')");
+                log_e("angle_max %d", cfg.angle_max);
+                v = getWebParam(request,"angle_rough");
+                if (v == String("+")) {
+                    cfg.angle_max++;
+                    log_d("cfg.angle_max++");
+                }
+                else if (v == String("-")){
+                    cfg.angle_max--;
+                    log_d("cfg.angle_max--");
+                }
+                else {
+                    log_e("Wrong value detected for key angle_rough");
+                }
+                log_e("angle_max %d", cfg.angle_max);
+            }
+        }
 
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
-               AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  if (type == WS_EVT_CONNECT) {
-    log_e("Websocket client connection received");
-    globalClient = client;
-  } else if (type == WS_EVT_DISCONNECT) {
-    log_e("Websocket client connection finished");
-    globalClient = NULL;
-  }
+        request->send(SPIFFS, "/master.html", "text/html", false, ProcessorFilling);
+    });
+
+
+
+/* ------------------------------- System Info ------------------------------ */
+    WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
+        log_e("/systeminfo");
+        request->send(SPIFFS, "/master.html", "text/html", false, systemInfoProcessor);
+    });
+
+/* --------------------------------- Reboot --------------------------------- */
+    WebServer->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
+        log_e("/reboot");
+        reboot(request);
+    });
+
+    WebServer->begin();
+    log_e("HTTP WebServer started");
 }
 
 /*
@@ -271,52 +284,69 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
 .##........##.....##..#######...######..########..######...######..########.##.....##..######.
 */
 
+String ProcessorFilling(const String &var) {
+    if (var == "H2TITLE") {
+        return String("Abfüllung");
+    }
+    if (var == "BODY") {
+        return readSPIFFS2String("/filling.html");
+    }
+    if (var == "los_number") {
+      return cfg.los_number;
+    }
+    if (var == "date_filling") {
+      return cfg.date_filling;
+    }
+    if (var == "weight_filling") {
+      return String(cfg.weight_filling);
+    }
+    if (var == "glass_count") {
+      return String(cfg.glass_count);
+    }
+    DEFAULT_RROCESS
+
+}
+
 String systemInfoProcessor(const String &var) {
-  if (var == "HTMLTILE") {
-    return htmltitle;
-  }
-
-  if (var == "H3TITLE") {
-    return h3title;
-  }
-
-  if (var == "H2TITLE") {
-    return String("System Info");
-  }
-
-  if (var == "ERRORMSG") {
-    return html_error.getErrorMsg();
-  }
-
-  if (var == "BODY") {
-    return getSystemInfoTable();
-  }
-
-  return String("wrong placeholder " + var);
+    if (var == "H2TITLE") {
+        return String("System Info");
+    }
+    if (var == "BODY") {
+        return getSystemInfoTable();
+    }
+    DEFAULT_RROCESS
 }
 
 String ProcessorDefault(const String &var) {
-  if (var == "HTMLTILE") {
-    return htmltitle;
-  }
-
-  if (var == "H3TITLE") {
-    return h3title;
-  }
-
   if (var == "H2TITLE") {
     return String("Main Menue");
   }
-
-  if (var == "ERRORMSG") {
-    return html_error.getErrorMsg();
-  }
-
   if (var == "BODY") {
     return readSPIFFS2String("/mainbutton.html");
   }
-  return String("wrong placeholder " + var);
+  DEFAULT_RROCESS
 }
+
+/*
+.##.....##....###....##....##.########..##.......########.########.
+.##.....##...##.##...###...##.##.....##.##.......##.......##.....##
+.##.....##..##...##..####..##.##.....##.##.......##.......##.....##
+.#########.##.....##.##.##.##.##.....##.##.......######...########.
+.##.....##.#########.##..####.##.....##.##.......##.......##...##..
+.##.....##.##.....##.##...###.##.....##.##.......##.......##....##.
+.##.....##.##.....##.##....##.########..########.########.##.....##
+*/
+
+
+/*
+.##.....##.########.##.......########..########.########...######.
+.##.....##.##.......##.......##.....##.##.......##.....##.##....##
+.##.....##.##.......##.......##.....##.##.......##.....##.##......
+.#########.######...##.......########..######...########...######.
+.##.....##.##.......##.......##........##.......##...##.........##
+.##.....##.##.......##.......##........##.......##....##..##....##
+.##.....##.########.########.##........########.##.....##..######.
+*/
 
 String getChipId() {
   char ssid1[MAXSIZE + 1];
@@ -396,13 +426,13 @@ String getSystemInfoTable(void) {
   return table2DGenerator(systemdata, 26, true) + mainmenue;
 }
 
-/// @brief Populate myIP to client for websocket
+/// @brief Populate localIP to client for websocket
 /// @param var
-/// @return myIP
+/// @return localIP
 String ProcessorJS(const String &var) {
   if (var == "SERVER_IP") {
-    log_e("%s", cfg.myIP);
-    return cfg.myIP.toString();
+    log_e("%s", cfg.localIP.c_str());
+    return cfg.localIP;
   }
 
   return String("wrong placeholder " + var);
@@ -584,6 +614,159 @@ void reboot(AsyncWebServerRequest *request) {
   ESP.restart();
 }
 
+/* ------------------------------- getWebParam ------------------------------ */
+/// @brief gets the value under given key from given http-request
+/// @param request
+/// @param key
+/// @param cfgvar
+/// @return
+String getWebParam(AsyncWebServerRequest *request, const char *key,
+                   String *cfgvar) {
+  String rtvar = "";
+  if (request->hasParam(key)) {
+    rtvar = request->getParam(key)->value();
+    if (rtvar.length() > 0 && rtvar.length() < WEB_INPUT_MAX_LENGTH) {
+      *cfgvar = rtvar;
+      log_e("set new var to cfg key=%s value=%s\n", key, rtvar.c_str());
+    }
+    return rtvar;
+  } else {
+    char buf[80];
+    snprintf(buf, sizeof(buf),
+             "ERR> key %s not found in request,  no value written", key);
+    log_e("%s", buf);
+    return String("");
+  }
+}
+
+/* ------------------------------- getWebParam ------------------------------ */
+/// @brief gets the value under given key from given http-request
+/// @param request
+/// @param key
+/// @param cfgvar
+/// @return
+String getWebParam(AsyncWebServerRequest *request, const char *key,
+                   uint8_t *cfgvar) {
+  String rtvar = "";
+  if (request->hasParam(key)) {
+    rtvar = request->getParam(key)->value();
+    rtvar.replace(',', '.');
+    *cfgvar = rtvar.toInt();
+    return rtvar;
+  } else {
+    char buf[80];
+    snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
+             key);
+    log_e("%s", buf);
+    return String("");
+  }
+}
+
+/* ------------------------------- getWebParam ------------------------------ */
+/// @brief gets the value under given key from given http-request
+/// @param request
+/// @param key
+/// @return
+String getWebParam(AsyncWebServerRequest *request, const char *key) {
+  String rtvar = "";
+  if (request->hasParam(key), true) {
+    rtvar = request->getParam(key, true)->value();
+    if (rtvar.length() > 0 && rtvar.length() < WEB_INPUT_MAX_LENGTH) {
+      return rtvar;
+    }
+  } else {
+    char buf[80];
+    snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
+             key);
+    log_e("%s", buf);
+    return String("");
+  }
+  return rtvar;
+}
+
+/* ------------------------------- showRequest ------------------------------ */
+#if CORE_DEBUG_LEVEL > 4
+/**
+ * @brief Debugging function, only active if CORE_DEBUG_LEVEL > 4
+ * for debugging HTTP-Requests
+ *
+ * @param request
+ */
+void showRequest(AsyncWebServerRequest *request) {
+  if (request->method() == HTTP_GET)
+    log_e("GET");
+  else if (request->method() == HTTP_POST)
+    log_e("POST");
+  else if (request->method() == HTTP_DELETE)
+    log_e("DELETE");
+  else if (request->method() == HTTP_PUT)
+    log_e("PUT");
+  else if (request->method() == HTTP_PATCH)
+    log_e("PATCH");
+  else if (request->method() == HTTP_HEAD)
+    log_e("HEAD");
+  else if (request->method() == HTTP_OPTIONS)
+    log_e("OPTIONS");
+  else
+    log_e("UNKNOWN");
+  log_e("http://%s%s\n", request->host().c_str(), request->url().c_str());
+
+
+  if (request->contentLength()) {
+    log_e("_CONTENT_TYPE: %s\n", request->contentType().c_str());
+    log_e("_CONTENT_LENGTH: %u\n", request->contentLength());
+  }
+
+int i;
+
+//   int headers = request->headers();
+//   log_d("count headers %d", headers);
+//   for (i = 0; i < headers; i++) {
+//     AsyncWebHeader *h = request->getHeader(i);
+//     log_e("HEADER %s: %s\n", h->name().c_str(), h->value().c_str());
+//    }
+
+
+  int params = request->params();
+  log_d("count params %d", params);
+  for (i = 0; i < params; i++) {
+    AsyncWebParameter *p = request->getParam(i);
+    if (p->isFile()) {
+      log_e("FILE %s: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
+            p->size());
+    } else if (p->isPost()) {
+      log_e("POST %s: %s\n", p->name().c_str(), p->value().c_str());
+    } else {
+      log_e("GET/PUT/... %s: %s\n", p->name().c_str(), p->value().c_str());
+    }
+  }
+}
+#else
+void showRequest(AsyncWebServerRequest *request) {}
+#endif
+
+/*
+.##......##.########.########...######...#######...######..##....##.########.########
+.##..##..##.##.......##.....##.##....##.##.....##.##....##.##...##..##..........##...
+.##..##..##.##.......##.....##.##.......##.....##.##.......##..##...##..........##...
+.##..##..##.######...########...######..##.....##.##.......#####....######......##...
+.##..##..##.##.......##.....##.......##.##.....##.##.......##..##...##..........##...
+.##..##..##.##.......##.....##.##....##.##.....##.##....##.##...##..##..........##...
+..###..###..########.########...######...#######...######..##....##.########....##...
+*/
+
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+               AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    log_e("Websocket client connection received");
+    globalClient = client;
+  } else if (type == WS_EVT_DISCONNECT) {
+    log_e("Websocket client connection finished");
+    globalClient = NULL;
+  }
+}
+
+
 // void APRSWebServerTick(void) {
 //   if (globalClient != NULL && globalClient->status() == WS_CONNECTED) {
 //     //      String randomNumber = String(random(0,20));
@@ -648,138 +831,4 @@ void reboot(AsyncWebServerRequest *request) {
 //   }
 
 //   // serializeJsonPretty(root, Serial);
-// }
-
-/*
-.##.....##.########.##.......########..########.########...######.
-.##.....##.##.......##.......##.....##.##.......##.....##.##....##
-.##.....##.##.......##.......##.....##.##.......##.....##.##......
-.#########.######...##.......########..######...########...######.
-.##.....##.##.......##.......##........##.......##...##.........##
-.##.....##.##.......##.......##........##.......##....##..##....##
-.##.....##.########.########.##........########.##.....##..######.
-*/
-
-String getWebParam(AsyncWebServerRequest *request, const char *key,
-                   String *cfgvar) {
-  String rtvar = "";
-  if (request->hasParam(key)) {
-    rtvar = request->getParam(key)->value();
-    if (rtvar.length() > 0 && rtvar.length() < WEB_INPUT_MAX_LENGTH) {
-      *cfgvar = rtvar;
-      log_e("set new var to cfg key=%s value=%s\n", key, rtvar.c_str());
-    }
-    return rtvar;
-  } else {
-    char buf[80];
-    snprintf(buf, sizeof(buf),
-             "ERR> key %s not found in request,  no value written", key);
-    log_e("%s", buf);
-    return String("");
-  }
-}
-
-String getWebParam(AsyncWebServerRequest *request, const char *key,
-                   uint8_t *cfgvar) {
-  String rtvar = "";
-  if (request->hasParam(key)) {
-    rtvar = request->getParam(key)->value();
-    rtvar.replace(',', '.');
-    *cfgvar = rtvar.toInt();
-    return rtvar;
-  } else {
-    char buf[80];
-    snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
-             key);
-    log_e("%s", buf);
-    return String("");
-  }
-}
-
-String getWebParam(AsyncWebServerRequest *request, const char *key) {
-  String rtvar = "";
-  if (request->hasParam(key)) {
-    rtvar = request->getParam(key)->value();
-    if (rtvar.length() > 0 && rtvar.length() < WEB_INPUT_MAX_LENGTH) {
-      return rtvar;
-    }
-  } else {
-    char buf[80];
-    snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
-             key);
-    log_e("%s", buf);
-    return String("");
-  }
-  return rtvar;
-}
-
-#if CORE_DEBUG_LEVEL > 4
-/// @brief for debugging prints request info to serial console
-/// @param request
-void showRequest(AsyncWebServerRequest *request) {
-  if (request->method() == HTTP_GET)
-    log_e("GET");
-  else if (request->method() == HTTP_POST)
-    log_e("POST");
-  else if (request->method() == HTTP_DELETE)
-    log_e("DELETE");
-  else if (request->method() == HTTP_PUT)
-    log_e("PUT");
-  else if (request->method() == HTTP_PATCH)
-    log_e("PATCH");
-  else if (request->method() == HTTP_HEAD)
-    log_e("HEAD");
-  else if (request->method() == HTTP_OPTIONS)
-    log_e("OPTIONS");
-  else
-    log_e("UNKNOWN");
-  log_e(" http://%s%s\n", request->host().c_str(), request->url().c_str());
-
-  if (request->contentLength()) {
-    log_e("_CONTENT_TYPE: %s\n", request->contentType().c_str());
-    log_e("_CONTENT_LENGTH: %u\n", request->contentLength());
-  }
-
-  int i;
-  // int headers = request->headers();
-  // for (i = 0; i < headers; i++) {
-  //   AsyncWebHeader *h = request->getHeader(i);
-  //   log_e("_HEADER[%s]: %s\n", h->name().c_str(),
-  //   h->value().c_str());
-  //  }
-  int params = request->params();
-  for (i = 0; i < params; i++) {
-    AsyncWebParameter *p = request->getParam(i);
-    if (p->isFile()) {
-      log_e("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
-            p->size());
-    } else if (p->isPost()) {
-      log_e("_POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-    } else {
-      log_e("_GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-    }
-  }
-}
-#else
-void showRequest(AsyncWebServerRequest *request) {}
-#endif
-
-// void onRequest(AsyncWebServerRequest *request) {
-//   log_e("onRequest");
-//   request->send(404);
-// }
-
-// void onBody(AsyncWebServerRequest *request, uint8_t *data, size_t len,
-//             size_t index, size_t total) {
-//   log_e("onBody");
-// }
-
-// void onUpload(AsyncWebServerRequest *request, String filename, size_t index,
-//               uint8_t *data, size_t len, bool final) {
-//   log_e("onUpload");
-// }
-
-// void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
-//              AwsEventType type, void *arg, uint8_t *data, size_t len) {
-//   log_e("onEvent");
 // }

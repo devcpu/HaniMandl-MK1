@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 03:42
+ * Last Modified: 2023-08-13 16:24
  * Modified By: Johannes G.  Arlt
  */
 
@@ -25,19 +25,20 @@ class HMConfig {
  public:
   String version = SOFTWARE_VERSION;
   String beekeeping = "Beekeeping Germany";
-  volatile uint8_t angle_max_hard = 180;
+  uint8_t angle_max_hard = 180;
   uint8_t angle_min_hard = 0;
-  volatile uint8_t angle_max = 90;
-  volatile uint8_t angle_min = 10;
-  volatile uint8_t angle_fine = 45;
+  uint8_t angle_max = 90;
+  uint8_t angle_min = 10;
+  uint8_t angle_fine = 45;
+  uint8_t weight_fine = int(weight_filling / 3);
   uint8_t glass_tolerance = 0;
-  uint16_t weights_filling = 330;
+  uint16_t weight_filling = 330;
   uint8_t weight_empty = 30;
   String los_number = "";
   String date_filling = "";
-  volatile uint16_t glass_count = 0;
+  uint16_t glass_count = 0;
   uint32_t boot_count = 0;
-  IPAddress myIP;
+  String localIP;
   // AsyncWiFiManager wifiManager = NULL;
 
   HMConfig();

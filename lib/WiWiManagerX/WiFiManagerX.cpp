@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 02:37
+ * Last Modified: 2023-08-13 05:03
  * Modified By: Johannes G.  Arlt
  */
 
@@ -70,7 +70,7 @@ bool setupWifiManager() {
   log_i("connected...yeey :)");
   log_i("local ip");
   // log_i(WiFi.localIP().toString.c_str());
-  cfg.myIP = WiFi.localIP();
+  cfg.localIP = WiFi.localIP().toString();
 
   ticker.detach();
   // keep LED on
