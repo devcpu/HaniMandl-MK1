@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 15:42
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-15 03:01
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_WEBSERVERX_WEBSERVERX_H_
@@ -29,50 +29,53 @@
 
 extern HMConfig cfg;
 
-static const char kMonthNamesEnglish[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 static const String mainmenue(
     "<form action='.' method='get'><button>Main Menue</button></form><br />");
 static const String htmltitle = HONEY_FARM_NAME;
 static const String h3title = PROGRAMM_NAME;
 
-#define DEFAULT_RROCESS\
-    if (var == "HTMLTILE") {\
-        return htmltitle;\
-    }\
-    if (var == "H3TITLE") {\
-        return h3title;\
-    }\
-    if (var == "ERRORMSG") {\
-        return html_error.getErrorMsg();\
-    }\
-return String("wrong placeholder " + var);
+struct SystemData {
+  const char *label;
+  String value;
+};
 
-
+struct KeyValue {
+  String key;
+  String value;
+};
 
 void WebserverStart(void);
 
 String ProcessorJS(const String &var);
-String ProcessorDefault(const String &var);
+String defaultProcessor(const String &var);
 String systemInfoProcessor(const String &var);
 
 String ProcessorFilling(const String &var);
 
+String ProcessorSetupFilling(const String &var);
+String ProcessorSetup(const String &var);
+String ProcessorSetupWlan(const String &var);
+String ProcessorUpdateFirmware(const String &var);
+
 String getSystemInfoTable(void);
 String getSystemInfoTable();
 String GetBuildDateAndTime();
-String table2DGenerator(String data[][2], uint8_t size, boolean bold);
-String readSPIFFS2String(const char *path);
+String table2DGenerator(SystemData systemdata[], uint8_t size, boolean bold);
+String readSPIFFS2String(const String &path);
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size);
-
+KeyValue split(String wsdata);
+void disconnect();
+void restartESP();
 void reboot(AsyncWebServerRequest *request);
+String ProcessorCalibrate(const String &var);
 
 #ifdef ESP32
 String getResetReason(RESET_REASON);
 #endif
-
+bool isNumber(String val);
 #if CORE_DEBUG_LEVEL > 4
-void showRequest(AsyncWebServerRequest *request);
+int showRequest(AsyncWebServerRequest *request);
 #endif
 
 // boolean validateNumber(String test);

@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 16:24
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-15 02:43
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_HMCONFIG_HMCONFIG_H_
@@ -34,11 +34,12 @@ class HMConfig {
   uint8_t glass_tolerance = 0;
   uint16_t weight_filling = 330;
   uint8_t weight_empty = 30;
-  String los_number = "";
+  String los_number = "leer";
   String date_filling = "";
   uint16_t glass_count = 0;
   uint32_t boot_count = 0;
   String localIP;
+  uint32_t weight_calibrate = 0;
   // AsyncWiFiManager wifiManager = NULL;
 
   HMConfig();

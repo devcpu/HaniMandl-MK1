@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 17:30
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-15 02:57
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebServerX.h>
@@ -21,11 +21,7 @@ struct HTML_Error {
 
  public:
   void setErrorMsg(String msg) {
-    if (ErrorMsg == "") {
-      ErrorMsg = msg;
-    } else {
-      ErrorMsg += msg;
-    }
+    ErrorMsg.isEmpty() ? ErrorMsg = msg : ErrorMsg += msg;
     isSended = false;
   }
   String getErrorMsg(void) {
@@ -75,203 +71,93 @@ void WebserverStart(void) {
   .##.....##..#######...#######.....##....########.##....##
   */
 
-/*
-.##.....##.########.########.########...........######...########.########
-.##.....##....##.......##....##.....##.........##....##..##..........##...
-.##.....##....##.......##....##.....##.........##........##..........##...
-.#########....##.......##....########..........##...####.######......##...
-.##.....##....##.......##....##................##....##..##..........##...
-.##.....##....##.......##....##................##....##..##..........##...
-.##.....##....##.......##....##........#######..######...########....##...
-*/
+  /*
+  .##.....##.########.########.########...........######...########.########
+  .##.....##....##.......##....##.....##.........##....##..##..........##...
+  .##.....##....##.......##....##.....##.........##........##..........##...
+  .#########....##.......##....########..........##...####.######......##...
+  .##.....##....##.......##....##................##....##..##..........##...
+  .##.....##....##.......##....##................##....##..##..........##...
+  .##.....##....##.......##....##........#######..######...########....##...
+  */
 
-/* ---------------------------------- main ---------------------------------- */
-   WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        log_d("/");
-        // first run wizard
-        if (cfg.beekeeping == "") {  // first run wizard
-            log_d("redirect to setup");
-            request->redirect("/setup");
-        }
-        log_d("master.html");
-        request->send(SPIFFS, "/master.html", "text/html", false, ProcessorDefault);
-    });
+  /* ---------------------------------- main ----------------------------------
+   */
+  WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    log_d("/");
+    // first run wizard
+    if (cfg.beekeeping == "") {  // first run wizard
+      log_d("redirect to setup");
+      request->redirect("/setup");
+    }
+    log_d("/");
+    request->send(SPIFFS, "/master.html", "text/html", false, defaultProcessor);
+  });
 
-   WebServer->on("/filling", HTTP_GET, [](AsyncWebServerRequest *request) {
-        showRequest(request);
-        request->send(SPIFFS, "/master.html", "text/html", false, ProcessorFilling);
-    });
+  WebServer->on("/filling", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/master.html", "text/html", false, ProcessorFilling);
+  });
 
+  WebServer->on("/setupfilling", HTTP_GET, [](AsyncWebServerRequest *request) {
+    if (showRequest(request)) {  // we got data
 
-  // // Configure Call
-//   WebServer->on("/cc", HTTP_GET, [](AsyncWebServerRequest *request) {
-//     log_e("/cc");
-//     showRequest(request);
-//     if (request->params() > 0) {
-//       log_e("/cc");
-//       handleRequestConfigCall(request);
-//       if (cfg.APCredentials.auth_tocken == "letmein42") {  // first run
-//       wizard
-//         request->redirect("/ca");
-//       }
-//       request->redirect("/");
-//     } else {
-//       request->send(SPIFFS, "/master.html", "text/html", false,
-//                     ProcessorConfigCall);
-//     }
-//   });
+      String weight_filling_S = (getWebParam(request, "weight_filling"));
+      if (isNumber(weight_filling_S)) {
+        cfg.weight_filling = weight_filling_S.toInt();
+      }
 
-  // // Send Message
-  // WebServer->on("/sm", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/sm");
-  //   showRequest(request);
-  //   if (request->params() > 0) {
-  //     handleRequestSendMessage(request);
-  //     request->redirect("/");
-  //   }
+      String weight_empty_S = (getWebParam(request, "weight_empty"));
+      if (isNumber(weight_empty_S)) {
+        cfg.weight_empty = weight_empty_S.toInt();
+      }
 
-  //   request->send(SPIFFS, "/master.html", "text/html", false,
-  //                 ProcessorSendMessage);
-  // });
+      cfg.date_filling = getWebParam(request, "date_filling");
+      cfg.los_number = getWebParam(request, "los_number");
+    }
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  ProcessorSetupFilling);
+  });
 
-  // // Change Mode
-  // WebServer->on("/cm", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   bool changed = false;
-  //   log_e("/cm");
-  //   showRequest(request);
-  //   log_e("Change Mode");
-  //   if (request->params() == 2) {
-  //     log_e("got 2 params");
-  //     changed = handleRequestChangeMode(request);
-  //     log_e("new run_mode: %d / new_wifi_mode %d",
-  //           static_cast<uint8_t>(cfg.current_run_mode),
-  //           static_cast<uint8_t>(cfg.current_wifi_mode));
-  //     // @FIXME cast error? see debug console
-  //     log_e("new run_mode: %d / new_wifi_mode %d\n",
-  //           static_cast<uint8_t>(getPrefsDouble(PREFS_CURRENT_SYSTEM_MODE)),
-  //           static_cast<uint8_t>(getPrefsDouble(PREFS_CURRENT_WIFI_MODE)));
-  //     request->redirect("/");
-  //   }
-  //   if (changed) {
-  //   } else {
-  //     request->send(SPIFFS, "/master.html", "text/html", false,
-  //                   ProcessorChangeMode);
-  //   }
-  // });
+  WebServer->on("/setup", HTTP_GET, [](AsyncWebServerRequest *request) {
+    showRequest(request);
+    request->send(SPIFFS, "/master.html", "text/html", false, ProcessorSetup);
+  });
 
-  // // GPS Info
-  // WebServer->on("/gi", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/gi");
-  //   showRequest(request);
-  //   request->send(SPIFFS, "/master.html", "text/html", false,
-  //   ProcessorGPSInfo);
-  // });
+  WebServer->on("/calibrate", HTTP_GET, [](AsyncWebServerRequest *request) {
+    showRequest(request);
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  ProcessorCalibrate);
+  });
+  WebServer->on("/setupwlan", HTTP_GET, [](AsyncWebServerRequest *request) {
+    showRequest(request);
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  ProcessorSetupWlan);
+  });
 
-  // // WX Info
-  // WebServer->on("/wx", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/wx");
-  //   showRequest(request);
-  //   request->send(SPIFFS, "/master.html", "text/html", false,
-  //   ProcessorWXInfo);
-  // });
+  WebServer->on("/updatefirmware", HTTP_GET,
+                [](AsyncWebServerRequest *request) {
+                  showRequest(request);
+                  request->send(SPIFFS, "/master.html", "text/html", false,
+                                ProcessorUpdateFirmware);
+                });
 
-  // // Wifi AP
-  // WebServer->on("/ca", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/ca");
-  //   showRequest(request);
-  //   if (request->params()) {
-  //     if (request->params() == 2) {
-  //       handleRequestConfigAP(request);
-  //       request->redirect("/");
-  //     } else {
-  //       log_e("ERR: wrong request");
-  //     }
-  //   }
+  /* ------------------------------- System Info ------------------------------
+   */
+  WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
+    log_e("/systeminfo");
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  systemInfoProcessor);
+  });
 
-  //   request->send(SPIFFS, "/master.html", "text/html", false,
-  //                 ProcessorConfigWifiAP);
-  // });
+  /* --------------------------------- Reboot ---------------------------------
+   */
+  WebServer->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
+    log_e("/reboot");
+    reboot(request);
+  });
 
-
-
-
-  // // ConfigWLAN
-  // WebServer->on("/cl", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/cl");
-  //   showRequest(request);
-  //   if (request->params()) {
-  //     if (request->params() == 2) {
-  //       handleRequestConfigWLAN(request);
-  //       request->redirect("/");
-  //     } else {
-  //       log_e("ERR: wrong request");
-  //     }
-  //   }
-  //   request->send(SPIFFS, "/master.html", "text/html", false,
-  //                 ProcessorConfigWLAN);
-  // });
-
-  // Config Web Admin
-  // WebServer->on("/cw", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   log_e("/cw");
-  //   showRequest(request);
-  //   // handle Request in /ca
-  // });
-
-/*
-.##.....##.########.########.########..........########...#######...######..########
-.##.....##....##.......##....##.....##.........##.....##.##.....##.##....##....##...
-.##.....##....##.......##....##.....##.........##.....##.##.....##.##..........##...
-.#########....##.......##....########..........########..##.....##..######.....##...
-.##.....##....##.......##....##................##........##.....##.......##....##...
-.##.....##....##.......##....##................##........##.....##.##....##....##...
-.##.....##....##.......##....##........#######.##.........#######...######.....##...
-*/  
-
-
-    WebServer->on("/adjust", HTTP_POST, [](AsyncWebServerRequest *request) {
-        // showRequest(request);
-        String v;
-        if (request->params() == 1) {
-            log_d("request->params() == 1");
-            if(request->hasParam("angle_rough", true)) {
-                log_d("request->hasParam('angle_rough')");
-                log_e("angle_max %d", cfg.angle_max);
-                v = getWebParam(request,"angle_rough");
-                if (v == String("+")) {
-                    cfg.angle_max++;
-                    log_d("cfg.angle_max++");
-                }
-                else if (v == String("-")){
-                    cfg.angle_max--;
-                    log_d("cfg.angle_max--");
-                }
-                else {
-                    log_e("Wrong value detected for key angle_rough");
-                }
-                log_e("angle_max %d", cfg.angle_max);
-            }
-        }
-
-        request->send(SPIFFS, "/master.html", "text/html", false, ProcessorFilling);
-    });
-
-
-
-/* ------------------------------- System Info ------------------------------ */
-    WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
-        log_e("/systeminfo");
-        request->send(SPIFFS, "/master.html", "text/html", false, systemInfoProcessor);
-    });
-
-/* --------------------------------- Reboot --------------------------------- */
-    WebServer->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
-        log_e("/reboot");
-        reboot(request);
-    });
-
-    WebServer->begin();
-    log_e("HTTP WebServer started");
+  WebServer->begin();
+  log_e("HTTP WebServer started");
 }
 
 /*
@@ -284,47 +170,178 @@ void WebserverStart(void) {
 .##........##.....##..#######...######..########..######...######..########.##.....##..######.
 */
 
-String ProcessorFilling(const String &var) {
-    if (var == "H2TITLE") {
-        return String("Abfüllung");
-    }
-    if (var == "BODY") {
-        return readSPIFFS2String("/filling.html");
-    }
-    if (var == "los_number") {
-      return cfg.los_number;
-    }
-    if (var == "date_filling") {
-      return cfg.date_filling;
-    }
-    if (var == "weight_filling") {
-      return String(cfg.weight_filling);
-    }
-    if (var == "glass_count") {
-      return String(cfg.glass_count);
-    }
-    DEFAULT_RROCESS
+/// @brief Populate localIP to client for websocket
+/// @param var
+/// @return localIP
+String ProcessorJS(const String &var) {
+  if (var == "SERVER_IP") {
+    log_e("%s", cfg.localIP.c_str());
+    return cfg.localIP;
+  }
+  if (var == "angle_min") {
+    return String(cfg.angle_min);
+  }
+  if (var == "angle_max_hard") {
+    return String(cfg.angle_max_hard);
+  }
+  if (var == "weight_filling") {
+    return String(cfg.weight_filling);
+  }
+  return String("wrong placeholder %" + var + "%");
+}
 
+String getPlaceholderValue(const String &var) {
+  if (var == "HTMLTILE") {
+    return htmltitle;
+  }
+  if (var == "H3TITLE") {
+    return h3title;
+  }
+  if (var == "ERRORMSG") {
+    return html_error.getErrorMsg();
+  }
+  if (var == "mainmenue") {
+    return mainmenue;
+  }
+  return "wrong placeholder " + var;
+}
+
+String ProcessorSetupFilling(const String &var) {
+  if (var == "H2TITLE") {
+    return "Abfüllung";
+  }
+  if (var == "los_number") {
+    return cfg.los_number;
+  }
+  if (var == "date_filling") {
+    return cfg.date_filling;
+  }
+  if (var == "weight_empty") {
+    return String(cfg.weight_empty);
+  }
+  if (var == "weight_filling") {
+    return String(cfg.weight_filling);
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/setupfilling.html");
+  }
+
+  return getPlaceholderValue(var);
+}
+
+String ProcessorSetup(const String &var) {
+  if (var == "H2TITLE") {
+    return "Grundeinrichtung";
+  }
+  if (var == "beekeeping") {
+    return cfg.beekeeping;
+  }
+  if (var == "angle_max_hard") {
+    return String(cfg.angle_max_hard);
+  }
+  if (var == "angle_min_hard") {
+    return String(cfg.angle_min_hard);
+  }
+  if (var == "angle_max") {
+    return String(cfg.angle_max);
+  }
+  if (var == "angle_min") {
+    return String(cfg.angle_min);
+  }
+  if (var == "angle_fine") {
+    return String(cfg.angle_fine);
+  }
+  if (var == "glass_tolerance") {
+    return String(cfg.glass_tolerance);
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/setup.html");
+  }
+  return getPlaceholderValue(var);
+}
+
+String ProcessorCalibrate(const String &var) {
+  if (var == "H2TITLE") {
+    return "Waage kalibrieren";
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/kalibrieren.html");
+  }
+  if (var == "weight_calibrate") {
+    return String(cfg.weight_calibrate);
+  }
+  return getPlaceholderValue(var);
+}
+
+String ProcessorSetupWlan(const String &var) {
+  if (var == "H2TITLE") {
+    return "Einrichtung Wlan";
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/setupwlan.html");
+  }
+  return getPlaceholderValue(var);
+}
+
+String ProcessorUpdateFirmware(const String &var) {
+  if (var == "H2TITLE") {
+    return "Update Firmware";
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/updatefirmware.html");
+  }
+  return getPlaceholderValue(var);
+}
+
+String ProcessorFilling(const String &var) {
+  if (var == "H2TITLE") {
+    return "Abfüllung";
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/filling.html");
+  }
+  if (var == "los_number") {
+    return cfg.los_number;
+  }
+  if (var == "date_filling") {
+    return cfg.date_filling;
+  }
+  if (var == "weight_filling") {
+    return String(cfg.weight_filling);
+  }
+  if (var == "glass_count") {
+    return String(cfg.glass_count);
+  }
+  if (var == "angle_max") {
+    return String(cfg.angle_max);
+  }
+  if (var == "angle_fine") {
+    return String(cfg.angle_fine);
+  }
+  if (var == "weight_fine") {
+    return String(cfg.weight_fine);
+  }
+  return getPlaceholderValue(var);
 }
 
 String systemInfoProcessor(const String &var) {
-    if (var == "H2TITLE") {
-        return String("System Info");
-    }
-    if (var == "BODY") {
-        return getSystemInfoTable();
-    }
-    DEFAULT_RROCESS
+  if (var == "H2TITLE") {
+    return "System Info";
+  }
+  if (var == "BODY") {
+    return getSystemInfoTable();
+  }
+  return getPlaceholderValue(var);
 }
 
-String ProcessorDefault(const String &var) {
+String defaultProcessor(const String &var) {
   if (var == "H2TITLE") {
-    return String("Main Menue");
+    return "Main Menue";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/mainbutton.html");
   }
-  DEFAULT_RROCESS
+  return getPlaceholderValue(var);
 }
 
 /*
@@ -337,7 +354,6 @@ String ProcessorDefault(const String &var) {
 .##.....##.##.....##.##....##.########..########.########.##.....##
 */
 
-
 /*
 .##.....##.########.##.......########..########.########...######.
 .##.....##.##.......##.......##.....##.##.......##.....##.##....##
@@ -348,10 +364,28 @@ String ProcessorDefault(const String &var) {
 .##.....##.########.########.##........########.##.....##..######.
 */
 
+bool isNumber(String val) {
+  uint8_t length = val.length();
+  char buf[length];
+  val.toCharArray(buf, length);
+
+  for (uint8_t i = 0; i < length; i++) {
+    if (!isDigit(buf[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * The function `getChipId` returns a string that combines the hexadecimal
+ * representation of the upper 16 bits and lower 32 bits of the ESP chip ID.
+ *
+ * @return String ESP32 chip id
+ */
 String getChipId() {
   char ssid1[MAXSIZE + 1];
   char ssid2[MAXSIZE + 1];
-
   uint64_t chipid = ESP.getEfuseMac();
   uint16_t chip = (uint16_t)(chipid >> 32);
   snprintf(ssid1, sizeof(ssid1), "%04X", chip);
@@ -359,23 +393,24 @@ String getChipId() {
   return String(ssid1) + String(ssid2);
 }
 
-/// @brief Generate data for Systeminfo
-/// @return HTML table with system info
+/**
+ * The function `getSystemInfoTable` returns a table containing various system
+ * information such as software version, build date and time, SDK version,
+ * uptime, chip revision, flash chip size, sketch size, and free heap size.
+ *
+ * @return a string that contains a table of system information.
+ */
 String getSystemInfoTable(void) {
   FlashMode_t ideMode = ESP.getFlashChipMode();
 
-  String systemdata[][2] = {
+  SystemData systemdata[] = {
       {"SoftwareVersion", cfg.version},
       {"Build DateTime: ", GetBuildDateAndTime()},
       {"SDKVersion: ", String(ESP.getSdkVersion())},
-      //      {"BootCount: ", String(cfg.boot_count)},
       {"Uptime: ", String(millis() / 1000 / 60, DEC) + "min"},
 #ifdef ESP32
       {"Chip Revision:", String(ESP.getChipRevision())},
-      {"ESP32 Chip ID:",
-       // cppcheck-suppress shiftTooManyBits
-       // String((uint16_t)chipid >> 32, HEX) + String((uint32_t)chipid, HEX)},
-       getChipId()},
+      {"ESP32 Chip ID:", getChipId()},
       {"Reset Reason CPU0: ", getResetReason(rtc_get_reset_reason(0))},
       {"Reset Reason CPU1: ", getResetReason(rtc_get_reset_reason(1))},
       {"CpuFreqMHz: ", String(ESP.getCpuFreqMHz()) + "MHz"},
@@ -391,17 +426,10 @@ String getSystemInfoTable(void) {
       {"FreeHeap: ", String(ESP.getFreeHeap() / 1024) + "kB"},
       {"MaxAllocHeap: ", String(ESP.getMaxAllocHeap() / 1024) + "kB"},
       {"MinFreeHeap: ", String(ESP.getMinFreeHeap() / 1024) + "kB"},
-
-  // {"PsramSize: ", String(ESP.getPsramSize() / 1024) + "kB"},
-  // {"FreePsram", String(ESP.getFreePsram() / 1024) + "kB"},
-  // {"MaxAllocPsram: ", String(ESP.getMaxAllocPsram() / 1024) + "kB"},
-  // {"MinFreePsram", String(ESP.getMinFreePsram() / 1024) + "kB"},
-
 #elif defined(ESP8266)
       {"Flash real id:", String(ESP.getFlashChipId(), HEX)},
       {"Flash real size:", String(ESP.getFlashChipRealSize() / 1024) + "kB"},
 #endif
-      // size = 5
       {"Flash ide  size:", String(ESP.getFlashChipSize() / 1024) + "kB"},
       {"Flash ide speed:",
        String(ESP.getFlashChipSpeed() / 1000 / 1000) + "MHz"},
@@ -411,62 +439,46 @@ String getSystemInfoTable(void) {
                                   : ideMode == FM_DOUT ? "DOUT"
                                                        : "UNKNOWN"))},
       {"Sketch size:", String(ESP.getSketchSize() / 1024) + "kB"},
-      // size = 10
       {"Free sketch size:", String(ESP.getFreeSketchSpace() / 1024) + "kB"},
       {"Free heap:", String(ESP.getFreeHeap() / 1024) + "kB"},
 #ifdef ESP32
 #elif defined(ESP8266)
       {"ResetReason", String(ESP.getResetReason())},
-//      {"Chip Config Status:", String()},
 #endif
-      //
-      // {"", String()},
   };
-  // second param hast to fit line numbers
-  return table2DGenerator(systemdata, 26, true) + mainmenue;
+
+  String systemInfoTable = table2DGenerator(
+      systemdata, sizeof(systemdata) / sizeof(systemdata[0]), true);
+  return systemInfoTable + mainmenue;
 }
 
-/// @brief Populate localIP to client for websocket
-/// @param var
-/// @return localIP
-String ProcessorJS(const String &var) {
-  if (var == "SERVER_IP") {
-    log_e("%s", cfg.localIP.c_str());
-    return cfg.localIP;
-  }
-
-  return String("wrong placeholder " + var);
-}
-
-/// @brief Get the Build Date And Time for device info
-/// @return String "2017-03-07T11:08:02"
-String GetBuildDateAndTime(void) {
-  // "2017-03-07T11:08:02" - ISO8601:2004
-  char bdt[60];  // Flawfinder: ignore TODO fix 60
-  char *p;
+/**
+ * The function GetBuildDateAndTime returns a string representing the build date
+ * and time in the format "YYYY-MM-DD HH:MM:SS".
+ *
+ * @return a string that represents the build date and time in the format
+ * "YYYY-MM-DD HH:MM:SS".
+ */
+String GetBuildDateAndTime() {
+  char bdt[45];             // "2017-03-07 11:08:02"
   char mdate[] = __DATE__;  // "Mar  7 2017"
-  char *smonth = mdate;
+  int month = 0;
   int day = 0;
   int year = 0;
 
-  uint8_t i = 0;
-  for (char *str = strtok_r(mdate, " ", &p); str && i < 3;
-       str = strtok_r(nullptr, " ", &p)) {
-    switch (i++) {
-      case 0:  // Month
-        smonth = str;
-        break;
-      case 1:             // Day
-        day = atoi(str);  // Flawfinder: ignore
-        break;
-      case 2:              // Year
-        year = atoi(str);  // Flawfinder: ignore
+  sscanf(mdate, "%s %d %d", bdt, &day, &year);
+
+  const char *monthNames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  for (int i = 0; i < 12; i++) {
+    if (strcmp(bdt, monthNames[i]) == 0) {
+      month = i + 1;
+      break;
     }
   }
+  snprintf(bdt, sizeof(bdt), "%04d-%02d-%02d %s", year, month, day, __TIME__);
 
-  int month = (strstr(kMonthNamesEnglish, smonth) - kMonthNamesEnglish) / 3 + 1;
-  snprintf_P(bdt, sizeof(bdt), "%04d-%02d-%02d %s", year, month, day, __TIME__);
-  return String(bdt);  // 2017-03-07T11:08:02
+  return String(bdt);
 }
 
 #ifdef ESP32
@@ -532,12 +544,11 @@ String getResetReason(RESET_REASON reason) {
  * table2DGenerator.
  *
  * @author	JA
- * @param	String 	data[][2]
- * @param	uint8_t	size
+ * @param	SystemData systemdata[]
  * @param	boolean	bold
  * @return	mixed
  */
-String table2DGenerator(String data[][2], uint8_t size, boolean bold) {
+String table2DGenerator(SystemData systemdata[], uint8_t size, boolean bold) {
   String tdstart("<tr><td>");
   String tdmittle("</td><td>");
   if (bold) {
@@ -548,71 +559,93 @@ String table2DGenerator(String data[][2], uint8_t size, boolean bold) {
   String retvar("<table>");
 
   for (uint8_t z = 0; z < size; z++) {
-    retvar += tdstart + data[z][0] + tdmittle + data[z][1] + tdend;
+    retvar +=
+        tdstart + systemdata[z].label + tdmittle + systemdata[z].value + tdend;
   }
   retvar += "</table>";
   return retvar;
 }
 
-String readSPIFFS2String(const char *path) {
-  char buf[64] = {0};  // Flawfinder: ignore
+/**
+ * The function `readSPIFFS2String` reads the content of a file from the SPIFFS
+ * file system and returns it as a string.
+ *
+ * @param path The `path` parameter is a `String` that represents the file path
+ * of the file to be read from SPIFFS (SPI Flash File System).
+ *
+ * @return The function `readSPIFFS2String` returns a `String` object.
+ */
+String readSPIFFS2String(const String &path) {
   if (!SPIFFS.exists(path)) {
-    snprintf(buf, sizeof(buf), "ERROR, %s do not exists.", path);
-    log_e("%s", buf);
-    return String(buf);
+    String error = "ERROR, " + path + " does not exist.";
+    log_e("%s", error.c_str());
+    return error;
   }
-  File f = SPIFFS.open(path, "r");  // Flawfinder: ignore
-  String retvar;
-  while (f.available()) {
-    retvar += static_cast<char>(f.read());  // Flawfinder: ignore
+
+  File file = SPIFFS.open(path, "r");
+  if (!file) {
+    String error = "Failed to open file for reading";
+    log_e("%s", error.c_str());
+    return error;
   }
-  return retvar;
+
+  String fileContent;
+  while (file.available()) {
+    fileContent += static_cast<char>(file.read());
+  }
+
+  file.close();
+  return fileContent;
 }
 
 /**
- * @brief generates HTML options field from given parameter
+ * The function generates an HTML select field with options based on the
+ * provided data and selected value.
  *
- * @param selected pre selected field
- * @param name field name (HTML)
- * @param data array of HTML display Strings (keys) -> values
- * @param size count elements
- * @return String
+ * @param selected The "selected" parameter is a string that represents the
+ * currently selected option in the dropdown menu.
+ * @param name The `name` parameter is a pointer to a character array that
+ * represents the name of the select field in HTML.
+ * @param data The "data" parameter is a 2-dimensional array of strings. Each
+ * row in the array represents an option in the select field. The first column
+ * of each row contains the display text for the option, and the second column
+ * contains the corresponding value for the option.
+ * @param size The parameter "size" represents the number of options in the
+ * dropdown menu.
+ *
+ * @return a string that represents an HTML select field with options.
  */
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size) {
-  log_d("%s", name);
-  log_d("%s", selected);
-  char buf[1200] = {0};     // Flawfinder: ignore
-  char zbuf[1200] = {0};    // Flawfinder: ignore
-  char selectxt[32] = {0};  // Flawfinder: ignore
-  snprintf(zbuf, sizeof(zbuf), "\n\n<select name='%s'>\n", name);
-  strncat(buf, zbuf, sizeof(buf) - 1);  // Flawfinder: ignore
+  ESP_LOGD("WebServerX", "%s", name);
+  ESP_LOGD("WebServerX", "%s", selected);
+
+  String buf = "\n\n<select name='" + String(name) + "'>\n";
+
   for (uint8_t i = 0; i < size; i++) {
-    if (selected.compareTo(data[i][1]) == 0) {
-      strncpy(selectxt, " selected ",               // Flawfinder: ignore
-              sizeof(selectxt) - 1);                // Flawfinder: ignore
-    } else {                                        // Flawfinder: ignore
-      strncpy(selectxt, "", sizeof(selectxt) - 1);  // Flawfinder: ignore
-    }
-    snprintf(zbuf, sizeof(zbuf), "<option value=\"%s\"%s>%s</option>\n",
-             data[i][1].c_str(), selectxt, data[i][0].c_str());
-    strncat(buf, zbuf, sizeof(buf) - 1);  // Flawfinder: ignore
-  }                                       // END for
+    String selectxt = (selected == data[i][1]) ? " selected " : "";
+    buf += "<option value=\"" + data[i][1] + "\"" + selectxt + ">" +
+           data[i][0] + "</option>\n";
+  }
 
-  strncat(buf, "</select>\n\n", sizeof(buf) - 1);  // Flawfinder: ignore
-  log_e("%s", name);
+  buf += "</select>\n\n";
+  ESP_LOGD("WebServerX", "%s", name);
 
-  return String(buf);
+  return buf;
 }
 
-/// @brief reboots the ESP32
-/// @param request
 void reboot(AsyncWebServerRequest *request) {
   request->redirect("/rebootinfo");
   delay(3000);
-  // TODO(JA) disconnect
-  ESP.restart();
+  disconnect();
+  restartESP();
 }
+
+void disconnect() {
+  // Implement disconnect functionality here
+}
+
+void restartESP() { ESP.restart(); }
 
 /* ------------------------------- getWebParam ------------------------------ */
 /// @brief gets the value under given key from given http-request
@@ -669,8 +702,8 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
 /// @return
 String getWebParam(AsyncWebServerRequest *request, const char *key) {
   String rtvar = "";
-  if (request->hasParam(key), true) {
-    rtvar = request->getParam(key, true)->value();
+  if (request->hasParam(key)) {
+    rtvar = request->getParam(key)->value();
     if (rtvar.length() > 0 && rtvar.length() < WEB_INPUT_MAX_LENGTH) {
       return rtvar;
     }
@@ -687,12 +720,13 @@ String getWebParam(AsyncWebServerRequest *request, const char *key) {
 /* ------------------------------- showRequest ------------------------------ */
 #if CORE_DEBUG_LEVEL > 4
 /**
- * @brief Debugging function, only active if CORE_DEBUG_LEVEL > 4
- * for debugging HTTP-Requests
+ * @brief return count of param and
+ * useful debugging infos about HTTP-Requests if DEBUG_LEVEL > 4
  *
  * @param request
+ * @return int count of params in HTTP-request
  */
-void showRequest(AsyncWebServerRequest *request) {
+int showRequest(AsyncWebServerRequest *request) {
   if (request->method() == HTTP_GET)
     log_e("GET");
   else if (request->method() == HTTP_POST)
@@ -711,25 +745,23 @@ void showRequest(AsyncWebServerRequest *request) {
     log_e("UNKNOWN");
   log_e("http://%s%s\n", request->host().c_str(), request->url().c_str());
 
-
   if (request->contentLength()) {
     log_e("_CONTENT_TYPE: %s\n", request->contentType().c_str());
     log_e("_CONTENT_LENGTH: %u\n", request->contentLength());
   }
 
-int i;
+  int i;
 
-//   int headers = request->headers();
-//   log_d("count headers %d", headers);
-//   for (i = 0; i < headers; i++) {
-//     AsyncWebHeader *h = request->getHeader(i);
-//     log_e("HEADER %s: %s\n", h->name().c_str(), h->value().c_str());
-//    }
+  //   int headers = request->headers();
+  //   log_d("count headers %d", headers);
+  //   for (i = 0; i < headers; i++) {
+  //     AsyncWebHeader *h = request->getHeader(i);
+  //     log_e("HEADER %s: %s\n", h->name().c_str(), h->value().c_str());
+  //    }
 
-
-  int params = request->params();
-  log_d("count params %d", params);
-  for (i = 0; i < params; i++) {
+  int params_count = request->params();
+  log_d("count params_count %d", params_count);
+  for (i = 0; i < params_count; i++) {
     AsyncWebParameter *p = request->getParam(i);
     if (p->isFile()) {
       log_e("FILE %s: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
@@ -740,9 +772,10 @@ int i;
       log_e("GET/PUT/... %s: %s\n", p->name().c_str(), p->value().c_str());
     }
   }
+  return params_count;
 }
 #else
-void showRequest(AsyncWebServerRequest *request) {}
+int showRequest(AsyncWebServerRequest *request) { return request->params(); }
 #endif
 
 /*
@@ -757,15 +790,54 @@ void showRequest(AsyncWebServerRequest *request) {}
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
                AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  log_d("got event");
   if (type == WS_EVT_CONNECT) {
     log_e("Websocket client connection received");
     globalClient = client;
   } else if (type == WS_EVT_DISCONNECT) {
     log_e("Websocket client connection finished");
     globalClient = NULL;
+  } else if (type == WS_EVT_ERROR) {
+    log_e("Got WS_EVT_ERROR");
+  } else if (type == WS_EVT_PONG) {
+    log_d("Got WS_EVT_PONG");
+  } else if (type == WS_EVT_DATA) {
+    log_e("Websocket client sended data");
+    AwsFrameInfo *info = (AwsFrameInfo *)arg;
+    if (info->opcode == WS_TEXT) {
+      log_d("%s\n", (char *)data);
+      String wsdata = String((char *)data);
+      log_d("%s", wsdata.c_str());
+      KeyValue rdata = split(wsdata);
+      log_d("%s", rdata.key.c_str());
+      if (rdata.key == "angle_max") {
+        log_d("Before: %d", cfg.angle_max);
+        cfg.angle_max = rdata.value.toInt();
+        log_d("After: %d", cfg.angle_max);
+      }
+      if (rdata.key == "angle_fine") {
+        log_d("Before: %d", cfg.angle_fine);
+        cfg.angle_fine = rdata.value.toInt();
+        log_d("After: %d", cfg.angle_fine);
+      }
+      if (rdata.key == "weight_fine") {
+        log_d("Before: %d", cfg.weight_fine);
+        cfg.weight_fine = rdata.value.toInt();
+        log_d("After: %d", cfg.weight_fine);
+      }
+    }
   }
 }
 
+KeyValue split(String wsdata) {
+  log_d("%s", wsdata.c_str());
+  KeyValue rval;
+  uint8_t idx = wsdata.indexOf("=");
+  rval.key = wsdata.substring(0, idx);
+  rval.value = wsdata.substring(idx + 1);
+  log_d("Key: %s Value: %s", rval.key.c_str(), rval.value.c_str());
+  return rval;
+}
 
 // void APRSWebServerTick(void) {
 //   if (globalClient != NULL && globalClient->status() == WS_CONNECTED) {

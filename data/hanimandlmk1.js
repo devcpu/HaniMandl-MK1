@@ -1,60 +1,123 @@
 //window.onload
 
 
-var ws = new WebSocket("ws://%SERVER_IP%/ws");
-// ws.onopen = function() {
-//     window.alert("Connected");
-//  };
-ws.onmessage = function (evt) {
+const socket = new WebSocket("ws://%SERVER_IP%/ws");
 
+// Event listener for WebSocket connection open
+socket.addEventListener('open', () => {
+    console.log('WebSocket connection is open');
+  });
+
+  // Event listener for WebSocket connection close
+  socket.addEventListener('close', () => {
+    console.log('WebSocket connection is closed');
+  });
+
+  // Event listener for WebSocket errors
+  socket.addEventListener('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+
+// Function to send a value via WebSocket
+function sendValue(value) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(value);
+    } else {
+      console.error('WebSocket connection is not open');
+    }
+  }
+
+socket.onmessage = function (evt) {
     var data = JSON.parse(evt.data);
-
-    // window.alert(data);
-
-    var time = document.getElementById("time");
-    var date = document.getElementById("date");
-
-    var gps_lat = document.getElementById("gps_lat");
-    var gps_lng = document.getElementById("gps_lng");
-    var gps_direction = document.getElementById("gps_direction");
-    var gps_speed = document.getElementById("gps_speed");
-    var gps_sat = document.getElementById("gps_sat");
-    var gps_hdop = document.getElementById("gps_hdop");
-
-    var sensor = document.getElementById("sensor");
-    var temp = document.getElementById("temp");
-    var humidity = document.getElementById("humidity");
-    var pressure = document.getElementById("pressure");
-
-    if (sensor) {
-        sensor.innerHTML = data.sensor;
-        temp.innerHTML = data.temp + " °C";
-        humidity.innerHTML = data.humidity + " %";
-        pressure.innerHTML = data.pressure + " hPa";
+    var glass_count = document.getElementById("glass_count");
+    if (glass_count) {
+        glass_count.innerHTML = data.glass_count;
     }
-
-    if (data.isValidTime == 1 && time) {
-        time.innerHTML = "Time UTC: " + data.time;
-        date.innerHTML = "Date: " + data.date;
+    var waagen_gewicht = document.getElementById("waagen_gewicht");
+    if (waagen_gewicht) {
+        waagen_gewicht.innerHTML = data.waagen_gewicht;
     }
 
 
-    if (data.isValidGPS == 1 && gps_lat) {
-        gps_lat.innerHTML = data.lat;
-        gps_lng.innerHTML = data.lng;
-        gps_course.innerHTML = data.course;
-        gps_speed.innerHTML = data.speed;
-        gps_sat.innerHTML = data.sat;
-        gps_hdop.innerHTML = data.hdop;
 
-    }
+//     var time = document.getElementById("time");
+//     var date = document.getElementById("date");
 
-};
+//     var sensor = document.getElementById("sensor");
+//     var temp = document.getElementById("temp");
+//     var humidity = document.getElementById("humidity");
+//     var pressure = document.getElementById("pressure");
 
+//     if (sensor) {
+//         sensor.innerHTML = data.sensor;
+//         temp.innerHTML = data.temp + " °C";
+//         humidity.innerHTML = data.humidity + " %";
+//         pressure.innerHTML = data.pressure + " hPa";
+//     }
 
+//     if (data.isValidTime == 1 && time) {
+//         time.innerHTML = "Time UTC: " + data.time;
+//         date.innerHTML = "Date: " + data.date;
+//     }
+// };
 
+function increase_angle_max() {
+    var value = parseInt(document.getElementById('angle_max').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value >= 180 ? value = 180 : '';
+    value++;
+    sendValue('angle_max=' + value);
+    document.getElementById('angle_max').value = value;
+  }
 
+  function decrease_angle_max() {
+    var value = parseInt(document.getElementById('angle_max').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value < 1 ? value = 1 : '';
+    value--;
+    sendValue('angle_max=' + value);
+    document.getElementById('angle_max').value = value;
+  }
 
+  function increase_angle_fine() {
+    var value = parseInt(document.getElementById('angle_fine').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value >= 1 ? value = 1 : '';
+    value++;
+    sendValue('angle_fine=' + value);
+    document.getElementById('angle_fine').value = value;
+  }
+
+  function decrease_angle_fine() {
+    var value = parseInt(document.getElementById('angle_fine').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value < 1 ? value = 1 : '';
+    value--;
+    sendValue('angle_fine=' + value);
+    document.getElementById('angle_fine').value = value;
+  }
+
+  function increase_weight_fine() {
+    var value = parseInt(document.getElementById('weight_fine').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value >= 200 ? value = 200 : '';
+    value++;
+    sendValue('weight_fine=' + value);
+    document.getElementById('weight_fine').value = value;
+  }
+
+  function decrease_weight_fine() {
+    var value = parseInt(document.getElementById('weight_fine').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value < 1 ? value = 1 : '';
+    value--;
+    sendValue('weight_fine=' + value);
+    document.getElementById('weight_fine').value = value;
+  }
+
+function sendButton(name) {
+    sendValue(name + '=' + name);
+}
 
 function checkReboot() {
     if (window.confirm("eh, really reboot")) {

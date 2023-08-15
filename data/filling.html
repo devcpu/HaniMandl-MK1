@@ -1,7 +1,9 @@
+<div id="run_modus">%run_modus%</div>
+<div id="waagen_gewicht">%waagen_gewicht%</div>
 <div id='error' name='error'></div>
 <table>
     <tr>
-        <td>Los-Nummer:</td>
+        <td>Los-Nr:</td>
         <td>Datum:</td>
         <td>Gewicht:</td>
         <td>Anzahl</td>
@@ -9,29 +11,48 @@
     <tr>
         <td>%los_number%</td>
         <td>%date_filling%</td>
-        <td>%weight_filling%</td>
-        <td>%glass_count%</td>
+        <td>%weight_filling%g</td>
+        <td id="glass_count">%glass_count%</td>
     </tr>
 </table>
 
 <fieldset>
-    <form action='start' method='post'><button>START</button></form><br />
-    <form action='stop' method='post'><button>STOP</button></form><br />
-
+    <!-- <form><button onclick="sendButton('start')">START</button></form><br /> -->
+    <form><input id="startbutton", class="button", type="button" onclick="sendButton('start')", value="Start" ></form><br />
+    <form action="stop" method="get"><input type="button" class="bred", onclick="sendButton('stop')", value="STOP"></form><br />
 </fieldset>
 
-<fieldset>
-    <legend>Feinjustierung:</legend>
-    <form action='adjust' method='post'><button name="angle_rough" value="+">Winkel grob größer</button></form><br />
-    <form action='adjust' method='post'><button name="angle_rough" value="-">Winkel grob kleiner</button></form><br />
-    <form action='adjust' method='post'><button name="angle_fine" value="+">Winkel fein größer</button></form><br />
-    <form action='adjust' method='post'><button name="angle_fine" value="-">Winkel fein kleiner</button></form><br />
-    <form action='adjust' method='post'><button name="weight_fine" value="+">Gewicht fein größer</button></form><br />
-    <form action='adjust' method='post'><button name="weight_fine" value="-">Gewicht fein kleiner</button></form><br />
-</fieldset>
 
+
+<form class="adjustform">
+    <fieldset>
+    <legend>Nachjustierung Füllwinkel Vorfüllung:</legend>
+    <div class="value-button" id="decrease" onclick="decrease_angle_max()">-</div>
+    <input type="number" id="angle_max" class="adjust_number" value="%angle_max%" />
+    <div class="value-button" id="increase" onclick="increase_angle_max()">+</div>
+    </fieldset>
+  </form>
+
+  <form class="adjustform">
+    <fieldset>
+    <legend>Nachjustierung Füllwinkel Feinfüllung:</legend>
+    <div class="value-button" id="decrease" onclick="decrease_angle_fine()">-</div>
+    <input type="number" id="angle_fine" class="adjust_number" value="%angle_fine%" />
+    <div class="value-button" id="increase" onclick="increase_angle_fine()">+</div>
+    </fieldset>
+  </form>
+
+  <form class="adjustform">
+    <fieldset>
+    <legend>Nachjustierung Gewicht Feinfüllung:</legend>
+    <div class="value-button" id="decrease" onclick="decrease_weight_fine()">-</div>
+    <input type="number" id="weight_fine" class="adjust_number" value="%angle_fine%" />
+    <div class="value-button" id="increase" onclick="increase_weight_fine()">+</div>
+    </fieldset>
+  </form>
 <fieldset>
     <legend>Modi:</legend>
-    <form action='hand' method='post'><button>Handbetrieb</button></form><br />
-    <form action='auto' method='post'><button>Automatik</button></form><br />
+    <form><input id="hand", class="button", type="button", onclick="sendButton('hand')", value="Handbetrieb" ></form><br />
+    <form><input id="auto", class="button", type="button", onclick="sendButton('auto')", value="Automatik" ></form><br />
 </fieldset>
+%mainmenue%

@@ -46,13 +46,13 @@
 ## Request routes GET
 
 ### filling
-### configwlan
-### firmwareupdate
+### SetupWlan
+### UpdateFirmware
 ### systeminfo
 ### reboot
 
 ### setup
-* imkerei
+* beekeeping
 * angle_max_hard
 * angle_min_hard
 * angle_max
@@ -64,7 +64,7 @@
 
 
 ### setupfilling
-* weights_filling
+* weight_filling
 * weight_empty
 * los_number
 * date_filling
