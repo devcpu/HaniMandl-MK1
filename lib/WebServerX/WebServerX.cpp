@@ -54,12 +54,12 @@ void WebserverStart(void) {
   WebServer->serveStatic("/hanimandlmk1.css", SPIFFS, "/hanimandlmk1.css");
   WebServer->serveStatic("/rebootinfo", SPIFFS, "/reboot.html");
 
-  WebServer->on("/hanimandlmk1.js", HTTP_GET,
-                [](AsyncWebServerRequest *request) {
-                  log_e("/hanimandlmk1.js");
-                  request->send(SPIFFS, "/hanimandlmk1.js",
-                                "application/javascript", false, DefaultPlaceholderProcessor);
-                });
+  WebServer->on(
+      "/hanimandlmk1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+        log_e("/hanimandlmk1.js");
+        request->send(SPIFFS, "/hanimandlmk1.js", "application/javascript",
+                      false, DefaultPlaceholderProcessor);
+      });
 
   /*
   .########...#######..##.....##.########.########.##....##

@@ -44,54 +44,52 @@ struct KeyValue {
   String value;
 };
 
-    void WebserverStart(void);
-    void APRSWebServerTick(void);
+void WebserverStart(void);
+void APRSWebServerTick(void);
 
-    String DefaultPlaceholderProcessor(const String &var);
-    String DefaultProcessor(const String &var);
-    String SystemInfoProcessor(const String &var);
-    String ProcessorFilling(const String &var);
-    String ProcessorSetupFilling(const String &var);
-    String ProcessorSetup(const String &var);
-    String ProcessorSetupWlan(const String &var);
-    String ProcessorUpdateFirmware(const String &var);
-    String ProcessorCalibrate(const String &var);
+String DefaultPlaceholderProcessor(const String &var);
+String DefaultProcessor(const String &var);
+String SystemInfoProcessor(const String &var);
+String ProcessorFilling(const String &var);
+String ProcessorSetupFilling(const String &var);
+String ProcessorSetup(const String &var);
+String ProcessorSetupWlan(const String &var);
+String ProcessorUpdateFirmware(const String &var);
+String ProcessorCalibrate(const String &var);
 
-    String readSPIFFS2String(const String &path);
-    String getSystemInfoTable();
-    String getBuildDateAndTime();
-    String table2DGenerator(SystemData systemdata[], uint8_t size, boolean bold);
-    String optionsFieldGenerator(String selected, const char *name, String data[][2], uint8_t size);
+String readSPIFFS2String(const String &path);
+String getSystemInfoTable();
+String getBuildDateAndTime();
+String table2DGenerator(SystemData systemdata[], uint8_t size, boolean bold);
+String optionsFieldGenerator(String selected, const char *name,
+                             String data[][2], uint8_t size);
 
-    void resetHTMLError(void);
-    void HTMLSendError(String msg, AsyncWebServerRequest *request);
+void resetHTMLError(void);
+void HTMLSendError(String msg, AsyncWebServerRequest *request);
 
-                                    
-    void disconnect();
-    void restartESP();
-    void reboot(AsyncWebServerRequest *request);
+void disconnect();
+void restartESP();
+void reboot(AsyncWebServerRequest *request);
 
-    KeyValue split(String wsdata);
-    bool isNumber(String val);
-    // boolean validateNumber(String test);
-    // boolean isNumeric(String str);
+KeyValue split(String wsdata);
+bool isNumber(String val);
+// boolean validateNumber(String test);
+// boolean isNumeric(String str);
 
-    String getWebParam(AsyncWebServerRequest *request, const char *key,
-                    String *prefsvar);
-    String getWebParam(AsyncWebServerRequest *request, const char *key,
-                    double *prefsvar);
-    String getWebParam(AsyncWebServerRequest *request, const char *key);
+String getWebParam(AsyncWebServerRequest *request, const char *key,
+                   String *prefsvar);
+String getWebParam(AsyncWebServerRequest *request, const char *key,
+                   double *prefsvar);
+String getWebParam(AsyncWebServerRequest *request, const char *key);
 
-    void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
-                AwsEventType type, void *arg, uint8_t *data, size_t len);
-
-
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+               AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 #ifdef ESP32
-        String getResetReason(RESET_REASON);
+String getResetReason(RESET_REASON);
 #endif
 #if CORE_DEBUG_LEVEL > 4
-        int showRequest(AsyncWebServerRequest *request);
+int showRequest(AsyncWebServerRequest *request);
 #endif
 
 #endif  // LIB_WEBSERVERX_WEBSERVERX_H_

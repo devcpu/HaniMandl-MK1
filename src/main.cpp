@@ -14,16 +14,15 @@
  */
 
 #include <Arduino.h>
-#include <freertos/FreeRTOS.h>
 #include <ESPFS.h>
 #include <HMConfig.h>
 #include <WebServerX.h>
 #include <WiFiManagerX.h>
+#include <freertos/FreeRTOS.h>
 
 #include "esp_log.h"
 
 HMConfig cfg;
-
 
 // extern DNSServer dns;
 // extern Ticker ticker;
@@ -42,8 +41,6 @@ void setup() {
   }
   setupWifiManager();
   WebserverStart();
-
-
 
   log_e("%s", cfg.beekeeping.c_str());
   log_i("Setup done! Starting loop ... ");
