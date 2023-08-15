@@ -9,11 +9,12 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 02:14
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-15 23:33
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <Arduino.h>
+#include <freertos/FreeRTOS.h>
 #include <ESPFS.h>
 #include <HMConfig.h>
 #include <WebServerX.h>
@@ -22,6 +23,7 @@
 #include "esp_log.h"
 
 HMConfig cfg;
+
 
 // extern DNSServer dns;
 // extern Ticker ticker;
@@ -35,11 +37,13 @@ void setup() {
   delay(1000);
   log_i("Start Setup");
   if (!ESPFSInit()) {
-    delay(10000);
+    delay(1000);
     ESP.restart();
   }
   setupWifiManager();
   WebserverStart();
+
+
 
   log_e("%s", cfg.beekeeping.c_str());
   log_i("Setup done! Starting loop ... ");

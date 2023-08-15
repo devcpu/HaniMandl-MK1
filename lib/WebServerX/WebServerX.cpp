@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-15 02:57
+ * Last Modified: 2023-08-15 23:56
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -58,7 +58,7 @@ void WebserverStart(void) {
                 [](AsyncWebServerRequest *request) {
                   log_e("/hanimandlmk1.js");
                   request->send(SPIFFS, "/hanimandlmk1.js",
-                                "application/javascript", false, ProcessorJS);
+                                "application/javascript", false, DefaultPlaceholderProcessor);
                 });
 
   /*
@@ -91,7 +91,7 @@ void WebserverStart(void) {
       request->redirect("/setup");
     }
     log_d("/");
-    request->send(SPIFFS, "/master.html", "text/html", false, defaultProcessor);
+    request->send(SPIFFS, "/master.html", "text/html", false, DefaultProcessor);
   });
 
   WebServer->on("/filling", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -146,7 +146,7 @@ void WebserverStart(void) {
   WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/systeminfo");
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  systemInfoProcessor);
+                  SystemInfoProcessor);
   });
 
   /* --------------------------------- Reboot ---------------------------------
@@ -170,27 +170,11 @@ void WebserverStart(void) {
 .##........##.....##..#######...######..########..######...######..########.##.....##..######.
 */
 
-/// @brief Populate localIP to client for websocket
-/// @param var
-/// @return localIP
-String ProcessorJS(const String &var) {
+String DefaultPlaceholderProcessor(const String &var) {
   if (var == "SERVER_IP") {
     log_e("%s", cfg.localIP.c_str());
     return cfg.localIP;
   }
-  if (var == "angle_min") {
-    return String(cfg.angle_min);
-  }
-  if (var == "angle_max_hard") {
-    return String(cfg.angle_max_hard);
-  }
-  if (var == "weight_filling") {
-    return String(cfg.weight_filling);
-  }
-  return String("wrong placeholder %" + var + "%");
-}
-
-String getPlaceholderValue(const String &var) {
   if (var == "HTMLTILE") {
     return htmltitle;
   }
@@ -203,13 +187,6 @@ String getPlaceholderValue(const String &var) {
   if (var == "mainmenue") {
     return mainmenue;
   }
-  return "wrong placeholder " + var;
-}
-
-String ProcessorSetupFilling(const String &var) {
-  if (var == "H2TITLE") {
-    return "Abfüllung";
-  }
   if (var == "los_number") {
     return cfg.los_number;
   }
@@ -221,17 +198,6 @@ String ProcessorSetupFilling(const String &var) {
   }
   if (var == "weight_filling") {
     return String(cfg.weight_filling);
-  }
-  if (var == "BODY") {
-    return readSPIFFS2String("/setupfilling.html");
-  }
-
-  return getPlaceholderValue(var);
-}
-
-String ProcessorSetup(const String &var) {
-  if (var == "H2TITLE") {
-    return "Grundeinrichtung";
   }
   if (var == "beekeeping") {
     return cfg.beekeeping;
@@ -254,10 +220,36 @@ String ProcessorSetup(const String &var) {
   if (var == "glass_tolerance") {
     return String(cfg.glass_tolerance);
   }
+  if (var == "weight_calibrate") {
+    return String(cfg.weight_calibrate);
+  }
+  if (var == "glass_count") {
+    return String(cfg.glass_count);
+  }
+  if (var == "weight_fine") {
+    return String(cfg.weight_fine);
+  }
+  return "wrong placeholder " + var;
+}
+
+String ProcessorSetupFilling(const String &var) {
+  if (var == "H2TITLE") {
+    return "Abfüllung";
+  }
+  if (var == "BODY") {
+    return readSPIFFS2String("/setupfilling.html");
+  }
+  return DefaultPlaceholderProcessor(var);
+}
+
+String ProcessorSetup(const String &var) {
+  if (var == "H2TITLE") {
+    return "Grundeinrichtung";
+  }
   if (var == "BODY") {
     return readSPIFFS2String("/setup.html");
   }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
 String ProcessorCalibrate(const String &var) {
@@ -267,10 +259,7 @@ String ProcessorCalibrate(const String &var) {
   if (var == "BODY") {
     return readSPIFFS2String("/kalibrieren.html");
   }
-  if (var == "weight_calibrate") {
-    return String(cfg.weight_calibrate);
-  }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
 String ProcessorSetupWlan(const String &var) {
@@ -280,7 +269,7 @@ String ProcessorSetupWlan(const String &var) {
   if (var == "BODY") {
     return readSPIFFS2String("/setupwlan.html");
   }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
 String ProcessorUpdateFirmware(const String &var) {
@@ -290,7 +279,7 @@ String ProcessorUpdateFirmware(const String &var) {
   if (var == "BODY") {
     return readSPIFFS2String("/updatefirmware.html");
   }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
 String ProcessorFilling(const String &var) {
@@ -300,48 +289,27 @@ String ProcessorFilling(const String &var) {
   if (var == "BODY") {
     return readSPIFFS2String("/filling.html");
   }
-  if (var == "los_number") {
-    return cfg.los_number;
-  }
-  if (var == "date_filling") {
-    return cfg.date_filling;
-  }
-  if (var == "weight_filling") {
-    return String(cfg.weight_filling);
-  }
-  if (var == "glass_count") {
-    return String(cfg.glass_count);
-  }
-  if (var == "angle_max") {
-    return String(cfg.angle_max);
-  }
-  if (var == "angle_fine") {
-    return String(cfg.angle_fine);
-  }
-  if (var == "weight_fine") {
-    return String(cfg.weight_fine);
-  }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
-String systemInfoProcessor(const String &var) {
+String SystemInfoProcessor(const String &var) {
   if (var == "H2TITLE") {
     return "System Info";
   }
   if (var == "BODY") {
     return getSystemInfoTable();
   }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
-String defaultProcessor(const String &var) {
+String DefaultProcessor(const String &var) {
   if (var == "H2TITLE") {
     return "Main Menue";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/mainbutton.html");
   }
-  return getPlaceholderValue(var);
+  return DefaultPlaceholderProcessor(var);
 }
 
 /*
@@ -405,7 +373,7 @@ String getSystemInfoTable(void) {
 
   SystemData systemdata[] = {
       {"SoftwareVersion", cfg.version},
-      {"Build DateTime: ", GetBuildDateAndTime()},
+      {"Build DateTime: ", getBuildDateAndTime()},
       {"SDKVersion: ", String(ESP.getSdkVersion())},
       {"Uptime: ", String(millis() / 1000 / 60, DEC) + "min"},
 #ifdef ESP32
@@ -459,7 +427,7 @@ String getSystemInfoTable(void) {
  * @return a string that represents the build date and time in the format
  * "YYYY-MM-DD HH:MM:SS".
  */
-String GetBuildDateAndTime() {
+String getBuildDateAndTime() {
   char bdt[45];             // "2017-03-07 11:08:02"
   char mdate[] = __DATE__;  // "Mar  7 2017"
   int month = 0;
