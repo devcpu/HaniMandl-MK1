@@ -1,4 +1,7 @@
 /*
+ * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
  * File: /HMControler.h
  * Project: /home/janusz/git/esp32/HaniMandl-MK1/lib/HMControler
  * Description:
@@ -6,11 +9,10 @@
  * Created Date: 2023-08-15 03:08
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-15 03:30
+ * Last Modified: 2023-08-17 03:15
  * Modified By: Johannes G.  Arlt (janusz)
- * -----
- * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
+
 #ifndef LIB_HMCONTROLER_HMCONTROLER_H_
 #define LIB_HMCONTROLER_HMCONTROLER_H_
 
@@ -32,4 +34,4 @@ class HMControler {
   void sendAPIRequest();
 }
 
-#endif /* LIB_HMCONTROLER_H_ */
+#endif  // LIB_HMCONTROLER_HMCONTROLER_H_

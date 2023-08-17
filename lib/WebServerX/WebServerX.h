@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-15 23:33
+ * Last Modified: 2023-08-17 01:37
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -22,22 +22,13 @@
 #include <ESPAsyncWebServer.h>
 #include <HMConfig.h>
 #include <SPIFFS.h>
+#include <WebTemplate.h>
 #include <config.h>
 #ifdef ESP32
 #include <rom/rtc.h>
 #endif
 
 extern HMConfig cfg;
-
-static const String mainmenue(
-    "<form action='.' method='get'><button>Main Menue</button></form><br />");
-static const String htmltitle = HONEY_FARM_NAME;
-static const String h3title = PROGRAMM_NAME;
-
-struct SystemData {
-  const char *label;
-  String value;
-};
 
 struct KeyValue {
   String key;
@@ -47,29 +38,8 @@ struct KeyValue {
 void WebserverStart(void);
 void APRSWebServerTick(void);
 
-String DefaultPlaceholderProcessor(const String &var);
-String DefaultProcessor(const String &var);
-String SystemInfoProcessor(const String &var);
-String ProcessorFilling(const String &var);
-String ProcessorSetupFilling(const String &var);
-String ProcessorSetup(const String &var);
-String ProcessorSetupWlan(const String &var);
-String ProcessorUpdateFirmware(const String &var);
-String ProcessorCalibrate(const String &var);
-
-String readSPIFFS2String(const String &path);
 String getSystemInfoTable();
 String getBuildDateAndTime();
-String table2DGenerator(SystemData systemdata[], uint8_t size, boolean bold);
-String optionsFieldGenerator(String selected, const char *name,
-                             String data[][2], uint8_t size);
-
-void resetHTMLError(void);
-void HTMLSendError(String msg, AsyncWebServerRequest *request);
-
-void disconnect();
-void restartESP();
-void reboot(AsyncWebServerRequest *request);
 
 KeyValue split(String wsdata);
 bool isNumber(String val);
