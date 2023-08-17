@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-17 01:35
+ * Last Modified: 2023-08-17 19:31
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -41,7 +41,7 @@ void WebserverStart(void) {
       "/hanimandlmk1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
         log_e("/hanimandlmk1.js");
         request->send(SPIFFS, "/hanimandlmk1.js", "application/javascript",
-                      false, DefaultPlaceholder);
+                      false, DefaultTemplating);
       });
 
   /*
@@ -78,12 +78,12 @@ void WebserverStart(void) {
   });
 
   WebServer->on("/filling", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/master.html", "text/html", false, ProcessorFilling);
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  FillingTemplating);
   });
 
   WebServer->on("/setupfilling", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (showRequest(request)) {  // we got data
-
       String weight_filling_S = (getWebParam(request, "weight_filling"));
       if (isNumber(weight_filling_S)) {
         cfg.weight_filling = weight_filling_S.toInt();
@@ -98,30 +98,30 @@ void WebserverStart(void) {
       cfg.los_number = getWebParam(request, "los_number");
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  ProcessorSetupFilling);
+                  SetupFillingTemplating);
   });
 
   WebServer->on("/setup", HTTP_GET, [](AsyncWebServerRequest *request) {
     showRequest(request);
-    request->send(SPIFFS, "/master.html", "text/html", false, ProcessorSetup);
+    request->send(SPIFFS, "/master.html", "text/html", false, SetupTemplating);
   });
 
   WebServer->on("/calibrate", HTTP_GET, [](AsyncWebServerRequest *request) {
     showRequest(request);
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  ProcessorCalibrate);
+                  CalibrateTemplating);
   });
   WebServer->on("/setupwlan", HTTP_GET, [](AsyncWebServerRequest *request) {
     showRequest(request);
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  ProcessorSetupWlan);
+                  SetupWlanTemplating);
   });
 
   WebServer->on("/updatefirmware", HTTP_GET,
                 [](AsyncWebServerRequest *request) {
                   showRequest(request);
                   request->send(SPIFFS, "/master.html", "text/html", false,
-                                ProcessorUpdateFirmware);
+                                UpdateFirmwareTemplating);
                 });
 
   /* ------------------------------- System Info ------------------------------
@@ -129,7 +129,7 @@ void WebserverStart(void) {
   WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/systeminfo");
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  SystemInfoProcessor);
+                  SystemInfoTemplating);
   });
 
   /* --------------------------------- Reboot ---------------------------------
@@ -190,7 +190,7 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
     }
     return rtvar;
   } else {
-    char buf[80];
+    char buf[80];  // FIXME(janusz)
     snprintf(buf, sizeof(buf),
              "ERR> key %s not found in request,  no value written", key);
     log_e("%s", buf);
@@ -329,10 +329,10 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
     log_d("Got WS_EVT_PONG");
   } else if (type == WS_EVT_DATA) {
     log_e("Websocket client sended data");
-    AwsFrameInfo *info = (AwsFrameInfo *)arg;
+    AwsFrameInfo *info = reinterpret_cast<AwsFrameInfo *>(arg);
     if (info->opcode == WS_TEXT) {
-      log_d("%s\n", (char *)data);
-      String wsdata = String((char *)data);
+      log_d("%s\n", reinterpret_cast<char *>(data));
+      String wsdata = String(reinterpret_cast<char *>(data));
       log_d("%s", wsdata.c_str());
       KeyValue rdata = split(wsdata);
       log_d("%s", rdata.key.c_str());

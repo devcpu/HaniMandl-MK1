@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 03:02
+ * Last Modified: 2023-08-17 18:28
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -23,18 +23,17 @@
 
 extern HMConfig cfg;
 
-struct SystemData {
-  const char *label;
+struct Table2RData {
+  String label;
   String value;
 };
 
 class ESPHelper {
  public:
-  String getChipId(void);
-  String getBuildDateAndTime(void);
-  SystemData *getSystemInfoTable(void);
-  String table2DGenerator(SystemData systemdata[], uint8_t size, boolean bold);
-  String getResetReason(RESET_REASON reason);
+  static String getChipId(void);
+  static String getBuildDateAndTime(void);
+  static Table2RData *getSystemInfoTable(void);
+  static String getResetReason(RESET_REASON reason);
   static void reboot(AsyncWebServerRequest *request);
   static void disconnect(void);
   static void restartESP();

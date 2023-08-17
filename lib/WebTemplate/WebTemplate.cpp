@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 03:10
+ * Last Modified: 2023-08-17 19:25
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -34,7 +34,7 @@ HTML_Error html_error;
 
 extern HMConfig cfg;
 
-String DefaultPlaceholder(const String &var) {
+String DefaultTemplating(const String &var) {
   if (var == "SERVER_IP") {
     log_e("%s", cfg.localIP.c_str());
     return cfg.localIP;
@@ -96,74 +96,74 @@ String DefaultPlaceholder(const String &var) {
   return "wrong placeholder " + var;
 }
 
-String ProcessorSetupFilling(const String &var) {
+String SetupFillingTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Abfüllung";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/setupfilling.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
-String ProcessorSetup(const String &var) {
+String SetupTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Grundeinrichtung";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/setup.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
-String ProcessorCalibrate(const String &var) {
+String CalibrateTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Waage kalibrieren";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/kalibrieren.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
-String ProcessorSetupWlan(const String &var) {
+String SetupWlanTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Einrichtung Wlan";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/setupwlan.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
-String ProcessorUpdateFirmware(const String &var) {
+String UpdateFirmwareTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Update Firmware";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/updatefirmware.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
-String ProcessorFilling(const String &var) {
+String FillingTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Abfüllung";
   }
   if (var == "BODY") {
     return readSPIFFS2String("/filling.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
-String SystemInfoProcessor(const String &var) {
+String SystemInfoTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "System Info";
   }
   if (var == "BODY") {
     return String("");  // FIXME
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
 String DefaultProcessor(const String &var) {
@@ -173,7 +173,7 @@ String DefaultProcessor(const String &var) {
   if (var == "BODY") {
     return readSPIFFS2String("/mainbutton.html");
   }
-  return DefaultPlaceholder(var);
+  return DefaultTemplating(var);
 }
 
 /**
@@ -245,14 +245,38 @@ String optionsFieldGenerator(String selected, const char *name,
 }
 
 bool isNumber(String val) {
-  uint8_t length = val.length();
-  char buf[length];
-  val.toCharArray(buf, length);
+  char buf[val.length()];
+  val.toCharArray(buf, val.length());
 
-  for (uint8_t i = 0; i < length; i++) {
+  for (uint8_t i = 0; i < val.length(); i++) {
     if (!isDigit(buf[i])) {
       return false;
     }
   }
   return true;
+}
+
+/**
+ * table2DGenerator.
+ *
+ * @author	JA
+ * @param	SystemData systemdata[]
+ * @param	boolean	bold
+ * @return	mixed
+ */
+String table2DGenerator(Table2RData *systemdata, boolean bold) {
+  String retvar("<table>");
+  String tdstart("<tr><td>");
+  String tdmittle("</td><td>");
+  if (bold) {
+    String tdstart = "<tr><td><b>";
+    String tdmittle = "</b></td><td>";
+  }
+  const String tdend("</td></tr>");
+  for (uint8_t i = 0; i < sizeof(systemdata); i++) {
+    retvar +=
+        tdstart + systemdata[i].label + tdmittle + systemdata[i].value + tdend;
+  }
+  retvar += "</table>";
+  return retvar;
 }
