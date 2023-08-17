@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 03:03
+ * Last Modified: 2023-08-17 17:37
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -74,7 +74,7 @@ String ESPHelper::getFlashMode() {
  * @return a string that contains a table of system information.
  */
 SystemData *ESPHelper::getSystemInfoTable(void) {
-  SystemData *systemdata = new SystemData[30];
+  static SystemData systemdata[30];
   systemdata[0] = {"SoftwareVersion", cfg.version};
   systemdata[1] = {"Build DateTime: ", getBuildDateAndTime()};
   systemdata[2] = {"SDKVersion: ", String(ESP.getSdkVersion())};
@@ -221,7 +221,7 @@ String ESPHelper::getResetReason(RESET_REASON reason) {
 #endif
 
 void ESPHelper::reboot(AsyncWebServerRequest *request) {
-  request->redirect("/rebootinfo");  // TODO: refactor path
+  request->redirect("/rebootinfo");  // TODO(janusz): refactor path
   delay(3000);
   ESPHelper::disconnect();
   ESPHelper::restartESP();

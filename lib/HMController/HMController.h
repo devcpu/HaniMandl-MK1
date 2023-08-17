@@ -2,23 +2,25 @@
  * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
  * License MIT License
  * -----
- * File: /HMControler.h
- * Project: /home/janusz/git/esp32/HaniMandl-MK1/lib/HMControler
+ * File: /HMController.h
+ * Project: /home/janusz/git/esp32/HaniMandl-MK1/lib/HMController
  * Description:
  * -----
  * Created Date: 2023-08-15 03:08
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 03:15
+ * Last Modified: 2023-08-17 17:36
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
-#ifndef LIB_HMCONTROLER_HMCONTROLER_H_
-#define LIB_HMCONTROLER_HMCONTROLER_H_
+#ifndef LIB_HMCONTROLLER_HMCONTROLLER_H_
+#define LIB_HMCONTROLLER_HMCONTROLLER_H_
+
+#include <Arduino.h>
 
 typedef enum RunMode { hand, auto };
 
-class HMControler {
+class HMController {
  public:
   RunMode run_mode = RunMode::hand;
   String getWeight();
@@ -32,6 +34,6 @@ class HMControler {
   void report();
   void sendMQTT();
   void sendAPIRequest();
-}
+};
 
-#endif  // LIB_HMCONTROLER_HMCONTROLER_H_
+#endif  // LIB_HMCONTROLLER_HMCONTROLLER_H_
