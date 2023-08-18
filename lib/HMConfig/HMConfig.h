@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-15 02:43
+ * Last Modified: 2023-08-18 03:20
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -21,6 +21,7 @@
 #include <ESPAsyncWiFiManager.h>
 #include <config.h>
 
+typedef enum { RUN_MODUS_HAND, RUN_MODUS_AUTO } RunModus;
 class HMConfig {
  public:
   String version = SOFTWARE_VERSION;
@@ -30,16 +31,17 @@ class HMConfig {
   uint8_t angle_max = 90;
   uint8_t angle_min = 10;
   uint8_t angle_fine = 45;
-  uint8_t weight_fine = int(weight_filling / 3);
-  uint8_t glass_tolerance = 0;
+  uint8_t weight_fine = static_cast<uint8_t>(weight_filling / 3);
+  uint8_t glass_tolerance = 40;
   uint16_t weight_filling = 330;
-  uint8_t weight_empty = 30;
+  uint16_t weight_empty = 30;
   String los_number = "leer";
   String date_filling = "";
   uint16_t glass_count = 0;
   uint32_t boot_count = 0;
   String localIP;
   uint32_t weight_calibrate = 0;
+  RunModus run_modus = RUN_MODUS_HAND;
   // AsyncWiFiManager wifiManager = NULL;
 
   HMConfig();

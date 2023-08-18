@@ -9,15 +9,15 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 04:19
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-17 18:44
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_CONFIG_CONFIG_H_
 #define LIB_CONFIG_CONFIG_H_
 
-#define WIFI_PASSWORD ""
-#define WIFI_SSID ""
+#define WIFI_PASSWORD "ohneKabel"
+#define WIFI_SSID "Besucher"
 #define WIFI_IP ""
 #define WIFI_GATEWAY ""
 #define WIFI_TIMESERVER "de.pool.ntp.org"

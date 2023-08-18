@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 05:03
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-17 23:49
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WiFiManagerX.h>
@@ -48,7 +48,7 @@ bool setupWifiManager() {
   ticker.attach(0.6, tick);
   AsyncWiFiManager wifiManager(&server, &dns);
 
-  // wifiManager.resetSettings();
+  //   wifiManager.resetSettings();
 
   // TODO(janusz) move to central config.h
   IPAddress _ip = IPAddress(172, 19, 19, 15);
@@ -56,7 +56,9 @@ bool setupWifiManager() {
   IPAddress _sn = IPAddress(255, 255, 255, 0);
   IPAddress _dns1 = IPAddress(192, 168, 42, 101);
   IPAddress _dns2 = IPAddress(8, 8, 8, 8);
+
   wifiManager.setSTAStaticIPConfig(_ip, _gw, _sn, _dns1, _dns2);
+  //   wifiManager.autoConnect("AutoConnectAP");
   if (!wifiManager.autoConnect(
           "HaniMandlMKI",
           "Honigkuchen")) {  // TODO(janusz) move to config.h
