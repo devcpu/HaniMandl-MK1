@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 19:25
+ * Last Modified: 2023-08-18 01:58
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -93,6 +93,18 @@ String DefaultTemplating(const String &var) {
   if (var == "weight_fine") {
     return String(cfg.weight_fine);
   }
+  if (var == "waagen_gewicht") {
+    return String("not implemented yet");
+  }
+  if (var == "run_modus") {
+    if (cfg.run_modus == RUN_MODUS_AUTO) {
+      return String("Auto");
+    } else {
+      return String("Hand");
+    }
+    return String("not implemented yet");
+  }
+
   return "wrong placeholder " + var;
 }
 
@@ -161,7 +173,8 @@ String SystemInfoTemplating(const String &var) {
     return "System Info";
   }
   if (var == "BODY") {
-    return String("");  // FIXME
+    return table2DGenerator(ESPHelper::getSystemInfoTable(), true) +
+           mainmenue;  // FIXME
   }
   return DefaultTemplating(var);
 }
@@ -245,13 +258,16 @@ String optionsFieldGenerator(String selected, const char *name,
 }
 
 bool isNumber(String val) {
-  char buf[val.length()];
-  val.toCharArray(buf, val.length());
-
+  char buf[val.length() + 1];
+  val.toCharArray(buf, val.length() + 1);
+  log_e("isNumber::length=%d", val.length());
   for (uint8_t i = 0; i < val.length(); i++) {
+    Serial.print(buf[i]);
     if (!isDigit(buf[i])) {
+      Serial.println(" is wrong");
       return false;
     }
+    Serial.println(" is ok");
   }
   return true;
 }
@@ -265,15 +281,22 @@ bool isNumber(String val) {
  * @return	mixed
  */
 String table2DGenerator(Table2RData *systemdata, boolean bold) {
+  uint8_t sz = sizeof(systemdata);  // FIXME(janusz)
+  log_d("Size of systemdata: %d", sz);
+  log_d("bold: %d", bold);
+
   String retvar("<table>");
+  String tdend("</td></tr>");
   String tdstart("<tr><td>");
   String tdmittle("</td><td>");
+
   if (bold) {
-    String tdstart = "<tr><td><b>";
-    String tdmittle = "</b></td><td>";
+    log_e("bold active");
+    tdstart = "<tr><td><b>";
+    tdmittle = "</b></td><td>";
   }
-  const String tdend("</td></tr>");
-  for (uint8_t i = 0; i < sizeof(systemdata); i++) {
+
+  for (uint8_t i = 0; i <= 25; i++) {
     retvar +=
         tdstart + systemdata[i].label + tdmittle + systemdata[i].value + tdend;
   }

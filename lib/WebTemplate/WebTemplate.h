@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 18:42
+ * Last Modified: 2023-08-18 02:59
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -22,7 +22,8 @@
 #include <SPIFFS.h>
 
 static const String mainmenue(
-    "<form action='.' method='get'><button>Main Menue</button></form><br />");
+    "<br /><form action='.' method='get'><button>Hauptmeü</button></form><br "
+    "/>");
 static const String htmltitle = HONEY_FARM_NAME;
 static const String h3title = PROGRAMM_NAME;
 

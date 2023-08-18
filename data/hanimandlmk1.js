@@ -1,21 +1,25 @@
 //window.onload
 
 
-const socket = new WebSocket("ws://%SERVER_IP%/ws");
+socket = new WebSocket("ws://%SERVER_IP%/ws");
+var isConnected = false;
 
 // Event listener for WebSocket connection open
 socket.addEventListener('open', () => {
     console.log('WebSocket connection is open');
+    isConnected = true;
   });
 
   // Event listener for WebSocket connection close
   socket.addEventListener('close', () => {
     console.log('WebSocket connection is closed');
+    isConnected = false;
   });
 
   // Event listener for WebSocket errors
   socket.addEventListener('error', (error) => {
     console.error('WebSocket error:', error);
+    isConnected = false;
   });
 
 // Function to send a value via WebSocket
@@ -37,7 +41,7 @@ socket.onmessage = function (evt) {
     if (waagen_gewicht) {
         waagen_gewicht.innerHTML = data.waagen_gewicht;
     }
-
+}
 
 
 //     var time = document.getElementById("time");
@@ -63,60 +67,67 @@ socket.onmessage = function (evt) {
 
 function increase_angle_max() {
     var value = parseInt(document.getElementById('angle_max').value, 10);
+    console.log("increase_angle_max :" + value);
     value = isNaN(value) ? 0 : value;
     value >= 180 ? value = 180 : '';
-    value++;
+    value += 1;
     sendValue('angle_max=' + value);
     document.getElementById('angle_max').value = value;
   }
 
   function decrease_angle_max() {
     var value = parseInt(document.getElementById('angle_max').value, 10);
+    console.log("decrease_angle_max :" + value);
     value = isNaN(value) ? 0 : value;
     value < 1 ? value = 1 : '';
-    value--;
+    value -= 1;
     sendValue('angle_max=' + value);
     document.getElementById('angle_max').value = value;
   }
 
   function increase_angle_fine() {
     var value = parseInt(document.getElementById('angle_fine').value, 10);
+    console.log("increase_angle_fine :" + value);
     value = isNaN(value) ? 0 : value;
-    value >= 1 ? value = 1 : '';
-    value++;
+    value < 45 ? value = 45 : '';
+    value += 1;
     sendValue('angle_fine=' + value);
     document.getElementById('angle_fine').value = value;
   }
 
   function decrease_angle_fine() {
     var value = parseInt(document.getElementById('angle_fine').value, 10);
+    console.log("decrease_angle_fine :" + value);
     value = isNaN(value) ? 0 : value;
     value < 1 ? value = 1 : '';
-    value--;
+    value -= 1;
     sendValue('angle_fine=' + value);
     document.getElementById('angle_fine').value = value;
   }
 
   function increase_weight_fine() {
     var value = parseInt(document.getElementById('weight_fine').value, 10);
+    console.log("increase_weight_fine :" + value);
     value = isNaN(value) ? 0 : value;
     value >= 200 ? value = 200 : '';
-    value++;
+    value += 1;
     sendValue('weight_fine=' + value);
     document.getElementById('weight_fine').value = value;
   }
 
   function decrease_weight_fine() {
     var value = parseInt(document.getElementById('weight_fine').value, 10);
+    console.log("decrease_weight_fine :" + value);
     value = isNaN(value) ? 0 : value;
     value < 1 ? value = 1 : '';
-    value--;
+    value -= 1;
     sendValue('weight_fine=' + value);
     document.getElementById('weight_fine').value = value;
   }
 
 function sendButton(name) {
-    sendValue(name + '=' + name);
+    console.log("sendButton :" + name);
+    sendValue("button=" + name);
 }
 
 function checkReboot() {

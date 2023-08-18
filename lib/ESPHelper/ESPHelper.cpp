@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 19:29
+ * Last Modified: 2023-08-18 00:08
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -48,19 +48,20 @@ String ESPHelper::getFlashMode() {
  * @return a string that contains a table of system information.
  */
 Table2RData *ESPHelper::getSystemInfoTable(void) {
+#ifdef ESP32
   static Table2RData systemdata[30];
   systemdata[0] = {String("SoftwareVersion:"), cfg.version};
   systemdata[1] = {String("Build DateTime:"), getBuildDateAndTime()};
   systemdata[2] = {String("SDKVersion:"), String(ESP.getSdkVersion())};
   systemdata[3] = {String("Uptime:"),
                    String(millis() / 1000 / 60, DEC) + "min"};
-#ifdef ESP32
-  systemdata[4] = {String("Chip Revision:"), String(ESP.getChipRevision())};
-  systemdata[5] = {String("ESP32 Chip ID:"), getChipId()};
+  //   systemdata[4] = {String("Chip Revision:"),
+  //   String(ESP.getChipRevision())};
+  systemdata[5] = {String("ESP32 Chip ID:"), ESPHelper::getChipId()};
   systemdata[6] = {String("Reset Reason CPU0:"),
-                   getResetReason(rtc_get_reset_reason(0))};
+                   ESPHelper::getResetReason(rtc_get_reset_reason(0))};
   systemdata[7] = {String("Reset Reason CPU1:"),
-                   getResetReason(rtc_get_reset_reason(1))};
+                   ESPHelper::getResetReason(rtc_get_reset_reason(1))};
   systemdata[8] = {String("CpuFreqMHz:"), String(ESP.getCpuFreqMHz()) + "MHz"};
   systemdata[9] = {String("CycleCount:"), String(ESP.getCycleCount())};
   systemdata[10] = {String("FlashChipMode:"), String(ESP.getFlashChipMode())};
@@ -93,6 +94,12 @@ Table2RData *ESPHelper::getSystemInfoTable(void) {
   systemdata[25] = {String("Free heap:"),
                     String(ESP.getFreeHeap() / 1024) + "kB"};
 #elif defined(ESP8266)
+  static Table2RData systemdata[15];
+  systemdata[0] = {String("SoftwareVersion:"), cfg.version};
+  systemdata[1] = {String("Build DateTime:"), ESPHelper::getBuildDateAndTime()};
+  systemdata[2] = {String("SDKVersion:"), String(ESP.getSdkVersion())};
+  systemdata[3] = {String("Uptime:"),
+                   String(millis() / 1000 / 60, DEC) + "min"};
   systemdata[4] = {String("Flash real id:"), String(ESP.getFlashChipId(), HEX)};
   systemdata[5] = {String("Flash real size:"),
                    String(ESP.getFlashChipRealSize() / 1024) + "kB"};

@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-17 19:31
+ * Last Modified: 2023-08-18 03:15
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -111,6 +111,7 @@ void WebserverStart(void) {
     request->send(SPIFFS, "/master.html", "text/html", false,
                   CalibrateTemplating);
   });
+
   WebServer->on("/setupwlan", HTTP_GET, [](AsyncWebServerRequest *request) {
     showRequest(request);
     request->send(SPIFFS, "/master.html", "text/html", false,
@@ -336,25 +337,70 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       log_d("%s", wsdata.c_str());
       KeyValue rdata = split(wsdata);
       log_d("%s", rdata.key.c_str());
+
       if (rdata.key == "angle_max") {
-        log_d("Before: %d", cfg.angle_max);
-        cfg.angle_max = rdata.value.toInt();
-        log_d("After: %d", cfg.angle_max);
+        log_d("got angle_max");
+        if (isNumber(rdata.value)) {
+          log_d("Before: %d", cfg.angle_max);
+          cfg.angle_max = rdata.value.toInt();
+          log_d("After: %d", cfg.angle_max);
+        } else {
+          log_e("value of angle_max is not a valid Int %s", rdata.value);
+        }
       }
+
       if (rdata.key == "angle_fine") {
-        log_d("Before: %d", cfg.angle_fine);
-        cfg.angle_fine = rdata.value.toInt();
-        log_d("After: %d", cfg.angle_fine);
+        log_d("got angle_fine");
+        if (isNumber(rdata.value)) {
+          log_d("Before: %d", cfg.angle_fine);
+          cfg.angle_fine = rdata.value.toInt();
+          log_d("After: %d", cfg.angle_fine);
+        } else {
+          log_e("value of angle_fine is not a valid Int %s", rdata.value);
+        }
       }
+
       if (rdata.key == "weight_fine") {
-        log_d("Before: %d", cfg.weight_fine);
-        cfg.weight_fine = rdata.value.toInt();
-        log_d("After: %d", cfg.weight_fine);
+        log_d("got weight_fine");
+        if (isNumber(rdata.value)) {
+          log_d("Before: %d", cfg.weight_fine);
+          cfg.weight_fine = rdata.value.toInt();
+          log_d("After: %d", cfg.weight_fine);
+        } else {
+          log_e("value of weight_fine is not a valid Int %s", rdata.value);
+        }
+      }
+
+      if (rdata.key == "button") {
+        log_d("got button with %s", rdata.value);
+        if (rdata.value == "auto") {
+          cfg.run_modus = RUN_MODUS_AUTO;
+        } else if (rdata.value == "hand") {
+          cfg.run_modus = RUN_MODUS_HAND;
+        } else if (rdata.value == "start") {
+          log_e("[Start] TODO");
+          // TODO(janusz)
+        } else if (rdata.value == "stop") {
+          log_e("[STOP] TODO");
+          // TODO(janusz)
+        } else {
+          log_e("Got wrong value for %s: %s", rdata.value.c_str(),
+                rdata.key.c_str());
+        }
       }
     }
   }
 }
 
+/**
+ * The function "split" takes a string as input, splits it into a key-value pair
+ * using the "=" delimiter, and returns the key and value as a KeyValue struct.
+ *
+ * @param wsdata The parameter "wsdata" is a string that contains key-value data
+ * in the format "key=value".
+ *
+ * @return a KeyValue object.
+ */
 KeyValue split(String wsdata) {
   log_d("%s", wsdata.c_str());
   KeyValue rval;
