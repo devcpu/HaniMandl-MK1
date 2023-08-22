@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 18:28
+ * Last Modified: 2023-08-22 16:56
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -18,10 +18,8 @@
 
 #include <Arduino.h>
 #include <HMConfig.h>
-#include <config.h>
+#include <appconfig.h>
 #include <rom/rtc.h>
-
-extern HMConfig cfg;
 
 struct Table2RData {
   String label;

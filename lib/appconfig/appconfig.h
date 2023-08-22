@@ -9,15 +9,15 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-17 18:44
+ * Last Modified: 2023-08-22 17:29
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
-#ifndef LIB_CONFIG_CONFIG_H_
-#define LIB_CONFIG_CONFIG_H_
+#ifndef LIB_APPCONFIG_APPCONFIG_H_
+#define LIB_APPCONFIG_APPCONFIG_H_
 
-#define WIFI_PASSWORD "ohneKabel"
-#define WIFI_SSID "Besucher"
+#define WIFI_PASSWORD ""
+#define WIFI_SSID ""
 #define WIFI_IP ""
 #define WIFI_GATEWAY ""
 #define WIFI_TIMESERVER "de.pool.ntp.org"
@@ -30,10 +30,17 @@
 #define SOFTWARE_VERSION "v 0.1"
 #define MAXSIZE 16
 
-//// Pin definition
+// Pin definition
+const int LOADCELL_DOUT_PIN = 5;
+const int LOADCELL_SCK_PIN = 17;
+const int LOADCELL_READ_TIMES = 1;
+const int SERVO_PIN = 33;
+const int SERVO_FREQUENCY = 300;
+const int SERVO_MIN_PULSE = 500;
+const int SERVO_MAX_PULSE = 2500;
 
 #define CONFIG_WIFI_LED 21
 
 #define WEB_INPUT_MAX_LENGTH 31
 
-#endif  // LIB_CONFIG_CONFIG_H_
+#endif  // LIB_APPCONFIG_APPCONFIG_H_

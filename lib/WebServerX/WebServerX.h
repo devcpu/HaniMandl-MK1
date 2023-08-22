@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-17 01:37
+ * Last Modified: 2023-08-22 16:56
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -23,12 +23,10 @@
 #include <HMConfig.h>
 #include <SPIFFS.h>
 #include <WebTemplate.h>
-#include <config.h>
+#include <appconfig.h>
 #ifdef ESP32
 #include <rom/rtc.h>
 #endif
-
-extern HMConfig cfg;
 
 struct KeyValue {
   String key;

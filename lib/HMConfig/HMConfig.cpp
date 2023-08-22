@@ -9,10 +9,10 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 02:30
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-22 18:53
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <HMConfig.h>
 
-HMConfig::HMConfig(void) { log_e("Init Config::config"); }
+// HMConfig::HMConfig(void) { log_e("Bad, very bad!!!"); }

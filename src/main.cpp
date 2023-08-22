@@ -9,31 +9,19 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-15 23:33
+ * Last Modified: 2023-08-22 18:47
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
-#include <Arduino.h>
-#include <ESPFS.h>
-#include <HMConfig.h>
-#include <WebServerX.h>
-#include <WiFiManagerX.h>
-#include <freertos/FreeRTOS.h>
-
-#include "esp_log.h"
-
-HMConfig cfg;
+#include <main.h>
 
 // extern DNSServer dns;
 // extern Ticker ticker;
 
-void notFound(AsyncWebServerRequest *request) {
-  request->send(404, "text/plain", "Not found");
-}
-
 void setup() {
   Serial.begin(115200);
   delay(1000);
+  HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
   log_i("Start Setup");
   if (!ESPFSInit()) {
     delay(1000);
@@ -41,12 +29,14 @@ void setup() {
   }
   setupWifiManager();
   WebserverStart();
+  setupLoadcell();
+  setupServo();
 
-  log_e("%s", cfg.beekeeping.c_str());
+  log_i("%s", HMConfig::instance().beekeeping.c_str());
   log_i("Setup done! Starting loop ... ");
 }
 
-static void donothing() {
+void donothing() {
   static int counter = 0;
   static char looper[12] = "|/-\\|/-\\";  // Flawfinder: ignore
   if (counter == 8) {
@@ -58,4 +48,11 @@ static void donothing() {
   delay(100);
 }
 
-void loop() { donothing(); }
+float weight_current = 0;
+
+void loop() {
+  //   // donothing();
+  // show_scale_data();
+
+  weight2seriell(weight_current);
+}

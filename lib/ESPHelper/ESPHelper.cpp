@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-18 00:08
+ * Last Modified: 2023-08-22 17:03
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -50,7 +50,7 @@ String ESPHelper::getFlashMode() {
 Table2RData *ESPHelper::getSystemInfoTable(void) {
 #ifdef ESP32
   static Table2RData systemdata[30];
-  systemdata[0] = {String("SoftwareVersion:"), cfg.version};
+  systemdata[0] = {String("SoftwareVersion:"), HMConfig::instance().version};
   systemdata[1] = {String("Build DateTime:"), getBuildDateAndTime()};
   systemdata[2] = {String("SDKVersion:"), String(ESP.getSdkVersion())};
   systemdata[3] = {String("Uptime:"),
@@ -95,7 +95,7 @@ Table2RData *ESPHelper::getSystemInfoTable(void) {
                     String(ESP.getFreeHeap() / 1024) + "kB"};
 #elif defined(ESP8266)
   static Table2RData systemdata[15];
-  systemdata[0] = {String("SoftwareVersion:"), cfg.version};
+  systemdata[0] = {String("SoftwareVersion:"), HMConfig::instance().version};
   systemdata[1] = {String("Build DateTime:"), ESPHelper::getBuildDateAndTime()};
   systemdata[2] = {String("SDKVersion:"), String(ESP.getSdkVersion())};
   systemdata[3] = {String("Uptime:"),

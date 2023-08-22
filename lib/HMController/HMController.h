@@ -9,7 +9,7 @@
  * Created Date: 2023-08-15 03:08
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-17 17:36
+ * Last Modified: 2023-08-22 00:32
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -17,14 +17,18 @@
 #define LIB_HMCONTROLLER_HMCONTROLLER_H_
 
 #include <Arduino.h>
+#include <freertos/FreeRTOS.h>
 
-typedef enum RunMode { hand, auto };
+typedef enum {
+  hand,
+  automatic,
+} RunMode;
 
 class HMController {
  public:
   RunMode run_mode = RunMode::hand;
-  String getWeight();
-  void calibrate();
+  // String getWeight();
+  // void calibrate();
   void start_filling();
   void stop_filling();
 

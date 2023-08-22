@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-18 03:15
+ * Last Modified: 2023-08-22 17:01
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -69,7 +69,7 @@ void WebserverStart(void) {
   WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_d("/");
     // first run wizard
-    if (cfg.beekeeping == "") {  // first run wizard
+    if (HMConfig::instance().beekeeping == "") {  // first run wizard
       log_d("redirect to setup");
       request->redirect("/setup");
     }
@@ -86,16 +86,16 @@ void WebserverStart(void) {
     if (showRequest(request)) {  // we got data
       String weight_filling_S = (getWebParam(request, "weight_filling"));
       if (isNumber(weight_filling_S)) {
-        cfg.weight_filling = weight_filling_S.toInt();
+        HMConfig::instance().weight_filling = weight_filling_S.toInt();
       }
 
       String weight_empty_S = (getWebParam(request, "weight_empty"));
       if (isNumber(weight_empty_S)) {
-        cfg.weight_empty = weight_empty_S.toInt();
+        HMConfig::instance().weight_empty = weight_empty_S.toInt();
       }
 
-      cfg.date_filling = getWebParam(request, "date_filling");
-      cfg.los_number = getWebParam(request, "los_number");
+      HMConfig::instance().date_filling = getWebParam(request, "date_filling");
+      HMConfig::instance().los_number = getWebParam(request, "los_number");
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
                   SetupFillingTemplating);
@@ -341,9 +341,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       if (rdata.key == "angle_max") {
         log_d("got angle_max");
         if (isNumber(rdata.value)) {
-          log_d("Before: %d", cfg.angle_max);
-          cfg.angle_max = rdata.value.toInt();
-          log_d("After: %d", cfg.angle_max);
+          log_d("Before: %d", HMConfig::instance().angle_max);
+          HMConfig::instance().angle_max = rdata.value.toInt();
+          log_d("After: %d", HMConfig::instance().angle_max);
         } else {
           log_e("value of angle_max is not a valid Int %s", rdata.value);
         }
@@ -352,9 +352,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       if (rdata.key == "angle_fine") {
         log_d("got angle_fine");
         if (isNumber(rdata.value)) {
-          log_d("Before: %d", cfg.angle_fine);
-          cfg.angle_fine = rdata.value.toInt();
-          log_d("After: %d", cfg.angle_fine);
+          log_d("Before: %d", HMConfig::instance().angle_fine);
+          HMConfig::instance().angle_fine = rdata.value.toInt();
+          log_d("After: %d", HMConfig::instance().angle_fine);
         } else {
           log_e("value of angle_fine is not a valid Int %s", rdata.value);
         }
@@ -363,9 +363,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       if (rdata.key == "weight_fine") {
         log_d("got weight_fine");
         if (isNumber(rdata.value)) {
-          log_d("Before: %d", cfg.weight_fine);
-          cfg.weight_fine = rdata.value.toInt();
-          log_d("After: %d", cfg.weight_fine);
+          log_d("Before: %d", HMConfig::instance().weight_fine);
+          HMConfig::instance().weight_fine = rdata.value.toInt();
+          log_d("After: %d", HMConfig::instance().weight_fine);
         } else {
           log_e("value of weight_fine is not a valid Int %s", rdata.value);
         }
@@ -374,9 +374,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       if (rdata.key == "button") {
         log_d("got button with %s", rdata.value);
         if (rdata.value == "auto") {
-          cfg.run_modus = RUN_MODUS_AUTO;
+          HMConfig::instance().run_modus = RUN_MODUS_AUTO;
         } else if (rdata.value == "hand") {
-          cfg.run_modus = RUN_MODUS_HAND;
+          HMConfig::instance().run_modus = RUN_MODUS_HAND;
         } else if (rdata.value == "start") {
           log_e("[Start] TODO");
           // TODO(janusz)
@@ -436,28 +436,32 @@ KeyValue split(String wsdata) {
 //   root["isValidTime"] = gps.time.isValid();
 //   root["isValidGPS"] = gps.date.isValid();
 
-//   snprintf(tmpbuf, sizeof(tmpbuf), "%02d:%02d:%02d", cfg.gps_time.hour,
-//            cfg.gps_time.minute, cfg.gps_time.second);
+//   snprintf(tmpbuf, sizeof(tmpbuf), "%02d:%02d:%02d",
+//   HMConfig::instance().gps_time.hour,
+//            HMConfig::instance().gps_time.minute,
+//            HMConfig::instance().gps_time.second);
 //   root["time"] = tmpbuf;
 //   // log_e("%s", tmpbuf);
 
-//   snprintf(tmpbuf, sizeof(tmpbuf), "%4d-%02d-%02d", cfg.gps_time.year,
-//            cfg.gps_time.month, cfg.gps_time.day);
+//   snprintf(tmpbuf, sizeof(tmpbuf), "%4d-%02d-%02d",
+//   HMConfig::instance().gps_time.year,
+//            HMConfig::instance().gps_time.month,
+//            HMConfig::instance().gps_time.day);
 //   root["date"] = tmpbuf;
 //   // log_e("%s", tmpbuf);
 
-//   root["lat"] = cfg.gps_location.latitude;
-//   root["lng"] = cfg.gps_location.longitude;
-//   root["alt"] = cfg.gps_location.altitude;
-//   root["course"] = cfg.gps_move.course;
-//   root["speed"] = cfg.gps_move.speed;
+//   root["lat"] = HMConfig::instance().gps_location.latitude;
+//   root["lng"] = HMConfig::instance().gps_location.longitude;
+//   root["alt"] = HMConfig::instance().gps_location.altitude;
+//   root["course"] = HMConfig::instance().gps_move.course;
+//   root["speed"] = HMConfig::instance().gps_move.speed;
 //   // have to show by more static
-//   root["temp"] = cfg.WXdata.temp;
-//   root["humidity"] = cfg.WXdata.humidity;
-//   root["pressure"] = cfg.WXdata.pressure;
+//   root["temp"] = HMConfig::instance().WXdata.temp;
+//   root["humidity"] = HMConfig::instance().WXdata.humidity;
+//   root["pressure"] = HMConfig::instance().WXdata.pressure;
 //   root["sensor"] = "BME280";
-//   root["sat"] = cfg.gps_meta.sat;
-//   root["hdop"] = cfg.gps_meta.hdop;
+//   root["sat"] = HMConfig::instance().gps_meta.sat;
+//   root["hdop"] = HMConfig::instance().gps_meta.hdop;
 //   uint16_t len = measureJson(root);
 //   // log_e("%d", len); // @FIXME remove
 //   // serializeJson(root, Serial);

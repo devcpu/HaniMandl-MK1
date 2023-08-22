@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-18 01:58
+ * Last Modified: 2023-08-22 17:05
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -36,8 +36,8 @@ extern HMConfig cfg;
 
 String DefaultTemplating(const String &var) {
   if (var == "SERVER_IP") {
-    log_e("%s", cfg.localIP.c_str());
-    return cfg.localIP;
+    log_e("%s", HMConfig::instance().localIP.c_str());
+    return HMConfig::instance().localIP;
   }
   if (var == "HTMLTILE") {
     return htmltitle;
@@ -52,52 +52,52 @@ String DefaultTemplating(const String &var) {
     return mainmenue;
   }
   if (var == "los_number") {
-    return cfg.los_number;
+    return HMConfig::instance().los_number;
   }
   if (var == "date_filling") {
-    return cfg.date_filling;
+    return HMConfig::instance().date_filling;
   }
   if (var == "weight_empty") {
-    return String(cfg.weight_empty);
+    return String(HMConfig::instance().weight_empty);
   }
   if (var == "weight_filling") {
-    return String(cfg.weight_filling);
+    return String(HMConfig::instance().weight_filling);
   }
   if (var == "beekeeping") {
-    return cfg.beekeeping;
+    return HMConfig::instance().beekeeping;
   }
   if (var == "angle_max_hard") {
-    return String(cfg.angle_max_hard);
+    return String(HMConfig::instance().angle_max_hard);
   }
   if (var == "angle_min_hard") {
-    return String(cfg.angle_min_hard);
+    return String(HMConfig::instance().angle_min_hard);
   }
   if (var == "angle_max") {
-    return String(cfg.angle_max);
+    return String(HMConfig::instance().angle_max);
   }
   if (var == "angle_min") {
-    return String(cfg.angle_min);
+    return String(HMConfig::instance().angle_min);
   }
   if (var == "angle_fine") {
-    return String(cfg.angle_fine);
+    return String(HMConfig::instance().angle_fine);
   }
   if (var == "glass_tolerance") {
-    return String(cfg.glass_tolerance);
+    return String(HMConfig::instance().glass_tolerance);
   }
   if (var == "weight_calibrate") {
-    return String(cfg.weight_calibrate);
+    return String(HMConfig::instance().weight_calibrate);
   }
   if (var == "glass_count") {
-    return String(cfg.glass_count);
+    return String(HMConfig::instance().glass_count);
   }
   if (var == "weight_fine") {
-    return String(cfg.weight_fine);
+    return String(HMConfig::instance().weight_fine);
   }
   if (var == "waagen_gewicht") {
     return String("not implemented yet");
   }
   if (var == "run_modus") {
-    if (cfg.run_modus == RUN_MODUS_AUTO) {
+    if (HMConfig::instance().run_modus == RUN_MODUS_AUTO) {
       return String("Auto");
     } else {
       return String("Hand");

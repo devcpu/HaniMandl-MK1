@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-13 03:14
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-22 03:06
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_WIWIMANAGERX_WIFIMANAGERX_H_
@@ -22,7 +22,7 @@
 #include <ESPAsyncWiFiManager.h>
 #include <HMConfig.h>
 #include <Ticker.h>
-#include <config.h>
+#include <appconfig.h>
 
 #include "esp_log.h"
 
