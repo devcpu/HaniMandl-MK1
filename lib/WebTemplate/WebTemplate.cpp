@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 17:05
+ * Last Modified: 2023-08-23 01:23
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -67,19 +67,19 @@ String DefaultTemplating(const String &var) {
     return HMConfig::instance().beekeeping;
   }
   if (var == "angle_max_hard") {
-    return String(HMConfig::instance().angle_max_hard);
+    return String(HMConfig::instance().servodata.angle_max_hard);
   }
   if (var == "angle_min_hard") {
-    return String(HMConfig::instance().angle_min_hard);
+    return String(HMConfig::instance().servodata.angle_min_hard);
   }
   if (var == "angle_max") {
-    return String(HMConfig::instance().angle_max);
+    return String(HMConfig::instance().servodata.angle_max);
   }
   if (var == "angle_min") {
-    return String(HMConfig::instance().angle_min);
+    return String(HMConfig::instance().servodata.angle_min);
   }
   if (var == "angle_fine") {
-    return String(HMConfig::instance().angle_fine);
+    return String(HMConfig::instance().servodata.angle_fine);
   }
   if (var == "glass_tolerance") {
     return String(HMConfig::instance().glass_tolerance);

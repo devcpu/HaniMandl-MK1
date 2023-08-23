@@ -9,11 +9,13 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-22 18:47
+ * Last Modified: 2023-08-23 01:17
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <main.h>
+
+extern HX711 scale;
 
 // extern DNSServer dns;
 // extern Ticker ticker;
@@ -53,6 +55,9 @@ float weight_current = 0;
 void loop() {
   //   // donothing();
   // show_scale_data();
-
-  weight2seriell(weight_current);
+  if (HMConfig::instance().run_modus != RUN_MODUS_STOPPED) {
+    weight_current = scale.get_units(LOADCELL_READ_TIMES);
+    weight2seriell(weight_current);
+    handleWeightAndServo(weight_current);
+  }
 }

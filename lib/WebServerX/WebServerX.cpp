@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-22 17:01
+ * Last Modified: 2023-08-23 01:25
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -88,14 +88,19 @@ void WebserverStart(void) {
       if (isNumber(weight_filling_S)) {
         HMConfig::instance().weight_filling = weight_filling_S.toInt();
       }
+      HMConfig::instance().date_filling = getWebParam(request, "date_filling");
+      HMConfig::instance().los_number = getWebParam(request, "los_number");
+    }
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  SetupFillingTemplating);
+  });
 
+  WebServer->on("/emptyglass", HTTP_GET, [](AsyncWebServerRequest *request) {
+    if (showRequest(request)) {
       String weight_empty_S = (getWebParam(request, "weight_empty"));
       if (isNumber(weight_empty_S)) {
         HMConfig::instance().weight_empty = weight_empty_S.toInt();
       }
-
-      HMConfig::instance().date_filling = getWebParam(request, "date_filling");
-      HMConfig::instance().los_number = getWebParam(request, "los_number");
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
                   SetupFillingTemplating);
@@ -341,9 +346,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       if (rdata.key == "angle_max") {
         log_d("got angle_max");
         if (isNumber(rdata.value)) {
-          log_d("Before: %d", HMConfig::instance().angle_max);
-          HMConfig::instance().angle_max = rdata.value.toInt();
-          log_d("After: %d", HMConfig::instance().angle_max);
+          log_d("Before: %d", HMConfig::instance().servodata.angle_max);
+          HMConfig::instance().servodata.angle_max = rdata.value.toInt();
+          log_d("After: %d", HMConfig::instance().servodata.angle_max);
         } else {
           log_e("value of angle_max is not a valid Int %s", rdata.value);
         }
@@ -352,9 +357,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       if (rdata.key == "angle_fine") {
         log_d("got angle_fine");
         if (isNumber(rdata.value)) {
-          log_d("Before: %d", HMConfig::instance().angle_fine);
-          HMConfig::instance().angle_fine = rdata.value.toInt();
-          log_d("After: %d", HMConfig::instance().angle_fine);
+          log_d("Before: %d", HMConfig::instance().servodata.angle_fine);
+          HMConfig::instance().servodata.angle_fine = rdata.value.toInt();
+          log_d("After: %d", HMConfig::instance().servodata.angle_fine);
         } else {
           log_e("value of angle_fine is not a valid Int %s", rdata.value);
         }
@@ -378,11 +383,10 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
         } else if (rdata.value == "hand") {
           HMConfig::instance().run_modus = RUN_MODUS_HAND;
         } else if (rdata.value == "start") {
-          log_e("[Start] TODO");
-          // TODO(janusz)
+          log_e("[Start]");
+          HMConfig::instance().start = true;
         } else if (rdata.value == "stop") {
-          log_e("[STOP] TODO");
-          // TODO(janusz)
+          HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
         } else {
           log_e("Got wrong value for %s: %s", rdata.value.c_str(),
                 rdata.key.c_str());

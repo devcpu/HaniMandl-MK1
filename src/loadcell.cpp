@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 16:27
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 18:27
+ * Last Modified: 2023-08-23 01:12
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -16,14 +16,13 @@
 
 HX711 scale;
 
-float get_set_Weight() {
-  float units = scale.get_units(LOADCELL_READ_TIMES);
-  HMConfig::instance().weight_current = units;
-  return units;
-}
-
-void calibrate() {
+int calibrate() {
   log_i("Calibrate:\n");
+  if (HMConfig::instance().SCALE != 0 && HMConfig::instance().OFFSET != 0) {
+    scale.set_offset(HMConfig::instance().OFFSET);
+    scale.set_scale(HMConfig::instance().SCALE);
+    return 0;
+  }
   scale.set_scale(0);
   scale.set_offset(0);
   log_d("SCALE: %f", scale.get_scale());
@@ -79,6 +78,7 @@ void calibrate() {
   log_d("OFFSET: %d\n\n", scale.get_offset());
   delay(500);
   show_scale_data();
+  return 0;
 }
 
 void setupLoadcell() {

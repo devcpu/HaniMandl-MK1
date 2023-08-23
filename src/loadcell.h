@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 16:52
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 18:26
+ * Last Modified: 2023-08-23 01:12
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -22,10 +22,9 @@
 
 #include "esp_log.h"
 
-void calibrate();
+int calibrate();
 void weight2seriell();
 void weight2seriell(float weight_current);
-float get_set_Weight();
 void show_scale_data();
 void setupLoadcell();
 
