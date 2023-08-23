@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 02:22
+ * Last Modified: 2023-08-23 18:32
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -40,10 +40,6 @@ void Glass::setScaleUnit(float sunits) {
     log_d("_honey_weight=%d", _honey_weight);
   }
 
-  if (sunits > _config_glass_empty + _config_glass_empty * 0.1) {
-    _glass_in_work = true;
-  }
-
   if (_honey_weight >= _config_weight_filling - corr) {
     log_d("_is_fine_full=true");
     _is_full = true;
@@ -64,6 +60,9 @@ void Glass::setScaleUnit(float sunits) {
     _is_auto_start = true;
   }
 
+  if (sunits > _config_glass_empty * 0.8) {
+    _glass_in_work = true;
+  }
   // if (_weight_last > 50 && sunits < _weight_last - _weight_last / 10) {
   //   log_d("_weight_last=%d", _weight_last);
   //   log_d("_honey_weight=%d", _honey_weight);
@@ -71,7 +70,7 @@ void Glass::setScaleUnit(float sunits) {
   //   _is_glass_removed = true;
   // }
   // _weight_last = sunits;
-  if (sunits < _config_glass_empty && _glass_in_work) {
+  if (sunits < _config_glass_empty * 0.8 && _glass_in_work) {
     log_d("sunits=%f", sunits);
     log_d("_config_glass_empty=%d", _config_glass_empty);
     log_d("_is_glass_removed=true");

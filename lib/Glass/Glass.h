@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 02:18
+ * Last Modified: 2023-08-23 19:01
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -42,6 +42,9 @@ class Glass {
   bool isGlassRemoved() { return _is_glass_removed; }
 
   bool isAutoStart() { return _is_auto_start; }
+
+  // has to set to true if filling starts
+  void setGlassInWork(bool status = true) { _glass_in_work = status; }
 
   uint8_t corr_conter = 0;
   uint16_t corr = 0;

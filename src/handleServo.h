@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 01:05
+ * Last Modified: 2023-08-23 18:41
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -23,9 +23,12 @@
 #include <appconfig.h>
 
 typedef enum {
+  FILLING_STATUS_START,
   FILLING_STATUS_OPEN,
   FILLING_STATUS_FINE,
   FILLING_STATUS_CLOSED,
+  FILLING_STATUS_FOLLOW_UP,
+  FILLING_STATUS_STOPPED,
 } FillingStatus;
 
 void setupServo();
