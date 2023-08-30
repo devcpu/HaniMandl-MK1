@@ -47,6 +47,7 @@ String ESPHelper::getFlashMode() {
  *
  * @return a string that contains a table of system information.
  */
+// TODO -  pse add ESP.getMaxFreeBlockSize() and ESP.getHeapFragmentation()
 Table2RData *ESPHelper::getSystemInfoTable(void) {
 #ifdef ESP32
   static Table2RData systemdata[30];
