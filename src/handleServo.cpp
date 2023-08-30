@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 02:20
+ * Last Modified: 2023-08-30 02:59
  * Modified By: Johannes G.  Arlt
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -64,13 +64,16 @@ int handleWeightAndServo(float weight_scale_brutto) {
 
     // starts if automodus and new empty glass
     if (glass.isAutoStart() && hmcfg.fs == FILLING_STATUS_STANDBY) {
-      delay(500);                               // cool down
-      glass.setTaraWeight(scale.get_units(5));  // TODO - 5 make delay
-      servo.write(hmcfg.servodata.angle_max);
-      hmcfg.fs = FILLING_STATUS_OPEN;
-      glass.setGlassInWork(true);
-      log_d("switch to automodus");
-      return 0;
+      delay(500);
+      glass.setScaleUnit(scale.get_units());      // cool down
+      if (glass.isAutoStart()) {                  // 2nd check
+        glass.setTaraWeight(scale.get_units(5));  // TODO - 5 makes delay
+        servo.write(hmcfg.servodata.angle_max);
+        hmcfg.fs = FILLING_STATUS_OPEN;
+        glass.setGlassInWork(true);
+        log_d("switch to automodus");
+        return 0;
+      }
     }
 
     if (glass.isFineFull() && hmcfg.fs == FILLING_STATUS_OPEN) {

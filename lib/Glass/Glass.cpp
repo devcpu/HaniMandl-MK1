@@ -6,14 +6,13 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 01:27
+ * Last Modified: 2023-08-30 02:47
  * Modified By: Johannes G.  Arlt
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
 
 #include <Glass.h>
-#include <assert.h>
 
 Glass::Glass() { this->reset(); }
 void Glass::reset() {
@@ -63,7 +62,7 @@ void Glass::setScaleUnit(float sunits) {
 
   if (_honey_weight >= _config_weight_servo_fine &&
       (_honey_weight < _config_weight_filling)) {
-    // log_d("_is_fine_full");
+    log_d("_is_fine_full");
     // Serial.printf("\r _is_fine_full      %6.2f sunits", sunits);
     _is_fine_full = true;
   } else {
@@ -75,7 +74,7 @@ void Glass::setScaleUnit(float sunits) {
     // log_d("sunits=%f", sunits);
     // log_d("_config_glass_empty=%d", _config_glass_empty);
     // log_d("_config_glass_tolerance=%d", _config_glass_tolerance);
-    // log_d("_is_auto_start");
+    log_d("_is_auto_start");
     // Serial.printf("\r _is_auto_start     %6.2f sunits", sunits);
     _is_auto_start = true;
   } else {
@@ -85,7 +84,7 @@ void Glass::setScaleUnit(float sunits) {
   if (sunits >
       _config_glass_empty + _config_glass_tolerance + 5) {  // TODO - replace 5
     // Serial.printf("_glass_in_work %6.2f  sunits", sunits);
-    // log_d("_glass_in_work");
+    log_d("_glass_in_work");
     _glass_in_work = true;
   } else {
     _glass_in_work = false;
@@ -98,10 +97,13 @@ void Glass::setScaleUnit(float sunits) {
   //   _is_glass_removed = true;
   // }
   // _weight_last = sunits;
-  if (sunits < _config_glass_empty * 0.8 && _glass_in_work) {
+
+  if (sunits < _config_glass_empty * 0.8 &&
+      (HMConfig::instance().fs == FILLING_STATUS_OPEN ||
+       HMConfig::instance().fs == FILLING_STATUS_FINE)) {
     // log_d("sunits=%f", sunits);
     // log_d("_config_glass_empty=%d", _config_glass_empty);
-    // log_d("_is_glass_removed");
+    log_d("_is_glass_removed");
     // Serial.printf("\r _is_glass_removed  %6.2f sunits", sunits);
     _is_glass_removed = true;
   } else {
