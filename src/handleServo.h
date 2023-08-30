@@ -1,13 +1,13 @@
 /*
- * File: /handleServo.h
+ * File: handleServo.h
  * Project: /home/janusz/git/esp32/HaniMandl-MK1/src
  * Description:
  * -----
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 18:41
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 01:50
+ * Modified By: Johannes G.  Arlt
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
@@ -21,15 +21,6 @@
 #include <HMConfig.h>
 #include <HX711.h>
 #include <appconfig.h>
-
-typedef enum {
-  FILLING_STATUS_START,
-  FILLING_STATUS_OPEN,
-  FILLING_STATUS_FINE,
-  FILLING_STATUS_CLOSED,
-  FILLING_STATUS_FOLLOW_UP,
-  FILLING_STATUS_STOPPED,
-} FillingStatus;
 
 void setupServo();
 int handleWeightAndServo(float weight_current);

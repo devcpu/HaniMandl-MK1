@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-22 17:29
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 01:29
+ * Modified By: Johannes G.  Arlt
  */
 
 #ifndef LIB_APPCONFIG_APPCONFIG_H_
@@ -33,7 +33,7 @@
 // Pin definition
 const int LOADCELL_DOUT_PIN = 5;
 const int LOADCELL_SCK_PIN = 17;
-const int LOADCELL_READ_TIMES = 1;
+const int LOADCELL_READ_TIMES = 2;
 const int SERVO_PIN = 33;
 const int SERVO_FREQUENCY = 300;
 const int SERVO_MIN_PULSE = 500;

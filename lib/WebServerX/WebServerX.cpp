@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-23 01:25
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 02:22
+ * Modified By: Johannes G.  Arlt
  */
 
 #include <WebServerX.h>
@@ -280,6 +280,7 @@ int showRequest(AsyncWebServerRequest *request) {
   if (request->contentLength()) {
     log_e("_CONTENT_TYPE: %s\n", request->contentType().c_str());
     log_e("_CONTENT_LENGTH: %u\n", request->contentLength());
+    log_e("Args: %d", request->args());
   }
 
   int i;
@@ -337,11 +338,13 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
     log_e("Websocket client sended data");
     AwsFrameInfo *info = reinterpret_cast<AwsFrameInfo *>(arg);
     if (info->opcode == WS_TEXT) {
+      data[len] = 0;
       log_d("%s\n", reinterpret_cast<char *>(data));
       String wsdata = String(reinterpret_cast<char *>(data));
       log_d("%s", wsdata.c_str());
       KeyValue rdata = split(wsdata);
-      log_d("%s", rdata.key.c_str());
+      log_d("key: %s", rdata.key.c_str());
+      log_d("value: %s", rdata.value.c_str());
 
       if (rdata.key == "angle_max") {
         log_d("got angle_max");
@@ -380,6 +383,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
         log_d("got button with %s", rdata.value);
         if (rdata.value == "auto") {
           HMConfig::instance().run_modus = RUN_MODUS_AUTO;
+          HMConfig::instance().fs = FILLING_STATUS_CLOSED;
         } else if (rdata.value == "hand") {
           HMConfig::instance().run_modus = RUN_MODUS_HAND;
         } else if (rdata.value == "start") {

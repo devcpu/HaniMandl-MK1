@@ -9,14 +9,15 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-23 01:17
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 01:12
+ * Modified By: Johannes G.  Arlt
  */
 
 #include <main.h>
 
-extern HX711 scale;
-
+HX711 scale;
+Servo servo;
+Glass glass;
 // extern DNSServer dns;
 // extern Ticker ticker;
 
@@ -33,6 +34,9 @@ void setup() {
   WebserverStart();
   setupLoadcell();
   setupServo();
+  servo.write(HMConfig::instance().servodata.angle_max);
+  delay(2000);
+  servo.write(HMConfig::instance().servodata.angle_min);
 
   log_i("%s", HMConfig::instance().beekeeping.c_str());
   log_i("Setup done! Starting loop ... ");
@@ -57,7 +61,7 @@ void loop() {
   // show_scale_data();
   if (HMConfig::instance().run_modus != RUN_MODUS_STOPPED) {
     weight_current = scale.get_units(LOADCELL_READ_TIMES);
-    weight2seriell(weight_current);
+    // weight2seriell(weight_current);
     handleWeightAndServo(weight_current);
   }
 }

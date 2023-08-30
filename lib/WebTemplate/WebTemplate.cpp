@@ -9,8 +9,8 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 01:23
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-29 21:38
+ * Modified By: Johannes G.  Arlt
  */
 
 #include <WebTemplate.h>
@@ -241,7 +241,7 @@ String readSPIFFS2String(const String &path) {
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size) {
   ESP_LOGD("WebServerX", "%s", name);
-  ESP_LOGD("WebServerX", "%s", selected);
+  ESP_LOGD("WebServerX", "%s", selected.c_str());
 
   String buf = "\n\n<select name='" + String(name) + "'>\n";
 

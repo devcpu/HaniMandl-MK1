@@ -6,15 +6,15 @@
  * Created Date: 2023-08-22 16:27
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 01:12
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 01:03
+ * Modified By: Johannes G.  Arlt
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
 
 #include <loadcell.h>
 
-HX711 scale;
+extern HX711 scale;
 
 int calibrate() {
   log_i("Calibrate:\n");
@@ -114,7 +114,7 @@ void weight2seriell() { weight2seriell(scale.get_units(LOADCELL_READ_TIMES)); }
 
 void weight2seriell(float weight_current) {
   for (uint8_t i = 0; i <= 30; i++) {
-    Serial.print("\b");
+    Serial.print("\r            \r");  // FIXME -
   }
   Serial.printf("%6.2f g", round(weight_current));
 }

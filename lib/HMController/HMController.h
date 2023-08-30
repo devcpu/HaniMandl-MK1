@@ -9,8 +9,8 @@
  * Created Date: 2023-08-15 03:08
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 00:32
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 00:24
+ * Modified By: Johannes G.  Arlt
  */
 
 #ifndef LIB_HMCONTROLLER_HMCONTROLLER_H_
@@ -34,8 +34,8 @@ class HMController {
 
  private:
   int16_t weight = 0;
-  void weigh();
-  void report();
+  void getWeight();
+  void getReport();
   void sendMQTT();
   void sendAPIRequest();
 };

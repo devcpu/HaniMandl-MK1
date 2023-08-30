@@ -6,8 +6,8 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 19:01
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 01:19
+ * Modified By: Johannes G.  Arlt
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
@@ -43,6 +43,8 @@ class Glass {
 
   bool isAutoStart() { return _is_auto_start; }
 
+  bool isNoGlass() { return _no_glass; }
+
   // has to set to true if filling starts
   void setGlassInWork(bool status = true) { _glass_in_work = status; }
 
@@ -55,17 +57,18 @@ class Glass {
   bool _is_fine_full = false;
   bool _is_full = false;
   bool _glass_in_work = false;
-  uint16_t _weight_last = 0;
+  bool _no_glass = true;
+  int16_t _weight_last = 0;
   uint16_t _config_glass_empty = 0;
 
   /// @brief weight of this glass (empty)
-  uint16_t _glass_weight = 0;
+  int16_t _glass_weight = 0;
 
   /// @brief toleranc for automatic detection
   uint8_t _config_glass_tolerance = 0;
 
   /// @brief real honey weight
-  uint16_t _honey_weight = 0;
+  int16_t _honey_weight = 0;
 
   /// @brief target weight (from HMConfig)
   uint16_t _config_weight_filling = 0;

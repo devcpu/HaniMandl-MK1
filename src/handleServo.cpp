@@ -6,16 +6,16 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 19:02
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 02:20
+ * Modified By: Johannes G.  Arlt
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
 
 #include <handleServo.h>
 
-Servo servo;
-Glass glass;
+extern Servo servo;
+extern Glass glass;
 extern HX711 scale;
 
 void setupServo() {
@@ -28,72 +28,87 @@ void setupServo() {
 }
 
 int handleWeightAndServo(float weight_scale_brutto) {
-  static FillingStatus fs = FILLING_STATUS_CLOSED;
-  HMConfig& hmcfg = HMConfig::instance();
+  HMConfig& hmcfg = HMConfig::instance();  // TODO - got pointer?
+  log_d("automatic=%s fs=%s", hmcfg.runmod2string(hmcfg.run_modus).c_str(),
+        hmcfg.fillingstatus2string(hmcfg.fs).c_str());
+
+  if (hmcfg.run_modus == RUN_MODUS_AUTO &&
+      (hmcfg.fs == FILLING_STATUS_CLOSED ||
+       hmcfg.fs == FILLING_STATUS_STOPPED) &&
+      glass.isNoGlass()) {
+    hmcfg.fs = FILLING_STATUS_STANDBY;
+  }
   glass.setScaleUnit(weight_scale_brutto);
 
-  /* --------------------------------------------------------------------------
-   */
   /* ----------------------------- AUTOMATIK BEGIN ----------------------------
    */
-  /* --------------------------------------------------------------------------
-   */
+
   if (hmcfg.run_modus == RUN_MODUS_AUTO) {
-    /* --------------------------------------------------------------------------
-     */
     if (glass.isGlassRemoved() &&
-        (fs == FILLING_STATUS_FINE || fs == FILLING_STATUS_OPEN ||
-         fs == FILLING_STATUS_START)) {
+        (hmcfg.fs == FILLING_STATUS_FINE || hmcfg.fs == FILLING_STATUS_OPEN)) {
       servo.write(hmcfg.servodata.angle_min);
-      fs = FILLING_STATUS_STOPPED;
+      hmcfg.fs = FILLING_STATUS_STOPPED;
       log_e("Glass remove detected! STOP");
       hmcfg.run_modus = RUN_MODUS_STOPPED;
       glass.reset();
     }
 
-    if (hmcfg.run_modus == RUN_MODUS_STOPPED) {
+    if (hmcfg.run_modus == RUN_MODUS_STOPPED) {  // TODO - move up?
       servo.write(hmcfg.servodata.angle_min);
-      fs = FILLING_STATUS_STOPPED;
-      log_e("fs = FILLING_STATUS_CLOSED");
-      // log_event(weight_scale_brutto, weight_scale_brutto, fs,
+      hmcfg.fs = FILLING_STATUS_STOPPED;
+      log_e("hmcfg.fs = FILLING_STATUS_CLOSED");
+      // log_event(weight_scale_brutto, weight_scale_brutto, hmcfg.fs,
       // hmcfg.run_modus);
       return 0;
     }
 
     // starts if automodus and new empty glass
-    if (glass.isAutoStart() && fs == FILLING_STATUS_START) {
-      delay(500);  // cool down
-      glass.setTaraWeight(scale.get_units(5));
+    if (glass.isAutoStart() && hmcfg.fs == FILLING_STATUS_STANDBY) {
+      delay(500);                               // cool down
+      glass.setTaraWeight(scale.get_units(5));  // TODO - 5 make delay
       servo.write(hmcfg.servodata.angle_max);
-      fs = FILLING_STATUS_OPEN;
+      hmcfg.fs = FILLING_STATUS_OPEN;
       glass.setGlassInWork(true);
       log_d("switch to automodus");
       return 0;
     }
 
-    if (glass.isFineFull() && fs == FILLING_STATUS_OPEN) {
+    if (glass.isFineFull() && hmcfg.fs == FILLING_STATUS_OPEN) {
       servo.write(hmcfg.servodata.angle_fine);
       log_d("Reach fine filling. Weight fine is %d", hmcfg.weight_fine);
-      fs = FILLING_STATUS_FINE;
+      hmcfg.fs = FILLING_STATUS_FINE;
       return 0;
     }
 
-    if (glass.isFull() && fs == FILLING_STATUS_FINE) {
+    if (glass.isFull() && hmcfg.fs == FILLING_STATUS_FINE) {
       // TODO(janusz) Gewichtskorektur
       servo.write(hmcfg.servodata.angle_min);
       log_i("Glass full! :-)))");
-      fs = FILLING_STATUS_FOLLOW_UP;
+      hmcfg.fs = FILLING_STATUS_FOLLOW_UP;
       return 0;
     }
 
+    if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
+      delay(5000);
+      // FIXME - calc
+      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
+      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
+      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
+      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
+      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
+      hmcfg.fs = FILLING_STATUS_CLOSED;
+    }
+
     if (glass.isFull() &&
-        (fs == FILLING_STATUS_OPEN || fs == FILLING_STATUS_FINE)) {
+        (hmcfg.fs == FILLING_STATUS_OPEN ||
+         hmcfg.fs == FILLING_STATUS_FINE)) {  // TODO - move up?
       servo.write(hmcfg.servodata.angle_min);
       log_e("Panic close! This should never happens!");
       hmcfg.run_modus = RUN_MODUS_STOPPED;
-      fs = FILLING_STATUS_STOPPED;
+      hmcfg.fs = FILLING_STATUS_STOPPED;
       return 0;
     }
+    // log_e("no if catching");
   }
   /* ------------------------------ AUTOMATIK END -----------------------------
    */
@@ -111,35 +126,9 @@ int handleWeightAndServo(float weight_scale_brutto) {
 
   // log_e("No catch found! RunModus=%s, FillingStatus=%s, Weight=%f,
   // weight_glass_netto=%d", runmod2string(hmcfg.run_modus).c_str(),
-  // fillingstatus2string(fs).c_str(), weight_scale_brutto, weight_glass_netto);
-  // log_d("\n");
+  // fillingstatus2string(hmcfg.fs).c_str(), weight_scale_brutto,
+  // weight_glass_netto); log_d("\n");
   return 1;
-}
-
-String runmod2string(RunModus mod) {
-  switch (mod) {
-    case RUN_MODUS_AUTO:
-      return String("RUN_MODUS_AUTO");
-    case RUN_MODUS_HAND:
-      return String("RUN_MODUS_HAND");
-    case RUN_MODUS_STOPPED:
-      return String("RUN_MODUS_STOPPED");
-    default:
-      return String("Unknown modus");
-  }
-}
-
-String fillingstatus2string(FillingStatus status) {
-  switch (status) {
-    case FILLING_STATUS_FINE:
-      return String("FILLING_STATUS_FINE");
-    case FILLING_STATUS_OPEN:
-      return String("FILLING_STATUS_OPEN");
-    case FILLING_STATUS_CLOSED:
-      return String("FILLING_STATUS_CLOSED");
-    default:
-      return String("unknown filling status");
-  }
 }
 
 // int log_event(float weight_scale_brutto, int16_t weight_glass_netto,

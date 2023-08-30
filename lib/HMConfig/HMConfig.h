@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-23 01:11
- * Modified By: Johannes G.  Arlt (janusz)
+ * Last Modified: 2023-08-30 02:05
+ * Modified By: Johannes G.  Arlt
  */
 
 #ifndef LIB_HMCONFIG_HMCONFIG_H_
@@ -24,6 +24,15 @@
 #include "esp_log.h"
 
 typedef enum { RUN_MODUS_STOPPED, RUN_MODUS_HAND, RUN_MODUS_AUTO } RunModus;
+
+typedef enum {
+  FILLING_STATUS_STANDBY,
+  FILLING_STATUS_OPEN,
+  FILLING_STATUS_FINE,
+  FILLING_STATUS_CLOSED,
+  FILLING_STATUS_FOLLOW_UP,
+  FILLING_STATUS_STOPPED,
+} FillingStatus;
 
 /// @brief all data relatet servo
 struct ServoData {
@@ -48,6 +57,8 @@ class HMConfig {
     static HMConfig _instance;
     return _instance;
   }
+  static String runmod2string(RunModus modus);
+  static String fillingstatus2string(FillingStatus status);
   String version = SOFTWARE_VERSION;
   String beekeeping = "Beekeeping Germany";  // TODO(janusz)
 
@@ -95,7 +106,11 @@ class HMConfig {
 
   /// @brief modus now auto / hand / stopped
   RunModus run_modus = RUN_MODUS_STOPPED;
+
   // AsyncWiFiManager wifiManager = NULL;
+
+  /// @brief status servo
+  FillingStatus fs = FILLING_STATUS_CLOSED;
 
   void write_config();
   void read_config();
