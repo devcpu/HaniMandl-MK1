@@ -1,1 +1,119 @@
-<h3>Kommt später mal</h3>
+
+<form action="setupwlan" class="w3-container w3-left-align">
+    <fieldset>
+        <legend>Wlan Modus:</legend>
+                <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_sta" checked onClick="showHide('id_wlan_modus_sta', 'id_wlan_modus_ap')"><label>mit Router verbunden (im heimischen Netzwerk)</label><br />
+                <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_ap" onClick="showHide('id_wlan_modus_ap', 'id_wlan_modus_sta')"><label>Hanimanl ist Accresspoint</label>
+    </fieldset>
+</form>
+
+<form id="id_wlan_modus_sta" action="setupwlan" class="w3-container w3-left-align">
+    <fieldset>
+        <legend>Zugangsdaten Router:</legend>
+        <label>SSID:</label>
+        <input type="text" class="w3-input" name="sta_user" value="%sta_user%">
+        <br />
+        <label>Passwort Router:</label>
+        <input type="password" class="w3-input" name="sta_pass">
+        <br />
+        <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
+        </div>
+    </fieldset>
+</form>
+
+<form id="id_wlan_modus_ap" action="setupwlan" class="w3-container w3-left-align">
+    <fieldset>
+        <legend>Zugangsdaten Router:</legend>
+        <label>SSID:</label>
+        <input type="text" class="w3-input" name="ap_user" value="%ap_user%">
+        <br />
+        <label>Passwort Router:</label>
+        <input type="password" class="w3-input" name="ap_pass">
+        <br />
+        <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
+        </div>
+    </fieldset>
+</form>
+
+
+<form action="setupwlan" class="w3-container w3-left-align">
+    <fieldset>
+        <legend>IP-Adresse:</legend>
+                <input class="w3-radio" type="radio" name="wlan_modus" value="ip_address_dhcp" checked onClick="showHide('', 'id_ip_address_fix')"><label>Vom Router (DHCP)</label><br />
+                <input class="w3-radio" type="radio" name="wlan_modus" value="ip_address_fix" onClick="showHide('id_ip_address_fix', '')"><label>Fix vergeben:</label>
+    </fieldset>
+</form>
+
+<form id="id_ip_address_fix" action="setupwlan" class="w3-container w3-left-align">
+<fieldset>
+    <legend>Fixe IP-Adressen:</legend>
+    <label>IP-Adresse Hanimandl:</label>
+    <input type="text" class="w3-input" name="ip_local" value="%ip_local%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <br />
+    <label>IP-Adresse Gateway:</label>
+    <input type="text"  class="w3-input" name="ip_gw" value="%ip_gw%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <br />
+    <label>Netzwerk:</label>
+    <input type="text"  class="w3-input" name="ip_net" value="%ip_net%" minlength="7" maxlength="15" size="15" placeholder="255.255.255.0" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <br />
+    <input type="submit" class="w3-btn w3-round w3-teal" name="ip_fix" value="Übernehmen">
+
+</fieldset>
+</form>
+
+<div class="w3-card-4">
+    <header class="w3-container w3-blue">
+        <h1>Optionale Spezialeinstellen</h1>
+      </header>
+      <div class="w3-container w3-left-align">
+        <p>
+            Die folgenden Einstellungen für einen optionalen MQTT-Server und/oder API-Server
+            können benutzt werden um die Abfüllungen elektronisch zu dokumentieren.
+            Dazu braucht man aber spezielle Netzwerk- Server und Infrastruktur. Ehe was für
+            Computer-Freaks.
+        </p>
+      </div>
+  </div>
+
+<form action="setupwlan" class="w3-container w3-left-align">
+    <fieldset>
+        <legend>MQTT Server:</legend>
+        <input class="w3-check" type="checkbox" name="mqtt_active" onClick="show('mqtt_active', 'id_mqtt_server')"><label>MQTT-Server aktivieren:</label><br />
+        <div id="id_mqtt_server" class="w3-container w3-left-align">
+        <input class="w3-check" type="checkbox" name="mqtt_tls"><label>TLS für MQTT-Server aktivieren:</label><br />
+        <br />
+        <label>IP Adresse MQTT-Server:</label>
+        <input type="text" class="w3-input" name="mqtt_ip" value="%mqtt_ip%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+        <br />
+        <label>Username für MQTT-Server:</label>
+        <input type="text" class="w3-input" name="mqtt_user" value="%mqtt_user%">
+        <br />
+        <label>Passwort für MQTT-Server:</label>
+        <input type="password" class="w3-input" name="mqtt_pass">
+        <br />
+        <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
+        </div>
+    </fieldset>
+</form>
+
+<form action="setupwlan" class="w3-container">
+    <fieldset>
+        <div class=" w3-left-align">
+        <legend>API Server:</legend>
+        <input class="w3-check" type="checkbox" name="api_active"  onClick="show('mqtt_active', 'id_mqtt_server')"><label>API-Server aktivieren:</label><br />
+        <input class="w3-check" type="checkbox" name="api_tls"><label>TLS für API-Server aktivieren:</label><br />
+        <br />
+        <label>IP Adresse API-Server:</label>
+        <input type="text" class="w3-input" name="api_ip" value="%api_ip%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+        <br />
+        <label>Username für API-Server:</label>
+        <input type="text" class="w3-input" name="api_user" value="%api_user%">
+        <br />
+        <label>Passwort für API-Server:</label>
+        <input type="password" class="w3-input" name="api_pass">
+        <br />
+    </div>
+    <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
+    </fieldset>
+
+</form>

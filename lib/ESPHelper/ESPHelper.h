@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 16:56
+ * Last Modified: 2023-08-31 13:54
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -17,6 +17,7 @@
 #define LIB_ESPHELPER_ESPHELPER_H_
 
 #include <Arduino.h>
+#include <Esp.h>
 #include <HMConfig.h>
 #include <appconfig.h>
 #include <rom/rtc.h>

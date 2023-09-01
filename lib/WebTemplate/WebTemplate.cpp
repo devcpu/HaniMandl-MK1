@@ -9,8 +9,8 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-29 21:38
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-31 23:49
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebTemplate.h>
@@ -48,9 +48,9 @@ String DefaultTemplating(const String &var) {
   if (var == "ERRORMSG") {
     return html_error.getErrorMsg();
   }
-  if (var == "mainmenue") {
-    return mainmenue;
-  }
+  //   if (var == "mainmenue") {
+  //     return mainmenue;
+  //   }
   if (var == "los_number") {
     return HMConfig::instance().los_number;
   }
@@ -173,8 +173,8 @@ String SystemInfoTemplating(const String &var) {
     return "System Info";
   }
   if (var == "BODY") {
-    return table2DGenerator(ESPHelper::getSystemInfoTable(), true) +
-           mainmenue;  // FIXME
+    return table2DGenerator(ESPHelper::getSystemInfoTable(), true);
+    // + mainmenue;
   }
   return DefaultTemplating(var);
 }
@@ -184,7 +184,7 @@ String DefaultProcessor(const String &var) {
     return "Main Menue";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/mainbutton.html");
+    return readSPIFFS2String("/into.html");
   }
   return DefaultTemplating(var);
 }
@@ -260,14 +260,11 @@ String optionsFieldGenerator(String selected, const char *name,
 bool isNumber(String val) {
   char buf[val.length() + 1];
   val.toCharArray(buf, val.length() + 1);
-  log_e("isNumber::length=%d", val.length());
   for (uint8_t i = 0; i < val.length(); i++) {
-    Serial.print(buf[i]);
     if (!isDigit(buf[i])) {
-      Serial.println(" is wrong");
+      log_e("%d", buf[i]);
       return false;
     }
-    Serial.println(" is ok");
   }
   return true;
 }
@@ -287,13 +284,13 @@ String table2DGenerator(Table2RData *systemdata, boolean bold) {
 
   String retvar("<table>");
   String tdend("</td></tr>");
-  String tdstart("<tr><td>");
-  String tdmittle("</td><td>");
+  String tdstart("<tr><td class=\"w3-left-align\">");
+  String tdmittle("</td><td class=\"w3-right-align\">");
 
   if (bold) {
     log_e("bold active");
-    tdstart = "<tr><td><b>";
-    tdmittle = "</b></td><td>";
+    tdstart = "<tr><td class=\"w3-left-align b\">";
+    tdmittle = "</td><td class=\"w3-right-align\">";
   }
 
   for (uint8_t i = 0; i <= 25; i++) {

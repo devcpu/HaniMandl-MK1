@@ -1,26 +1,40 @@
 <!DOCTYPE html>
-<html lang="de" class="">
+<html lang="de">
+<meta charset='utf-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>%HTMLTILE%</title>
+<!-- <link rel="stylesheet" href="hanimandlmk1.css"> -->
+<link rel="stylesheet" href="w3.css">
+<!-- <link rel="stylesheet" href="w3pro.css"> -->
+<!-- <link rel="stylesheet" href="w3-theme-xcolor.css"> -->
+<script src="hanimandlmk1.js"></script>
 
-<head>
-    <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-    <title>%HTMLTILE%</title>
-    <link rel="stylesheet" href="hanimandlmk1.css">
-    <script src="hanimandlmk1.js"></script>
-</head>
-
-<body>
-    <div style='text-align:left;display:inline-block;min-width:340px;'>
-        <div style='text-align:center;'><noscript>please activate JavaScipt for simple LoRaAPRS<br /></noscript>
-            <h3>%H3TITLE%</h3>
-            <h2>%H2TITLE%</h2>
+<body class="w3-pale-yellow">
+    <nav class="w3-sidebar w3-bar-block w3-card" id="mySidebar">
+        <div class="w3-container w3-theme">
+            <span onclick="closeSidebar()" class="w3-button w3-display-topright w3-large">X</span>
         </div>
-        <div id='error' name='errormsg'>%ERRORMSG%</div>
-        %BODY%
-        <div style='text-align:right;font-size:11px;'>
-            <hr /><a href='https://dl7uxa.de' target='_blank' style='color:#aaa;'>HaniMandlMKI v 0.1 by Jan (DL7UXA)</a>
-        </div>
+        <a class="w3-bar-item w3-button" onClick="closeSidebar();" href="/filling">Abfüllen</a>
+        <a class="w3-bar-item w3-button" href="/setupfilling">Einstellungen Abfüllung</a>
+        <a class="w3-bar-item w3-button" href="/setup">Grundeinrichtung</a>
+        <a class="w3-bar-item w3-button" href="/calibrate">Waage kalibrieren</a>
+        <a class="w3-bar-item w3-button" href="/setupwlan">Konfiguration WLan</a>
+        <a class="w3-bar-item w3-button" href="/updatefirmware">Firmware Update</a>
+        <a class="w3-bar-item w3-button" href="/systeminfo">System Info</a>
+        <a class="w3-bar-item w3-button" href="/reboot">System neu starten</a>
+    </nav>
+    <header class="w3-bar w3-card w3-theme w3-teal">
+        <button class="w3-bar-item w3-button w3-xxxlarge w3-hover-theme" onclick="openSidebar()">&#9776;</button>
+        <h2 class="w3-bar-item">%H2TITLE%</h2>
+    </header>
+    <div style='text-align:center;'><noscript>Bitte JavaScript aktivieren, sonst läuft nix!<br /></noscript></div>
+    <div id='error' name='errormsg' display: none>%ERRORMSG%</div>
+    %BODY%
+    <div style='text-align:right;font-size:11px;'><a href='https://dl7uxa.de' target='_blank' style='color:#aaa;'>HaniMandlMKI v 0.1 by Jan (DL7UXA)</a>
     </div>
+    <script>
+        closeSidebar();
+    </script>
 </body>
 
 </html>

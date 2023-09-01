@@ -1,31 +1,22 @@
-<div id='error' name='error'></div>
-<form action="setupfilling">
+<form action="setupfilling" class="w3-container">
 <fieldset>
     <legend>Abfüllung:</legend>
     <label>Füllgewicht:
-        <input type="text" list="weight_filling" name="weight_filling" value="%weight_filling%" />
-        <datalist id="weight_filling">
-            <option>130</option>
-            <option>250</option>
-            <option>330</option>
-            <option>500</option>
-        </datalist>
-    </label><br />
+        <input type="number" id="weight_filling" class="w3-input" min=10 max=5000 name="weight_filling" value="%weight_filling%" />
+    </label>
+    <br />
+    <label>Glas Leergewicht (Tara für Auto-Erkennung):
+        <input type="number" id="weight_empty" class="w3-input" min="0" max="5000" name="weight_empty" value="%weight_empty%" required>
+    </label>
+    <br />
     <label>Los Nummer:
-        <input type="text" maxlength="18" name="los_number" value="%los_number%" required><br />
-    </label><br />
+        <input type="text" id="los_number" class="w3-input" maxlength="18" name="los_number" value="%los_number%" required><br />
+    </label>
+    <br />
     <label>Datum:
-        <input type="text" maxlength="18" name="date_filling" value="%date_filling%" required><br />
-    </label><br />
-    <input type="submit" value="Übernehmen">
+        <input type="date" id="date_filling" class="w3-input" maxlength="18" name="date_filling" value="%date_filling%" required><br />
+    </label>
+    <br />
+    <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
 </fieldset>
 </form>
-  <form action="emptyglass">
-    <fieldset>
-<label>Leergewicht:
-    <input type="text" maxlength="18" name="weight_empty" value="%weight_empty%" required><br />
-</label><br />
-<input type="submit" value="Leergewicht übernehmen">
-</fieldset>
-</form>
-%mainmenue%

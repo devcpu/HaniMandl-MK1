@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-22 17:04
+ * Last Modified: 2023-08-31 15:34
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -51,7 +51,7 @@ bool setupWifiManager() {
   //   wifiManager.resetSettings();
 
   // TODO(janusz) move to central config.h
-  IPAddress _ip = IPAddress(172, 19, 19, 15);
+  IPAddress _ip = IPAddress(192, 168, 42, 15);
   IPAddress _gw = IPAddress(192, 168, 42, 101);
   IPAddress _sn = IPAddress(255, 255, 255, 0);
   IPAddress _dns1 = IPAddress(192, 168, 42, 101);

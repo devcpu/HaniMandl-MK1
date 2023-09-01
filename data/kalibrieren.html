@@ -1,11 +1,45 @@
 <h1 id="waagen_gewicht">%waagen_gewicht%</h1>
-<form action="calibrate">
+<div class="w3-container w3-left-align">
+    Wenn am Anfang die Waagen-Werte totaler Schrott sind, ist das ok.<br />
+    Die Kalibrierung der Waage geschieht in drei Schritten.<br />
+    Dazu braucht man ein Referenz-Gewicht, deren Wert man genau kennt und das in etwa
+    am höchsten zu messenen Zielgewicht (500g) ist.<br />
+    Man kann z.B. ein Honiglas mit Zucker füllen und im Supermarkt das Gewicht bestimmen.
+    Alle Supermärkte sind verpflichtet ausschließlich geeichte Waagen zu haben.
+    Allerdings ist machmal die Auflösung nicht so toll. Ich habe schon 10g - Schritte gesehen.
+</div>
+<form  class="w3-container" action="calibrate">
     <fieldset>
-        <legend>Kalibriergewicht:</legend>
-        <label>Kalibriergewicht in Gramm:
-            <input type="text" maxlength="18" name="weight_calibrate" value="%weight_calibrate%" required><br />
-        </label><br />
-        <input type="submit" name="nix" value="Jetzt kalibrieren">
+        <legend>Schritt 1 - Leere Waage:</legend>
+        <div class="w3-container w3-left-align">
+            Leer meint ohne Honigglas Wer aber z.B. zur Sicherheit eine Schale o.ä. immer drauf haben will, der legt die jetzt mit rauf.
+        </div><br />
+        <input type="submit" name="empty_scale" value="Waage leer">
     </fieldset>
 </form>
-%mainmenue%
+
+<form  class="w3-container" action="calibrate">
+    <fieldset>
+        <legend>Schritt 2 - Kalibriergewicht in Gramm:</legend>
+        <div class="w3-container w3-left-align">
+        1. Bekanntes Gewicht auf die Waage legen.
+        2. Das bekannte(!) nicht das angezeigte Gewicht in das Feld eingeben.
+        3. Danach Button [Jetzt kalibrieren] drücken.<br />
+        </div><br />
+        <input type="text" maxlength="18" name="weight_calibrate" value="%weight_calibrate%" required>
+        <br /><br />
+        <input type="submit" name="know_weight_scale" value="Jetzt kalibrieren">
+    </fieldset>
+</form>
+
+<form  class="w3-container" action="calibrate">
+    <fieldset>
+        <legend>Schritt 3 - Leeres Honiglas auswiegen:</legend>
+        <div class="w3-container w3-left-align">
+            Ein leeres Honigglas aud die Waage stellen und dann den Button [Leerglas auswiegen drücken.
+            Das ist die Tara-Funktion für die Auto-Erkennung.
+            Diese Funkion steht auch unter [Einstellungen Abfüllung] zur Verfügung.
+        </div><br />
+            <input type="submit" name="glass_weight_scale" value="Leerglas auswiegen">
+    </fieldset>
+</form>

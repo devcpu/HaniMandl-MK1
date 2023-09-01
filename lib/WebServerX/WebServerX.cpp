@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-30 02:22
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-08-31 14:21
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebServerX.h>
@@ -22,7 +22,7 @@ AsyncWebSocket *ws;
 AsyncWebSocketClient *globalClient = NULL;
 
 void WebserverStart(void) {
-  log_e("starting Webserver");
+  log_i("starting Webserver");
   WebServer = new AsyncWebServer(80);
   ws = new AsyncWebSocket("/ws");
 
@@ -31,12 +31,21 @@ void WebserverStart(void) {
 
   WebServer->onNotFound([](AsyncWebServerRequest *request) {
     showRequest(request);
+    log_e("%s not found! Send 404",
+          request->url().c_str());  // TODO - // better send info to client
     request->send(404);
   });
 
   WebServer->serveStatic("/hanimandlmk1.css", SPIFFS, "/hanimandlmk1.css");
+  WebServer->serveStatic("/w3.css", SPIFFS, "/w3.css");
+  WebServer->serveStatic("/w3pro.css", SPIFFS, "/w3pro.css");
+  WebServer->serveStatic("/w3-theme-xcolor.css", SPIFFS,
+                         "/w3-theme-xcolor.css");
   WebServer->serveStatic("/rebootinfo", SPIFFS, "/reboot.html");
+  WebServer->serveStatic("/wabe.jpg", SPIFFS, "/wabe.jpg");
+  //   WebServer->serveStatic("/hanimandlmk1.js", SPIFFS, "/hanimandlmk1.js");
 
+  // is't needs templating!
   WebServer->on(
       "/hanimandlmk1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
         log_e("/hanimandlmk1.js");
@@ -150,26 +159,6 @@ void WebserverStart(void) {
 }
 
 /*
-.########..########...#######...######..########..######...######..########.########...######.
-.##.....##.##.....##.##.....##.##....##.##.......##....##.##....##.##.......##.....##.##....##
-.##.....##.##.....##.##.....##.##.......##.......##.......##.......##.......##.....##.##......
-.########..########..##.....##.##.......######....######...######..######...########...######.
-.##........##...##...##.....##.##.......##.............##.......##.##.......##...##.........##
-.##........##....##..##.....##.##....##.##.......##....##.##....##.##.......##....##..##....##
-.##........##.....##..#######...######..########..######...######..########.##.....##..######.
-*/
-
-/*
-.##.....##....###....##....##.########..##.......########.########.
-.##.....##...##.##...###...##.##.....##.##.......##.......##.....##
-.##.....##..##...##..####..##.##.....##.##.......##.......##.....##
-.#########.##.....##.##.##.##.##.....##.##.......######...########.
-.##.....##.#########.##..####.##.....##.##.......##.......##...##..
-.##.....##.##.....##.##...###.##.....##.##.......##.......##....##.
-.##.....##.##.....##.##....##.########..########.########.##.....##
-*/
-
-/*
 .##.....##.########.##.......########..########.########...######.
 .##.....##.##.......##.......##.....##.##.......##.....##.##....##
 .##.....##.##.......##.......##.....##.##.......##.....##.##......
@@ -260,27 +249,27 @@ String getWebParam(AsyncWebServerRequest *request, const char *key) {
  */
 int showRequest(AsyncWebServerRequest *request) {
   if (request->method() == HTTP_GET)
-    log_e("GET");
+    log_d("GET");
   else if (request->method() == HTTP_POST)
-    log_e("POST");
+    log_d("POST");
   else if (request->method() == HTTP_DELETE)
-    log_e("DELETE");
+    log_d("DELETE");
   else if (request->method() == HTTP_PUT)
-    log_e("PUT");
+    log_d("PUT");
   else if (request->method() == HTTP_PATCH)
-    log_e("PATCH");
+    log_d("PATCH");
   else if (request->method() == HTTP_HEAD)
-    log_e("HEAD");
+    log_d("HEAD");
   else if (request->method() == HTTP_OPTIONS)
-    log_e("OPTIONS");
+    log_d("OPTIONS");
   else
-    log_e("UNKNOWN");
-  log_e("http://%s%s\n", request->host().c_str(), request->url().c_str());
+    log_d("UNKNOWN");
+  log_d("http://%s%s\n", request->host().c_str(), request->url().c_str());
 
   if (request->contentLength()) {
-    log_e("_CONTENT_TYPE: %s\n", request->contentType().c_str());
-    log_e("_CONTENT_LENGTH: %u\n", request->contentLength());
-    log_e("Args: %d", request->args());
+    log_d("_CONTENT_TYPE: %s\n", request->contentType().c_str());
+    log_d("_CONTENT_LENGTH: %u\n", request->contentLength());
+    log_d("Args: %d", request->args());
   }
 
   int i;
@@ -289,7 +278,7 @@ int showRequest(AsyncWebServerRequest *request) {
   //   log_d("count headers %d", headers);
   //   for (i = 0; i < headers; i++) {
   //     AsyncWebHeader *h = request->getHeader(i);
-  //     log_e("HEADER %s: %s\n", h->name().c_str(), h->value().c_str());
+  //     log_d("HEADER %s: %s\n", h->name().c_str(), h->value().c_str());
   //    }
 
   int params_count = request->params();
@@ -297,12 +286,12 @@ int showRequest(AsyncWebServerRequest *request) {
   for (i = 0; i < params_count; i++) {
     AsyncWebParameter *p = request->getParam(i);
     if (p->isFile()) {
-      log_e("FILE %s: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
+      log_d("FILE %s: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
             p->size());
     } else if (p->isPost()) {
-      log_e("POST %s: %s\n", p->name().c_str(), p->value().c_str());
+      log_d("POST %s: %s\n", p->name().c_str(), p->value().c_str());
     } else {
-      log_e("GET/PUT/... %s: %s\n", p->name().c_str(), p->value().c_str());
+      log_d("GET/PUT/... %s: %s\n", p->name().c_str(), p->value().c_str());
     }
   }
   return params_count;
@@ -325,17 +314,17 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
                AwsEventType type, void *arg, uint8_t *data, size_t len) {
   log_d("got event");
   if (type == WS_EVT_CONNECT) {
-    log_e("Websocket client connection received");
+    log_d("Websocket client connection received");
     globalClient = client;
   } else if (type == WS_EVT_DISCONNECT) {
-    log_e("Websocket client connection finished");
+    log_d("Websocket client connection finished");
     globalClient = NULL;
   } else if (type == WS_EVT_ERROR) {
-    log_e("Got WS_EVT_ERROR");
+    log_d("Got WS_EVT_ERROR");
   } else if (type == WS_EVT_PONG) {
     log_d("Got WS_EVT_PONG");
   } else if (type == WS_EVT_DATA) {
-    log_e("Websocket client sended data");
+    log_d("Websocket client sended data");
     AwsFrameInfo *info = reinterpret_cast<AwsFrameInfo *>(arg);
     if (info->opcode == WS_TEXT) {
       data[len] = 0;
@@ -353,7 +342,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
           HMConfig::instance().servodata.angle_max = rdata.value.toInt();
           log_d("After: %d", HMConfig::instance().servodata.angle_max);
         } else {
-          log_e("value of angle_max is not a valid Int %s", rdata.value);
+          log_d("value of angle_max is not a valid Int %s", rdata.value);
         }
       }
 
@@ -364,7 +353,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
           HMConfig::instance().servodata.angle_fine = rdata.value.toInt();
           log_d("After: %d", HMConfig::instance().servodata.angle_fine);
         } else {
-          log_e("value of angle_fine is not a valid Int %s", rdata.value);
+          log_d("value of angle_fine is not a valid Int %s", rdata.value);
         }
       }
 
@@ -387,7 +376,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
         } else if (rdata.value == "hand") {
           HMConfig::instance().run_modus = RUN_MODUS_HAND;
         } else if (rdata.value == "start") {
-          log_e("[Start]");
+          log_d("[Start]");
           HMConfig::instance().start = true;
         } else if (rdata.value == "stop") {
           HMConfig::instance().run_modus = RUN_MODUS_STOPPED;

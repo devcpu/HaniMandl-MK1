@@ -1,6 +1,5 @@
 //window.onload
 
-
 socket = new WebSocket("ws://%SERVER_IP%/ws");
 var isConnected = false;
 
@@ -43,6 +42,55 @@ socket.onmessage = function (evt) {
     }
 }
 
+  function set_value(key, min, max) {
+    var value = parseInt(document.getElementById(key).value, 10);
+    console.log("set_value" + key + ":" + value);
+    value = isNaN(value) ? 0 : value;
+    value >= max ? value = max : '';
+    value <=  min ? value = min : '';
+    sendValue(key + "=" + value);
+  }
+
+
+  function value_change(key, direction, min, max) {
+    var value = parseInt(document.getElementById(key).value, 10);
+    console.log("decrease " + key + ":" + value);
+    value = isNaN(value) ? 0 : value;
+    value >= max ? value = max : '';
+    value <=  min ? value = min : '';
+    if (direction == 'up') {
+        value += 10;
+    } else if (direction == 'down') {
+        value -= 10;
+    }
+    sendValue(key + "=" + value);
+    document.getElementById(key).value = value;
+  }
+
+
+function sendButton(name) {
+    console.log("sendButton :" + name);
+    sendValue("button=" + name);
+}
+
+function checkReboot() {
+    if (window.confirm("eh, really reboot")) {
+        x = new XMLHttpRequest();
+        //window.setTimeout('window.location = "/rebootinfo"', 0);
+        x.open('GET', '/reboot', true);
+        x.send();
+    }
+}
+
+// document.querySelector('input[name=key]:checked').value;
+
+function openSidebar() {
+  document.getElementById("mySidebar").style.display = "block";
+}
+
+function closeSidebar() {
+  document.getElementById("mySidebar").style.display = "none";
+}
 
 //     var time = document.getElementById("time");
 //     var date = document.getElementById("date");
@@ -64,79 +112,3 @@ socket.onmessage = function (evt) {
 //         date.innerHTML = "Date: " + data.date;
 //     }
 // };
-
-function increase_angle_max() {
-    var value = parseInt(document.getElementById('angle_max').value, 10);
-    console.log("increase_angle_max :" + value);
-    value = isNaN(value) ? 0 : value;
-    value >= 180 ? value = 180 : '';
-    value += 1;
-    sendValue('angle_max=' + value);
-    document.getElementById('angle_max').value = value;
-  }
-
-  function decrease_angle_max() {
-    var value = parseInt(document.getElementById('angle_max').value, 10);
-    console.log("decrease_angle_max :" + value);
-    value = isNaN(value) ? 0 : value;
-    value < 1 ? value = 1 : '';
-    value -= 1;
-    sendValue('angle_max=' + value);
-    document.getElementById('angle_max').value = value;
-  }
-
-  function increase_angle_fine() {
-    var value = parseInt(document.getElementById('angle_fine').value, 10);
-    console.log("increase_angle_fine :" + value);
-    value = isNaN(value) ? 0 : value;
-    value < 45 ? value = 45 : '';
-    value += 1;
-    sendValue('angle_fine=' + value);
-    document.getElementById('angle_fine').value = value;
-  }
-
-  function decrease_angle_fine() {
-    var value = parseInt(document.getElementById('angle_fine').value, 10);
-    console.log("decrease_angle_fine :" + value);
-    value = isNaN(value) ? 0 : value;
-    value < 1 ? value = 1 : '';
-    value -= 1;
-    sendValue('angle_fine=' + value);
-    document.getElementById('angle_fine').value = value;
-  }
-
-  function increase_weight_fine() {
-    var value = parseInt(document.getElementById('weight_fine').value, 10);
-    console.log("increase_weight_fine :" + value);
-    value = isNaN(value) ? 0 : value;
-    value >= 200 ? value = 200 : '';
-    value += 1;
-    sendValue('weight_fine=' + value);
-    document.getElementById('weight_fine').value = value;
-  }
-
-  function decrease_weight_fine() {
-    var value = parseInt(document.getElementById('weight_fine').value, 10);
-    console.log("decrease_weight_fine :" + value);
-    value = isNaN(value) ? 0 : value;
-    value < 1 ? value = 1 : '';
-    value -= 1;
-    sendValue('weight_fine=' + value);
-    document.getElementById('weight_fine').value = value;
-  }
-
-function sendButton(name) {
-    console.log("sendButton :" + name);
-    sendValue("button=" + name);
-}
-
-function checkReboot() {
-    if (window.confirm("eh, really reboot")) {
-        x = new XMLHttpRequest();
-        //window.setTimeout('window.location = "/rebootinfo"', 0);
-        x.open('GET', '/reboot', true);
-        x.send();
-
-    }
-
-}

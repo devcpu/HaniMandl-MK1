@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 17:03
+ * Last Modified: 2023-08-31 14:02
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -48,6 +48,9 @@ String ESPHelper::getFlashMode() {
  * @return a string that contains a table of system information.
  */
 // TODO -  pse add ESP.getMaxFreeBlockSize() and ESP.getHeapFragmentation()
+// TODO - const char * getChipModel();
+// TODO - uint8_t getChipCores();
+// TODO -
 Table2RData *ESPHelper::getSystemInfoTable(void) {
 #ifdef ESP32
   static Table2RData systemdata[30];
@@ -83,17 +86,19 @@ Table2RData *ESPHelper::getSystemInfoTable(void) {
                     String(ESP.getMaxAllocHeap() / 1024) + "kB"};
   systemdata[19] = {String("MinFreeHeap:"),
                     String(ESP.getMinFreeHeap() / 1024) + "kB"};
-  systemdata[20] = {String("Flash ide  size:"),
+  //   systemdata[20] = {String("MaxFreeBlockSize:"),
+  //                     String(ESP.getMaxFreeBlockSize() / 1024) + "kB"};
+  //   systemdata[21] = {String("HeapFragmentation:"),
+  //                     String(ESP.getHeapFragmentation() / 1024) + "kB"};
+  systemdata[22] = {String("Flash ide  size:"),
                     String(ESP.getFlashChipSize() / 1024) + "kB"};
-  systemdata[21] = {String("Flash ide speed:"),
+  systemdata[23] = {String("Flash ide speed:"),
                     String(ESP.getFlashChipSpeed() / 1000 / 1000) + "MHz"};
-  systemdata[22] = {String("Flash ide mode:"), ESPHelper::getFlashMode()};
-  systemdata[23] = {String("Sketch size: "),
+  systemdata[24] = {String("Flash ide mode:"), ESPHelper::getFlashMode()};
+  systemdata[25] = {String("Sketch size: "),
                     String(ESP.getSketchSize() / 1024) + "kB"};
-  systemdata[24] = {String("Free sketch size:"),
+  systemdata[26] = {String("Free sketch size:"),
                     String(ESP.getFreeSketchSpace() / 1024) + "kB"};
-  systemdata[25] = {String("Free heap:"),
-                    String(ESP.getFreeHeap() / 1024) + "kB"};
 #elif defined(ESP8266)
   static Table2RData systemdata[15];
   systemdata[0] = {String("SoftwareVersion:"), HMConfig::instance().version};
