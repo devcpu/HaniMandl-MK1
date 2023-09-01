@@ -82,7 +82,53 @@ function checkReboot() {
     }
 }
 
-// document.querySelector('input[name=key]:checked').value;
+function showHide(show, hide) {
+    console.log("show:" + show);
+    console.log("show:" + hide);
+    var element2show = document.getElementById(show);
+    var element2hide = document.getElementById(hide);
+    // console.log("element2show:" + element2show.innerHTML);
+    // console.log("element2hide" + element2hide.innerHTML);
+    // element2show.style.visibility = 'visible';
+    // element2hide.style.visibility = 'collapse';
+    if (element2show) {
+        element2show.style.display = 'block';
+    }
+    if (element2hide) {
+        element2hide.style.display = 'none';
+    }
+}
+
+// function show(key, show_element_id) {
+//     var name_key = "input[name=" + key + "]:checked";
+//     var element2show = document.getElementById(show_element_id);
+//     // 'input[name=key]:checked'
+//     console.log("querySelector=" + name_key);
+//     // console.log("ElementById" + element2show.innerHTML);
+//     // var keyValue = document.querySelector(name_key).value;
+//     // console.log("checked=" + keyValue);
+//         // console.log("show" + key + ":" + keyValue);
+//     if (document.querySelector(name_key).value) {
+//         element2show.style.display = 'block';
+//     } else {
+//         element2show.style.display = 'none';
+//     }
+
+// }
+
+function show(key, show_element_id) {
+    console.log(key);
+    console.log(show_element_id);
+    var checkbox = document.getElementById(key);
+    var element2show = document.getElementById(show_element_id);
+    console.log(element2show.innerHTML);
+    if (checkbox.checked) {
+        element2show.style.display = 'block';
+    } else {
+        element2show.style.display = 'none';
+    }
+
+}
 
 function openSidebar() {
   document.getElementById("mySidebar").style.display = "block";
