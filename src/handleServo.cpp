@@ -6,8 +6,8 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 02:59
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-09-02 01:36
+ * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
@@ -29,8 +29,8 @@ void setupServo() {
 
 int handleWeightAndServo(float weight_scale_brutto) {
   HMConfig& hmcfg = HMConfig::instance();  // TODO - got pointer?
-  log_d("automatic=%s fs=%s", hmcfg.runmod2string(hmcfg.run_modus).c_str(),
-        hmcfg.fillingstatus2string(hmcfg.fs).c_str());
+  //   log_d("automatic=%s fs=%s", hmcfg.runmod2string(hmcfg.run_modus).c_str(),
+  //         hmcfg.fillingstatus2string(hmcfg.fs).c_str());
 
   if (hmcfg.run_modus == RUN_MODUS_AUTO &&
       (hmcfg.fs == FILLING_STATUS_CLOSED ||
@@ -143,7 +143,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
 //   log_d("RunModus %s", runmod2string(hmcfg.run_modus).c_str());
 //   log_d("hmcfg.weight_filling %d", hmcfg.weight_filling);
 //   log_d("hmcfg.weight_fine %d", hmcfg.weight_fine);
-//   log_d("hmcfg.weight_empty %d", hmcfg.weight_empty);
+//   log_d("hmcfg.glass_empty %d", hmcfg.glass_empty);
 //   log_d("hmcfg.glass_tolerance %d", hmcfg.glass_tolerance);
 //   log_d("glass_empty_current %d", hmcfg.glass_tara_weight);
 //   log_d("weight_last %d", weight_last);

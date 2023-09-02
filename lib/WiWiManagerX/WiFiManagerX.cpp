@@ -9,15 +9,15 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-31 15:34
+ * Last Modified: 2023-09-01 22:44
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WiFiManagerX.h>
 
 AsyncWebServer server(80);
-DNSServer dns;
-Ticker ticker;
+extern DNSServer dns;
+extern Ticker ticker;
 extern HMConfig cfg;
 
 // default custom static IP

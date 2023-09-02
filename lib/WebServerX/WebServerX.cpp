@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-31 14:21
+ * Last Modified: 2023-09-02 01:38
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -106,9 +106,9 @@ void WebserverStart(void) {
 
   WebServer->on("/emptyglass", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (showRequest(request)) {
-      String weight_empty_S = (getWebParam(request, "weight_empty"));
-      if (isNumber(weight_empty_S)) {
-        HMConfig::instance().weight_empty = weight_empty_S.toInt();
+      String glass_empty_S = (getWebParam(request, "glass_empty"));
+      if (isNumber(glass_empty_S)) {
+        HMConfig::instance().glass_empty = glass_empty_S.toInt();
       }
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
@@ -408,72 +408,30 @@ KeyValue split(String wsdata) {
   return rval;
 }
 
-// void APRSWebServerTick(void) {
-//   if (globalClient != NULL && globalClient->status() == WS_CONNECTED) {
-//     //      String randomNumber = String(random(0,20));
-//     //      globalClient->text(randomNumber);
-//     static uint32_t last = 0;
-//     uint32_t i = millis();
-//     if (i > last + 1000) {
-//       last = i;
-//       // globalClient->text("Uptime: " + String(last / 1000) + " Sekunden");
-//       sendGPSDataJson();
-//     }
-//   }
-// }
+void sendSocketData() {
+  if (globalClient == NULL) {
+    log_d("globalClient == NULL");
+    return;
+  }
+  if (globalClient->status() != WS_CONNECTED) {
+    log_d("globalClient->status() != WS_CONNECTED");
+    return;
+  }
+  static uint32_t last = 0;
+  uint32_t i = millis();
+  if (i < last + 800) {
+    return;
+  }
+  last = i;
 
-// void sendGPSDataJson(void) {
-//   // StaticJsonDocument<10000> doc;
-
-//   // AsyncJsonResponse * response = new AsyncJsonResponse();
-//   // JsonVariant& root = response->getRoot();
-//   globalClient->server()->cleanupClients();
-//   char tmpbuf[32] = {0};  // Flawfinder: ignore
-//   StaticJsonDocument<1024> root;
-//   root["isValidTime"] = gps.time.isValid();
-//   root["isValidGPS"] = gps.date.isValid();
-
-//   snprintf(tmpbuf, sizeof(tmpbuf), "%02d:%02d:%02d",
-//   HMConfig::instance().gps_time.hour,
-//            HMConfig::instance().gps_time.minute,
-//            HMConfig::instance().gps_time.second);
-//   root["time"] = tmpbuf;
-//   // log_e("%s", tmpbuf);
-
-//   snprintf(tmpbuf, sizeof(tmpbuf), "%4d-%02d-%02d",
-//   HMConfig::instance().gps_time.year,
-//            HMConfig::instance().gps_time.month,
-//            HMConfig::instance().gps_time.day);
-//   root["date"] = tmpbuf;
-//   // log_e("%s", tmpbuf);
-
-//   root["lat"] = HMConfig::instance().gps_location.latitude;
-//   root["lng"] = HMConfig::instance().gps_location.longitude;
-//   root["alt"] = HMConfig::instance().gps_location.altitude;
-//   root["course"] = HMConfig::instance().gps_move.course;
-//   root["speed"] = HMConfig::instance().gps_move.speed;
-//   // have to show by more static
-//   root["temp"] = HMConfig::instance().WXdata.temp;
-//   root["humidity"] = HMConfig::instance().WXdata.humidity;
-//   root["pressure"] = HMConfig::instance().WXdata.pressure;
-//   root["sensor"] = "BME280";
-//   root["sat"] = HMConfig::instance().gps_meta.sat;
-//   root["hdop"] = HMConfig::instance().gps_meta.hdop;
-//   uint16_t len = measureJson(root);
-//   // log_e("%d", len); // @FIXME remove
-//   // serializeJson(root, Serial);
-
-//   AsyncWebSocketMessageBuffer *buffer = globalClient->server()->makeBuffer(
-//       len);  //  creates a buffer (len + 1) for you.
-//   if (buffer) {
-//     serializeJson(root, reinterpret_cast<char *>(buffer->get()), len + 1);
-//     if (!globalClient->queueIsFull() &&
-//         globalClient->status() == WS_CONNECTED) {  // paranoia?
-//       globalClient->server()->textAll(buffer);
-//     } else {
-//       ESP_LOGE(TAG, "can't send to websocket");
-//     }
-//   }
-
-//   // serializeJsonPretty(root, Serial);
-// }
+  // make json
+  StaticJsonDocument<96> doc;
+  String output;  // FIXME: should be char[] instand
+  doc["glass_count"] = HMConfig::instance().glass_count;
+  doc["waagen_gewicht"] = HMConfig::instance().weight_current;
+  doc["run_modus"] =
+      HMConfig::instance().runmod2string(HMConfig::instance().run_modus);
+  //   uint8_t len = measureJsonPretty(doc);
+  serializeJson(doc, output);
+  ws->textAll(output.c_str());
+}

@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-22 16:56
+ * Last Modified: 2023-09-01 23:12
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -52,6 +52,8 @@ String getWebParam(AsyncWebServerRequest *request, const char *key);
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
                AwsEventType type, void *arg, uint8_t *data, size_t len);
+
+void sendSocketData();
 
 #ifdef ESP32
 String getResetReason(RESET_REASON);

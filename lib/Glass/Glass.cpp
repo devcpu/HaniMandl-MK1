@@ -6,8 +6,8 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 02:47
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-09-02 01:36
+ * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
@@ -20,7 +20,7 @@ void Glass::reset() {
   _config_weight_filling = hmcfg.weight_filling;
   _config_weight_servo_fine = hmcfg.weight_fine;
   _config_glass_tolerance = hmcfg.glass_tolerance;
-  _config_glass_empty = hmcfg.weight_empty;
+  _config_glass_empty = hmcfg.glass_empty;
   _glass_weight = 0;  //
   _honey_weight = 0;
   _weight_last = 0;
@@ -35,7 +35,7 @@ void Glass::reset() {
 void Glass::setTaraWeight(uint16_t tara_weight) { _glass_weight = tara_weight; }
 
 void Glass::setScaleUnit(float sunits) {
-  log_e("sunits=%6.2f", sunits);
+  //   log_e("sunits=%6.2f", sunits);
   // if (_glass_weight > 10) {
   if (sunits < 10) {
     _honey_weight = 0;

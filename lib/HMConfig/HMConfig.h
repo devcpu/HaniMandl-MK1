@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-30 02:05
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-09-02 02:18
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_HMCONFIG_HMCONFIG_H_
@@ -24,6 +24,14 @@
 #include "esp_log.h"
 
 typedef enum { RUN_MODUS_STOPPED, RUN_MODUS_HAND, RUN_MODUS_AUTO } RunModus;
+
+struct ServerData {
+  String server_user;
+  String server_passwd;
+  String server_ip;
+  String server_port;
+  String server_token;
+};
 
 typedef enum {
   FILLING_STATUS_STANDBY,
@@ -77,14 +85,17 @@ class HMConfig {
   /// @brief netto target weight of glass
   uint16_t weight_filling = 500;
 
+  /// @brief actual weight from scale
+  int16_t weight_current = 0;
+
   /// @brief starts fine filling at this weight
   uint16_t weight_fine = static_cast<uint16_t>((weight_filling / 3));
 
   /// @brief  weight of an empty glass
-  uint16_t weight_empty = 222;
+  uint16_t glass_empty = 222;
 
   /// @brief toleranc for automatic detection
-  uint8_t glass_tolerance = weight_empty / 10;
+  uint8_t glass_tolerance = glass_empty / 10;
 
   /// @brief  how many glasses we are filling in this run
   uint16_t glass_count = 0;
@@ -112,8 +123,12 @@ class HMConfig {
   /// @brief status servo
   FillingStatus fs = FILLING_STATUS_CLOSED;
 
-  void write_config();
-  void read_config();
+  ServerData mqtt_server;
+
+  ServerData api_server;
+
+  void writeJsonConfig();
+  void readJsonConfig();
 
  private:
   HMConfig(){};

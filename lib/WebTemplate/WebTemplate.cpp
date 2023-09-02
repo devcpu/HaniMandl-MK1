@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-31 23:49
+ * Last Modified: 2023-09-02 01:36
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -57,8 +57,8 @@ String DefaultTemplating(const String &var) {
   if (var == "date_filling") {
     return HMConfig::instance().date_filling;
   }
-  if (var == "weight_empty") {
-    return String(HMConfig::instance().weight_empty);
+  if (var == "glass_empty") {
+    return String(HMConfig::instance().glass_empty);
   }
   if (var == "weight_filling") {
     return String(HMConfig::instance().weight_filling);
@@ -94,15 +94,16 @@ String DefaultTemplating(const String &var) {
     return String(HMConfig::instance().weight_fine);
   }
   if (var == "waagen_gewicht") {
-    return String("not implemented yet");
+    return String(HMConfig::instance().weight_current);
   }
   if (var == "run_modus") {
-    if (HMConfig::instance().run_modus == RUN_MODUS_AUTO) {
-      return String("Auto");
-    } else {
-      return String("Hand");
-    }
-    return String("not implemented yet");
+    return HMConfig::instance().runmod2string(HMConfig::instance().run_modus);
+    // if (HMConfig::instance().run_modus == RUN_MODUS_AUTO) {
+    //   return String("Auto");
+    // } else {
+    //   return String("Hand");
+    // }
+    // return String("not implemented yet");
   }
 
   return "wrong placeholder " + var;

@@ -1,0 +1,35 @@
+{
+    "servodata": {
+        "angle_max_hard": 180,
+        "angle_min_hard": 0,
+        "angle_max": 180,
+        "angle_min": 10,
+        "angle_fine": 45
+    },
+    "los_number": "das_ist_die_losnummer",
+    "date_filling": "2023-09-01",
+    "weight_filling": 500,
+    "weight_fine": 400,
+    "glass_empty": 222,
+    "glass_tolerance": 22,
+    "glass_count": 2000,
+    "boot_count": 12000,
+    "OFFSET": 456789,
+    "SCALE": 346.023590,
+    "mqtt_server": {
+        "server_user": "asdfghjkloiuz",
+        "server_passwd": "asdfghjkloiuz",
+        "server_ip": "100.100.100.100",
+        "server_port": "65000",
+        "server_token": "e7555e77-0d62-4ab9-a934-9352d9bdf0ce"
+    },
+    "api_server": {
+        "server_user": "asdfghjkloiuz",
+        "server_passwd": "asdfghjkloiuz",
+        "server_ip": "100.100.100.100",
+        "server_port": "65000",
+        "server_token": "e7555e77-0d62-4ab9-a934-9352d9bdf0ce"
+    }
+
+
+}

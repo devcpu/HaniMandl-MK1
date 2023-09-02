@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-30 01:12
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-09-02 00:52
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <main.h>
@@ -18,8 +18,8 @@
 HX711 scale;
 Servo servo;
 Glass glass;
-// extern DNSServer dns;
-// extern Ticker ticker;
+DNSServer dns;
+Ticker ticker;
 
 void setup() {
   Serial.begin(115200);
@@ -34,6 +34,7 @@ void setup() {
   WebserverStart();
   setupLoadcell();
   setupServo();
+  // FIXME remove before release
   servo.write(HMConfig::instance().servodata.angle_max);
   delay(2000);
   servo.write(HMConfig::instance().servodata.angle_min);
@@ -59,9 +60,9 @@ float weight_current = 0;
 void loop() {
   //   // donothing();
   // show_scale_data();
-  if (HMConfig::instance().run_modus != RUN_MODUS_STOPPED) {
-    weight_current = scale.get_units(LOADCELL_READ_TIMES);
-    // weight2seriell(weight_current);
-    handleWeightAndServo(weight_current);
-  }
+  weight_current = scale.get_units(LOADCELL_READ_TIMES);
+  HMConfig::instance().weight_current = weight_current;
+  sendSocketData();
+  // weight2seriell(weight_current);
+  handleWeightAndServo(weight_current);
 }

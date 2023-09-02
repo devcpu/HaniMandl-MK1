@@ -1,6 +1,9 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
+# run ```pre-commit run --all-files``` to run tests without git
+# run with ```--no-verify```  to disable tests if invoked by git
+
 fail_fast: false
 
 repos:
@@ -44,6 +47,7 @@ repos:
     args:
     - --css-files-dir=data
     - --html-files-dir=data
+    - --ignored-missing-class-defs-pattern=w3\-.*
   - id: forbid-html-img-without-alt-text
   # - id: forbid-non-std-html-attributes
   - id: html-tags-blacklist

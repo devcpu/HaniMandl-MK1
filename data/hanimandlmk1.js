@@ -1,25 +1,44 @@
 //window.onload
 
 socket = new WebSocket("ws://%SERVER_IP%/ws");
-var isConnected = false;
+
+var reload_timeout = 10;
+function checkReload() {
+    //FIXME - test only
+    var glass_count = document.getElementById("glass_count");
+    if (glass_count) {
+        glass_count.innerHTML = reload_timeout;
+    }
+
+    reload_timeout -= 1;
+    if (reload_timeout <= 0) {
+        alert("Keine Verbindung mehr zm Hanimandl!");
+        location.reload();
+    }
+}
+
+setInterval(checkReload, 1000);
+// socket.onopen = function (evt) {
+// }
+
 
 // Event listener for WebSocket connection open
-socket.addEventListener('open', () => {
-    console.log('WebSocket connection is open');
-    isConnected = true;
-  });
+// socket.addEventListener('open', () => {
+//     console.log('WebSocket connection is open');
+//     isConnected = true;
+//   });
 
-  // Event listener for WebSocket connection close
-  socket.addEventListener('close', () => {
-    console.log('WebSocket connection is closed');
-    isConnected = false;
-  });
+//   // Event listener for WebSocket connection close
+//   socket.addEventListener('close', () => {
+//     console.log('WebSocket connection is closed');
+//     isConnected = false;
+//   });
 
-  // Event listener for WebSocket errors
-  socket.addEventListener('error', (error) => {
-    console.error('WebSocket error:', error);
-    isConnected = false;
-  });
+//   // Event listener for WebSocket errors
+//   socket.addEventListener('error', (error) => {
+//     console.error('WebSocket error:', error);
+//     isConnected = false;
+//   });
 
 // Function to send a value via WebSocket
 function sendValue(value) {
@@ -31,16 +50,28 @@ function sendValue(value) {
   }
 
 socket.onmessage = function (evt) {
-    var data = JSON.parse(evt.data);
-    var glass_count = document.getElementById("glass_count");
-    if (glass_count) {
-        glass_count.innerHTML = data.glass_count;
+    if (reload_timeout < 10) {
+        reload_timeout += 2;
     }
+
+    var data = JSON.parse(evt.data);
+
+    //FIXME - active for release
+    // var glass_count = document.getElementById("glass_count");
+    // if (glass_count) {
+    //     glass_count.innerHTML = data.glass_count;
+    // }
+
     var waagen_gewicht = document.getElementById("waagen_gewicht");
     if (waagen_gewicht) {
         waagen_gewicht.innerHTML = data.waagen_gewicht;
     }
-}
+
+    var run_modus = document.getElementById("run_modus");
+    if (run_modus) {
+        run_modus.innerHTML = data.run_modus;
+    }
+};
 
   function set_value(key, min, max) {
     var value = parseInt(document.getElementById(key).value, 10);
