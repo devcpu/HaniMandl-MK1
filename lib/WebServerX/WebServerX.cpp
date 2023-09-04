@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-02 01:38
+ * Last Modified: 2023-09-04 19:22
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -151,7 +151,7 @@ void WebserverStart(void) {
    */
   WebServer->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/reboot");
-    ESPHelper::reboot(request);
+    // ESPHelper::reboot(request); //FIXME -
   });
 
   WebServer->begin();

@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-22 03:04
+ * Last Modified: 2023-09-04 18:41
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -19,7 +19,6 @@
 #include <Arduino.h>
 #include <ESPHelper.h>
 #include <HMConfig.h>
-#include <SPIFFS.h>
 
 static const String mainmenue(
     "<br /><form action='.' method='get'><button>Hauptmeü</button></form><br "
@@ -38,7 +37,6 @@ String SetupWlanTemplating(const String &var);
 String UpdateFirmwareTemplating(const String &var);
 String SystemInfoTemplating(const String &var);
 
-String readSPIFFS2String(const String &path);
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size);
 bool isNumber(String val);

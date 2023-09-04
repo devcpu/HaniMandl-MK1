@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-02 02:18
+ * Last Modified: 2023-09-04 19:36
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -17,8 +17,7 @@
 #define LIB_HMCONFIG_HMCONFIG_H_
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
-#include <ESPAsyncWiFiManager.h>
+#include <ESPHelper.h>
 #include <appconfig.h>
 
 #include "esp_log.h"
@@ -31,6 +30,15 @@ struct ServerData {
   String server_ip;
   String server_port;
   String server_token;
+  bool server_tls;
+};
+
+struct WlanConfig {
+  String ip_address;
+  String net_mask;
+  String gw;
+  String dns1;
+  String dns2;
 };
 
 typedef enum {
@@ -126,6 +134,8 @@ class HMConfig {
   ServerData mqtt_server;
 
   ServerData api_server;
+
+  WlanConfig wlan;
 
   void writeJsonConfig();
   void readJsonConfig();

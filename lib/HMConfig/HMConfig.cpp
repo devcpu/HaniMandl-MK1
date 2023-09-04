@@ -9,10 +9,11 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-02 02:16
+ * Last Modified: 2023-09-04 19:56
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
+#include <ArduinoJson.h>  // weiß der Geier warum man das nicht in die HWConfig.h eintagen kann.
 #include <HMConfig.h>
 
 String HMConfig::runmod2string(RunModus modus) {
@@ -49,52 +50,57 @@ String HMConfig::fillingstatus2string(FillingStatus status) {
   }
 }
 
-void writeJsonConfig() {
+void HMConfig::writeJsonConfig() {
   String output;
-  StaticJsonDocument<1024> doc;
+  StaticJsonDocument<1024> doc_json;
 
-  JsonObject servodata = doc.createNestedObject("servodata");
-  servodata["angle_max_hard"] = 180;
-  servodata["angle_min_hard"] = 0;
-  servodata["angle_max"] = 180;
-  servodata["angle_min"] = 10;
-  servodata["angle_fine"] = 45;
-  doc["los_number"] = "das_ist_die_losnummer";
-  doc["date_filling"] = "2023-09-01";
-  doc["weight_filling"] = 500;
-  doc["weight_fine"] = 400;
-  doc["glass_empty"] = 222;
-  doc["glass_tolerance"] = 22;
-  doc["glass_count"] = 2000;
-  doc["boot_count"] = 12000;
-  doc["OFFSET"] = 456789;
-  doc["SCALE"] = 346.02359;
+  JsonObject servodata_json = doc_json.createNestedObject("servodata");
+  servodata_json["angle_max_hard"] = servodata.angle_max_hard;
+  servodata_json["angle_min_hard"] = servodata.angle_min_hard;
+  servodata_json["angle_max"] = servodata.angle_max;
+  servodata_json["angle_min"] = servodata.angle_min;
+  servodata_json["angle_fine"] = servodata.angle_fine;
 
-  JsonObject mqtt_server = doc.createNestedObject("mqtt_server");
-  mqtt_server["server_user"] = "e7555e77-0d62-4ab9-a934-9352d9bdf0ce";
-  mqtt_server["server_passwd"] = "e7555e77-0d62-4ab9-a934-9352d9bdf0ce";
-  mqtt_server["server_ip"] = "100.100.100.100";
-  mqtt_server["server_port"] = "65000";
-  mqtt_server["server_token"] = "e7555e77-0d62-4ab9-a934-9352d9bdf0ce";
+  doc_json["los_number"] = los_number;
+  doc_json["date_filling"] = date_filling;
+  doc_json["weight_filling"] = weight_filling;
+  doc_json["weight_fine"] = weight_fine;
+  doc_json["glass_empty"] = glass_empty;
+  doc_json["glass_tolerance"] = glass_tolerance;
+  doc_json["glass_count"] = glass_count;
+  doc_json["boot_count"] = boot_count;
+  doc_json["OFFSET"] = OFFSET;
+  doc_json["SCALE"] = SCALE;
 
-  JsonObject api_server = doc.createNestedObject("api_server");
-  api_server["server_user"] = "e7555e77-0d62-4ab9-a934-9352d9bdf0ce";
-  api_server["server_passwd"] = "e7555e77-0d62-4ab9-a934-9352d9bdf0ce";
-  api_server["server_ip"] = "100.100.100.100";
-  api_server["server_port"] = "65000";
-  api_server["server_token"] = "e7555e77-0d62-4ab9-a934-9352d9bdf0ce";
+  JsonObject mqtt_server_json = doc_json.createNestedObject("mqtt_server");
+  mqtt_server_json["server_user"] = mqtt_server.server_user;
+  mqtt_server_json["server_passwd"] = mqtt_server.server_passwd;
+  mqtt_server_json["server_ip"] = mqtt_server.server_ip;
+  mqtt_server_json["server_port"] = mqtt_server.server_port;
+  mqtt_server_json["server_token"] = mqtt_server.server_token;
+  mqtt_server_json["server_tls"] = mqtt_server.server_tls;
 
-  serializeJson(doc, output);
+  JsonObject api_server_json = doc_json.createNestedObject("api_server");
+  api_server_json["server_user"] = api_server.server_user;
+  api_server_json["server_passwd"] = api_server.server_passwd;
+  api_server_json["server_ip"] = api_server.server_ip;
+  api_server_json["server_port"] = api_server.server_port;
+  api_server_json["server_token"] = api_server.server_token;
+  api_server_json["server_tls"] = api_server.server_tls;
+
+  serializeJson(doc_json, output);
+  ESPHelper::writeString2SPIFFS("hmconfig.json", output);
 }
 
-void readJsonConfig() {
-  // String input;
+void HMConfig::readJsonConfig() {
+  String input = ESPHelper::readSPIFFS2String("hmconfig.json");
+  if (input.length() <= 0) {
+    return;
+  }
 
-  StaticJsonDocument<1536> doc;
+  StaticJsonDocument<1536> doc_json;
 
-  String input;
-
-  DeserializationError error = deserializeJson(doc, input);
+  DeserializationError error = deserializeJson(doc_json, input);
 
   if (error) {
     Serial.print("deserializeJson() failed: ");
@@ -102,39 +108,56 @@ void readJsonConfig() {
     return;
   }
 
-  JsonObject servodata = doc["servodata"];
-  int servodata_angle_max_hard = servodata["angle_max_hard"];  // 180
-  int servodata_angle_min_hard = servodata["angle_min_hard"];  // 0
-  int servodata_angle_max = servodata["angle_max"];            // 180
-  int servodata_angle_min = servodata["angle_min"];            // 10
-  int servodata_angle_fine = servodata["angle_fine"];          // 45
+  JsonObject servodata_json = doc_json["servodata"];
+  servodata.angle_max_hard =
+      servodata_json["angle_max_hard"].as<unsigned int>();  // 180
+  servodata.angle_min_hard =
+      servodata_json["angle_min_hard"].as<unsigned int>();               // 0
+  servodata.angle_max = servodata_json["angle_max"].as<unsigned int>();  // 180
+  servodata.angle_min = servodata_json["angle_min"].as<unsigned int>();  // 10
+  servodata.angle_fine = servodata_json["angle_fine"].as<unsigned int>();  // 45
 
-  const char* los_number = doc["los_number"];      // "das_ist_die_losnummer"
-  const char* date_filling = doc["date_filling"];  // "2023-09-01"
-  int weight_filling = doc["weight_filling"];      // 500
-  int weight_fine = doc["weight_fine"];            // 400
-  int glass_empty = doc["glass_empty"];            // 222
-  int glass_tolerance = doc["glass_tolerance"];    // 22
-  int glass_count = doc["glass_count"];            // 2000
-  int boot_count = doc["boot_count"];              // 12000
-  long OFFSET = doc["OFFSET"];                     // 456789
-  double SCALE = doc["SCALE"];                     // 346.02359
+  los_number = doc_json["los_number"].as<String>();
+  date_filling = doc_json["date_filling"].as<String>();  // "2023-09-01"
+  weight_filling = doc_json["weight_filling"].as<unsigned int>();    // 500
+  weight_fine = doc_json["weight_fine"].as<unsigned int>();          // 400
+  glass_empty = doc_json["glass_empty"].as<unsigned int>();          // 222
+  glass_tolerance = doc_json["glass_tolerance"].as<unsigned int>();  // 22
+  glass_count = doc_json["glass_count"].as<unsigned int>();          // 2000
+  boot_count = doc_json["boot_count"].as<unsigned long>();           // 12000
+  OFFSET = doc_json["OFFSET"].as<unsigned long>();                   // 456789
+  SCALE = doc_json["SCALE"].as<double>();  // 346.02359
 
-  JsonObject mqtt_server = doc["mqtt_server"];
-  const char* mqtt_server_server_user = mqtt_server["server_user"];
-  const char* mqtt_server_server_passwd = mqtt_server["server_passwd"];
-  const char* mqtt_server_server_ip =
-      mqtt_server["server_ip"];  // "100.100.100.100"
-  const char* mqtt_server_server_port = mqtt_server["server_port"];  // "65000"
-  const char* mqtt_server_server_token = mqtt_server["server_token"];
+  JsonObject mqtt_server_json = doc_json["mqtt_server"];
+  mqtt_server.server_user =
+      mqtt_server_json["server_user"].as<String>();  // "asdfghjkloiuz"
+  mqtt_server.server_passwd =
+      mqtt_server_json["server_passwd"].as<String>();  // "asdfghjkloiuz"
+  mqtt_server.server_ip =
+      mqtt_server_json["server_ip"].as<String>();  // "100.100.100.100"
+  mqtt_server.server_port =
+      mqtt_server_json["server_port"].as<String>();  // "65000"
+  mqtt_server.server_token = mqtt_server_json["server_token"].as<String>();
+  mqtt_server.server_tls = mqtt_server_json["server_tls"].as<bool>();
 
-  JsonObject api_server = doc["api_server"];
-  const char* api_server_server_user = api_server["server_user"];
-  const char* api_server_server_passwd = api_server["server_passwd"];
-  const char* api_server_server_ip =
-      api_server["server_ip"];  // "100.100.100.100"
-  const char* api_server_server_port = api_server["server_port"];  // "65000"
-  const char* api_server_server_token = api_server["server_token"];
+  JsonObject api_server_json = doc_json["api_server"];
+  api_server.server_user =
+      api_server_json["server_user"].as<String>();  // "asdfghjkloiuz"
+  api_server.server_passwd =
+      api_server_json["server_passwd"].as<String>();  // "asdfghjkloiuz"
+  api_server.server_ip =
+      api_server_json["server_ip"].as<String>();  // "100.100.100.100"
+  api_server.server_port =
+      api_server_json["server_port"].as<String>();  // "65000"
+  api_server.server_token = api_server_json["server_token"].as<String>();
+  api_server.server_tls = api_server_json["server_tls"].as<bool>();
+
+  JsonObject wlan_json = doc_json["wlan"];
+  wlan.ip_address = wlan_json["ip_address"].as<String>();  // "100.100.100.100"
+  wlan.net_mask = wlan_json["net_mask"].as<String>();      // "255.255.255.0"
+  wlan.gw = wlan_json["gw"].as<String>();                  // "100.100.100.100"
+  wlan.dns1 = wlan_json["dns1"].as<String>();              // "100.100.100.100"
+  wlan.dns2 = wlan_json["dns2"].as<String>();              // "100.100.100.100"
 }
 
 // HMConfig::HMConfig(void) { log_e("Bad, very bad!!!"); }

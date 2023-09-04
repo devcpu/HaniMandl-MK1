@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-02 01:36
+ * Last Modified: 2023-09-04 18:41
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -114,7 +114,7 @@ String SetupFillingTemplating(const String &var) {
     return "Abfüllung";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/setupfilling.html");
+    return ESPHelper::readSPIFFS2String("/setupfilling.html");
   }
   return DefaultTemplating(var);
 }
@@ -124,7 +124,7 @@ String SetupTemplating(const String &var) {
     return "Grundeinrichtung";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/setup.html");
+    return ESPHelper::readSPIFFS2String("/setup.html");
   }
   return DefaultTemplating(var);
 }
@@ -134,7 +134,7 @@ String CalibrateTemplating(const String &var) {
     return "Waage kalibrieren";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/kalibrieren.html");
+    return ESPHelper::readSPIFFS2String("/kalibrieren.html");
   }
   return DefaultTemplating(var);
 }
@@ -144,7 +144,7 @@ String SetupWlanTemplating(const String &var) {
     return "Einrichtung Wlan";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/setupwlan.html");
+    return ESPHelper::readSPIFFS2String("/setupwlan.html");
   }
   return DefaultTemplating(var);
 }
@@ -154,7 +154,7 @@ String UpdateFirmwareTemplating(const String &var) {
     return "Update Firmware";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/updatefirmware.html");
+    return ESPHelper::readSPIFFS2String("/updatefirmware.html");
   }
   return DefaultTemplating(var);
 }
@@ -164,7 +164,7 @@ String FillingTemplating(const String &var) {
     return "Abfüllung";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/filling.html");
+    return ESPHelper::readSPIFFS2String("/filling.html");
   }
   return DefaultTemplating(var);
 }
@@ -185,41 +185,9 @@ String DefaultProcessor(const String &var) {
     return "Main Menue";
   }
   if (var == "BODY") {
-    return readSPIFFS2String("/into.html");
+    return ESPHelper::readSPIFFS2String("/into.html");
   }
   return DefaultTemplating(var);
-}
-
-/**
- * The function `readSPIFFS2String` reads the content of a file from the SPIFFS
- * file system and returns it as a string.
- *
- * @param path The `path` parameter is a `String` that represents the file path
- * of the file to be read from SPIFFS (SPI Flash File System).
- *
- * @return The function `readSPIFFS2String` returns a `String` object.
- */
-String readSPIFFS2String(const String &path) {
-  if (!SPIFFS.exists(path)) {
-    String error = "ERROR, " + path + " does not exist.";
-    log_e("%s", error.c_str());
-    return error;
-  }
-
-  File file = SPIFFS.open(path, "r");
-  if (!file) {
-    String error = "Failed to open file for reading";
-    log_e("%s", error.c_str());
-    return error;
-  }
-
-  String fileContent;
-  while (file.available()) {
-    fileContent += static_cast<char>(file.read());
-  }
-
-  file.close();
-  return fileContent;
 }
 
 /**

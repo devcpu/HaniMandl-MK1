@@ -1,10 +1,10 @@
 {
     "servodata": {
-        "angle_max_hard": 180,
-        "angle_min_hard": 0,
-        "angle_max": 180,
-        "angle_min": 10,
-        "angle_fine": 45
+      "angle_max_hard": 180,
+      "angle_min_hard": 0,
+      "angle_max": 180,
+      "angle_min": 10,
+      "angle_fine": 45
     },
     "los_number": "das_ist_die_losnummer",
     "date_filling": "2023-09-01",
@@ -15,21 +15,28 @@
     "glass_count": 2000,
     "boot_count": 12000,
     "OFFSET": 456789,
-    "SCALE": 346.023590,
+    "SCALE": 346.02359,
     "mqtt_server": {
-        "server_user": "asdfghjkloiuz",
-        "server_passwd": "asdfghjkloiuz",
-        "server_ip": "100.100.100.100",
-        "server_port": "65000",
-        "server_token": "e7555e77-0d62-4ab9-a934-9352d9bdf0ce"
+      "server_user": "asdfghjkloiuz",
+      "server_passwd": "asdfghjkloiuz",
+      "server_ip": "100.100.100.100",
+      "server_port": "65000",
+      "server_token": "e7555e77-0d62-4ab9-a934-9352d9bdf0ce",
+      "server_tls": true
     },
     "api_server": {
-        "server_user": "asdfghjkloiuz",
-        "server_passwd": "asdfghjkloiuz",
-        "server_ip": "100.100.100.100",
-        "server_port": "65000",
-        "server_token": "e7555e77-0d62-4ab9-a934-9352d9bdf0ce"
+      "server_user": "asdfghjkloiuz",
+      "server_passwd": "asdfghjkloiuz",
+      "server_ip": "100.100.100.100",
+      "server_port": "65000",
+      "server_token": "e7555e77-0d62-4ab9-a934-9352d9bdf0ce",
+      "server_tls": true
+    },
+    "wlan": {
+      "ip_address": "100.100.100.100",
+      "net_mask": "255.255.255.0",
+      "gw": "100.100.100.100",
+      "dns1": "100.100.100.100",
+      "dns2": "100.100.100.100"
     }
-
-
-}
+  }
