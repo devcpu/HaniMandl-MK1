@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-04 19:57
+ * Last Modified: 2023-09-05 13:22
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -38,8 +38,6 @@ class ESPHelper {
   static void disconnect(void);
   static void restartESP();
   static String getFlashMode();
-  static String readSPIFFS2String(const String &path);
-  static void writeString2SPIFFS(const String &path, const String &data);
 };
 
 #endif  // LIB_ESPHELPER_ESPHELPER_H_

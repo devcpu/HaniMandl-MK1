@@ -9,12 +9,13 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-02 00:52
+ * Last Modified: 2023-09-05 13:31
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <main.h>
 
+ESPFS espfs;
 HX711 scale;
 Servo servo;
 Glass glass;
@@ -26,10 +27,7 @@ void setup() {
   delay(1000);
   HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
   log_i("Start Setup");
-  if (!ESPFSInit()) {
-    delay(1000);
-    ESP.restart();
-  }
+  espfs.setup();
   setupWifiManager();
   WebserverStart();
   setupLoadcell();

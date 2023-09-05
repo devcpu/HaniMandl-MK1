@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-04 19:36
+ * Last Modified: 2023-09-05 13:29
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -17,7 +17,7 @@
 #define LIB_HMCONFIG_HMCONFIG_H_
 
 #include <Arduino.h>
-#include <ESPHelper.h>
+#include <ESPFS.h>
 #include <appconfig.h>
 
 #include "esp_log.h"

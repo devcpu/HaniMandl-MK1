@@ -9,12 +9,13 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-04 18:41
+ * Last Modified: 2023-09-05 15:08
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebTemplate.h>
 
+extern ESPFS espfs;
 struct HTML_Error {
   String ErrorMsg;
   boolean isSended;
@@ -114,7 +115,7 @@ String SetupFillingTemplating(const String &var) {
     return "Abfüllung";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/setupfilling.html");
+    return espfs.readString("/setupfilling.html");
   }
   return DefaultTemplating(var);
 }
@@ -124,7 +125,7 @@ String SetupTemplating(const String &var) {
     return "Grundeinrichtung";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/setup.html");
+    return espfs.readString("/setup.html");
   }
   return DefaultTemplating(var);
 }
@@ -134,7 +135,7 @@ String CalibrateTemplating(const String &var) {
     return "Waage kalibrieren";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/kalibrieren.html");
+    return espfs.readString("/kalibrieren.html");
   }
   return DefaultTemplating(var);
 }
@@ -144,7 +145,7 @@ String SetupWlanTemplating(const String &var) {
     return "Einrichtung Wlan";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/setupwlan.html");
+    return espfs.readString("/setupwlan.html");
   }
   return DefaultTemplating(var);
 }
@@ -154,7 +155,7 @@ String UpdateFirmwareTemplating(const String &var) {
     return "Update Firmware";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/updatefirmware.html");
+    return espfs.readString("/updatefirmware.html");
   }
   return DefaultTemplating(var);
 }
@@ -164,7 +165,7 @@ String FillingTemplating(const String &var) {
     return "Abfüllung";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/filling.html");
+    return espfs.readString("/filling.html");
   }
   return DefaultTemplating(var);
 }
@@ -185,7 +186,7 @@ String DefaultProcessor(const String &var) {
     return "Main Menue";
   }
   if (var == "BODY") {
-    return ESPHelper::readSPIFFS2String("/into.html");
+    return espfs.readString("/into.html");
   }
   return DefaultTemplating(var);
 }

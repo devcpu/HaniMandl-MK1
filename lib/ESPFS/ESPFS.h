@@ -9,8 +9,8 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-12 18:21
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2023-09-05 13:45
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_ESPFS_ESPFS_H_
@@ -25,6 +25,16 @@
 #error This works on ESP32 only
 #endif
 
-boolean ESPFSInit(void);
+class ESPFS {
+ public:
+  bool mounted = false;
+  ESPFS();
+  String readString(const String &path);
+  void writeString(const String &path, const String &data);
+  bool setup();
+
+ private:
+  bool isMounted();
+};
 
 #endif  // LIB_ESPFS_ESPFS_H_

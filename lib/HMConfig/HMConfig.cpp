@@ -9,12 +9,14 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-04 19:56
+ * Last Modified: 2023-09-05 13:29
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <ArduinoJson.h>  // weiß der Geier warum man das nicht in die HWConfig.h eintagen kann.
 #include <HMConfig.h>
+
+extern ESPFS espfs;
 
 String HMConfig::runmod2string(RunModus modus) {
   switch (modus) {
@@ -89,11 +91,11 @@ void HMConfig::writeJsonConfig() {
   api_server_json["server_tls"] = api_server.server_tls;
 
   serializeJson(doc_json, output);
-  ESPHelper::writeString2SPIFFS("hmconfig.json", output);
+  espfs.writeString("hmconfig.json", output);
 }
 
 void HMConfig::readJsonConfig() {
-  String input = ESPHelper::readSPIFFS2String("hmconfig.json");
+  String input = espfs.readString("hmconfig.json");
   if (input.length() <= 0) {
     return;
   }
