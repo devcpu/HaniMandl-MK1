@@ -1,0 +1,9 @@
+---
+ColumnLimit: '120'
+IndentWidth: '2'
+MaxEmptyLinesToKeep: '2'
+SpacesBeforeTrailingComments: '2'
+TabWidth: '2'
+UseTab: Never
+
+...
