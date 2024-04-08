@@ -2,7 +2,7 @@
 
 socket = new WebSocket("ws://%SERVER_IP%/ws");
 
-var reload_timeout = 10;
+var reload_timeout = 20;
 function checkReload() {
     //FIXME - test only
     var glass_count = document.getElementById("glass_count");
@@ -17,7 +17,7 @@ function checkReload() {
     }
 }
 
-setInterval(checkReload, 1000);
+setInterval(checkReload, 500);
 // socket.onopen = function (evt) {
 // }
 
@@ -50,8 +50,8 @@ function sendValue(value) {
   }
 
 socket.onmessage = function (evt) {
-    if (reload_timeout < 10) {
-        reload_timeout += 2;
+    if (reload_timeout < 20) {
+        reload_timeout += 3;
     }
 
     var data = JSON.parse(evt.data);
@@ -65,6 +65,11 @@ socket.onmessage = function (evt) {
     var waagen_gewicht = document.getElementById("waagen_gewicht");
     if (waagen_gewicht) {
         waagen_gewicht.innerHTML = data.waagen_gewicht;
+    }
+
+    var honey_gewicht = document.getElementById("honey_gewicht");
+    if (honey_gewicht) {
+        honey_gewicht.innerHTML = data.honey_gewicht;
     }
 
     var run_modus = document.getElementById("run_modus");

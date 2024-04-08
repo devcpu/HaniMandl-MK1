@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-08-22 03:06
+ * Last Modified: 2024-04-08 19:22
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -19,15 +19,15 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 // https://github.com/tzapu/WiFiManager
-#include <ESPAsyncWiFiManager.h>
+// #include <ESPAsyncWiFiManager.h>
 #include <HMConfig.h>
 #include <Ticker.h>
 #include <appconfig.h>
 
 #include "esp_log.h"
 
-void tick(void);
-void configModeCallback(AsyncWiFiManager *myWiFiManager);
-bool setupWifiManager(void);
+// void tick(void);
+// void configModeCallback(AsyncWiFiManager *myWiFiManager);
+bool setupWifi(void);
 
 #endif  // LIB_WIWIMANAGERX_WIFIMANAGERX_H_

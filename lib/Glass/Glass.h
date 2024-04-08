@@ -6,8 +6,8 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 01:19
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2024-04-08 23:17
+ * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
@@ -55,8 +55,9 @@ class Glass {
   // FIXME what is that?
   // uint8_t corr_conter = 0;
 
-  /// @brief  diff between target honey weight and real weight after follow up time
-  uint16_t follow_up_adjustment = 3;
+  /// @brief  diff between target honey weight and real weight after follow up
+  /// time
+  int16_t follow_up_adjustment = 3;
 
  private:
   bool _is_auto_start = false;
@@ -65,10 +66,9 @@ class Glass {
   bool _is_full = false;
   bool _glass_in_work = false;
   bool _no_glass = true;
-  
-  /// @brief 
+
+  /// @brief
   uint16_t _config_glass_empty = 0;
-  
 
   /// @brief weight of this glass (empty)
   int16_t _glass_weight = 0;
@@ -79,7 +79,7 @@ class Glass {
   /// @brief real honey weight
   int16_t _honey_weight = 0;
 
-  // /// @brief  
+  // /// @brief
   // int16_t _weight_last = 0;
 
   /// @brief target weight (from HMConfig)

@@ -6,8 +6,8 @@
  * Created Date: 2023-08-22 16:27
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 01:03
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2024-04-08 13:14
+ * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
  */
@@ -82,7 +82,7 @@ int calibrate() {
 }
 
 void setupLoadcell() {
-  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  scale.begin(PIN_LOADCELL_DOUT, PIN_LOADCELL_SCK);
   log_d("begin");
   show_scale_data();
   scale.set_gain(128);

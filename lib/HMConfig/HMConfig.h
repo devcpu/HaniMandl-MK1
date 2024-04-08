@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-05 13:29
+ * Last Modified: 2024-04-08 23:08
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -76,7 +76,7 @@ class HMConfig {
   static String runmod2string(RunModus modus);
   static String fillingstatus2string(FillingStatus status);
   String version = SOFTWARE_VERSION;
-  String beekeeping = "Beekeeping Germany";  // TODO(janusz)
+  String beekeeping = PROGRAMM_NAME;  // TODO(janusz)
 
   /// @brief holds servo config
   ServoData servodata;
@@ -96,14 +96,17 @@ class HMConfig {
   /// @brief actual weight from scale
   int16_t weight_current = 0;
 
+  /// @brief weight of honey in glass
+  int16_t weight_honey = 0;
+
   /// @brief starts fine filling at this weight
-  uint16_t weight_fine = static_cast<uint16_t>((weight_filling / 3));
+  uint16_t weight_fine = static_cast<uint16_t>((weight_filling * 0.7));
 
   /// @brief  weight of an empty glass
   uint16_t glass_empty = 222;
 
   /// @brief toleranc for automatic detection
-  uint8_t glass_tolerance = glass_empty / 10;
+  uint8_t glass_tolerance = glass_empty / 15;
 
   /// @brief  how many glasses we are filling in this run
   uint16_t glass_count = 0;

@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-02 01:36
+ * Last Modified: 2024-04-08 13:13
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -21,7 +21,7 @@ extern HX711 scale;
 void setupServo() {
   log_d("Init Servo ...");
   HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
-  servo.attach(SERVO_PIN, SERVO_MIN_PULSE, SERVO_MAX_PULSE);
+  servo.attach(PIN_SERVO, SERVO_MIN_PULSE, SERVO_MAX_PULSE);
   servo.setPeriodHertz(SERVO_FREQUENCY);
   log_d("Winkel=%d", 0);
   servo.write(0);
@@ -92,7 +92,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
     }
 
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
-      delay(5000);  // FIXME config var instand fix! 
+      delay(5000);  // FIXME config var instand fix!
       glass.setFollowUpAdjustment();
       log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
       log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");

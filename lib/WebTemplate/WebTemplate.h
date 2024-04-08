@@ -9,7 +9,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-04 18:41
+ * Last Modified: 2024-04-08 21:47
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -36,6 +36,7 @@ String CalibrateTemplating(const String &var);
 String SetupWlanTemplating(const String &var);
 String UpdateFirmwareTemplating(const String &var);
 String SystemInfoTemplating(const String &var);
+String JSTemplating(const String &var);
 
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size);

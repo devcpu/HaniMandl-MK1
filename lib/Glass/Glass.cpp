@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-02 01:36
+ * Last Modified: 2024-04-08 23:16
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -16,10 +16,9 @@
 
 Glass::Glass() { this->reset(); }
 
-
 /**
  * Resets all values
-*/
+ */
 void Glass::reset() {
   HMConfig& hmcfg = HMConfig::instance();
   _config_weight_filling = hmcfg.weight_filling;
@@ -37,23 +36,20 @@ void Glass::reset() {
   _no_glass = true;
 }
 
-void Glass::setTaraWeight(uint16_t tara_weight) { 
-  _glass_weight = tara_weight; 
-}
+void Glass::setTaraWeight(uint16_t tara_weight) { _glass_weight = tara_weight; }
 
 /**
  * This function is allways called from main loop and handle most processing
  * and sets lot of imported values.
-*/
+ */
 void Glass::setScaleUnit(float sunits) {
   //   log_e("sunits=%6.2f", sunits);
   // if (_glass_weight > 10) {
-  
 
   if (sunits < 10) {
     _honey_weight = 0;
   }
-  
+
   // set hony weight
   if (sunits > _glass_weight) {
     _honey_weight = sunits - _glass_weight;
@@ -69,8 +65,9 @@ void Glass::setScaleUnit(float sunits) {
 
   // glass full?
   if (_honey_weight >= _config_weight_filling - follow_up_adjustment) {
-    log_d("_is_full Honig: %d HonigMax: %d Korr: %d Sum: %d", _honey_weight,
-          _config_weight_filling, follow_up_adjustment, _config_weight_filling - follow_up_adjustment);
+    log_d("_is_full Honig!: %d HonigMax: %d Korr: %d Sum: %d", _honey_weight,
+          _config_weight_filling, follow_up_adjustment,
+          _config_weight_filling - follow_up_adjustment);
     // Serial.printf("_is_full    %6.2f     sunits", sunits);
     _is_full = true;
   } else {
@@ -131,4 +128,7 @@ void Glass::setScaleUnit(float sunits) {
   } else {
     _is_glass_removed = false;
   }
+
+  HMConfig::instance().weight_honey = _honey_weight;
+  // log_d("weight_honey=%d", HMConfig::instance().weight_honey);
 }

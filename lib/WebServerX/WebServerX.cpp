@@ -9,12 +9,11 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 12:48
+ * Last Modified: 2024-04-08 23:01
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebServerX.h>
-
 
 AsyncWebServer *WebServer;
 AsyncWebSocket *ws;
@@ -44,13 +43,13 @@ void WebserverStart(void) {
   WebServer->serveStatic("/wabe.jpg", SPIFFS, "/wabe.jpg");
   //   WebServer->serveStatic("/hanimandlmk1.js", SPIFFS, "/hanimandlmk1.js");
 
-  // it needs templating!
-  WebServer->on(
-      "/hanimandlmk1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-        log_e("/hanimandlmk1.js");
-        request->send(SPIFFS, "/hanimandlmk1.js", "application/javascript",
-                      false, DefaultTemplating);
-      });
+  // nonstatic! because, it needs templating!
+  WebServer->on("/hanimandlmk1.js", HTTP_GET,
+                [](AsyncWebServerRequest *request) {
+                  log_e("/hanimandlmk1.js");
+                  request->send(SPIFFS, "/hanimandlmk1.js",
+                                "application/javascript", false, JSTemplating);
+                });
 
   /*
   .########...#######..##.....##.########.########.##....##
@@ -429,7 +428,6 @@ KeyValue split(String wsdata) {
 //   sendSocketData();
 // }
 
-
 void sendSocketData() {
   if (globalClient == NULL) {
     log_d("globalClient == NULL");
@@ -447,10 +445,11 @@ void sendSocketData() {
   last = i;
 
   // make json
-  StaticJsonDocument<96> doc;
+  StaticJsonDocument<106> doc;
   String output;  // FIXME: should be char[] instand
   doc["glass_count"] = HMConfig::instance().glass_count;
   doc["waagen_gewicht"] = HMConfig::instance().weight_current;
+  doc["honey_gewicht"] = HMConfig::instance().weight_honey;
   doc["run_modus"] =
       HMConfig::instance().runmod2string(HMConfig::instance().run_modus);
   //   uint8_t len = measureJsonPretty(doc);

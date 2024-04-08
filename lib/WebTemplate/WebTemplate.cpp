@@ -12,7 +12,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-12-14 11:25
+ * Last Modified: 2024-04-08 23:00
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -109,6 +109,9 @@ String DefaultTemplating(const String &var) {
   if (var == "waagen_gewicht") {
     return String(HMConfig::instance().weight_current);
   }
+  if (var == "honey_gewicht") {
+    return String(HMConfig::instance().weight_honey);
+  }
   if (var == "run_modus") {
     return HMConfig::instance().runmod2string(HMConfig::instance().run_modus);
     // if (HMConfig::instance().run_modus == RUN_MODUS_AUTO) {
@@ -195,6 +198,15 @@ String SystemInfoTemplating(const String &var) {
   if (var == "BODY") {
     return table2DGenerator(ESPHelper::getSystemInfoTable(), true);
     // + mainmenue;
+  }
+  return DefaultTemplating(var);
+}
+
+String JSTemplating(const String &var) {
+  if (var == "SERVER_IP") {
+    String localIP = HMConfig::instance().localIP;
+    log_i("Local IP: %s", localIP.c_str());
+    return localIP;
   }
   return DefaultTemplating(var);
 }
