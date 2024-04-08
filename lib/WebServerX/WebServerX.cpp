@@ -15,7 +15,6 @@
 
 #include <WebServerX.h>
 
-// extern QueueHandle_t LoRaTXQueue;
 
 AsyncWebServer *WebServer;
 AsyncWebSocket *ws;
@@ -45,7 +44,7 @@ void WebserverStart(void) {
   WebServer->serveStatic("/wabe.jpg", SPIFFS, "/wabe.jpg");
   //   WebServer->serveStatic("/hanimandlmk1.js", SPIFFS, "/hanimandlmk1.js");
 
-  // is't needs templating!
+  // it needs templating!
   WebServer->on(
       "/hanimandlmk1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
         log_e("/hanimandlmk1.js");
@@ -82,7 +81,6 @@ void WebserverStart(void) {
       log_d("redirect to setup");
       request->redirect("/setup");
     }
-    log_d("/");
     request->send(SPIFFS, "/master.html", "text/html", false, DefaultProcessor);
   });
 
@@ -407,6 +405,11 @@ KeyValue split(String wsdata) {
   log_d("Key: %s Value: %s", rval.key.c_str(), rval.value.c_str());
   return rval;
 }
+
+// void loop(void) {
+//   sendSocketData();
+// }
+
 
 void sendSocketData() {
   if (globalClient == NULL) {

@@ -24,7 +24,7 @@
 
 typedef enum { RUN_MODUS_STOPPED, RUN_MODUS_HAND, RUN_MODUS_AUTO } RunModus;
 
-struct ServerData {
+struct MQTTServerData {
   String server_user;
   String server_passwd;
   String server_ip;
@@ -131,9 +131,9 @@ class HMConfig {
   /// @brief status servo
   FillingStatus fs = FILLING_STATUS_CLOSED;
 
-  ServerData mqtt_server;
+  MQTTServerData mqtt_server;
 
-  ServerData api_server;
+  MQTTServerData api_server;
 
   WlanConfig wlan;
 

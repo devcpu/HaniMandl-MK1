@@ -48,8 +48,15 @@ class Glass {
   // has to set to true if filling starts
   void setGlassInWork(bool status = true) { _glass_in_work = status; }
 
-  uint8_t corr_conter = 0;
-  uint16_t corr = 0;
+  void setFollowUpAdjustment() {
+    follow_up_adjustment = _honey_weight - _config_weight_filling;
+  }
+
+  // FIXME what is that?
+  // uint8_t corr_conter = 0;
+
+  /// @brief  diff between target honey weight and real weight after follow up time
+  uint16_t follow_up_adjustment = 3;
 
  private:
   bool _is_auto_start = false;
@@ -58,8 +65,10 @@ class Glass {
   bool _is_full = false;
   bool _glass_in_work = false;
   bool _no_glass = true;
-  int16_t _weight_last = 0;
+  
+  /// @brief 
   uint16_t _config_glass_empty = 0;
+  
 
   /// @brief weight of this glass (empty)
   int16_t _glass_weight = 0;
@@ -69,6 +78,9 @@ class Glass {
 
   /// @brief real honey weight
   int16_t _honey_weight = 0;
+
+  // /// @brief  
+  // int16_t _weight_last = 0;
 
   /// @brief target weight (from HMConfig)
   uint16_t _config_weight_filling = 0;

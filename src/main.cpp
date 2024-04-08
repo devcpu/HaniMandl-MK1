@@ -60,7 +60,7 @@ void loop() {
   // show_scale_data();
   weight_current = scale.get_units(LOADCELL_READ_TIMES);
   HMConfig::instance().weight_current = weight_current;
-  sendSocketData();
+  loop();
   // weight2seriell(weight_current);
   handleWeightAndServo(weight_current);
 }

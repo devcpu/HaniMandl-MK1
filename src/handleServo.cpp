@@ -92,8 +92,8 @@ int handleWeightAndServo(float weight_scale_brutto) {
     }
 
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
-      delay(5000);
-      // FIXME - calc
+      delay(5000);  // FIXME config var instand fix! 
+      glass.setFollowUpAdjustment();
       log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
       log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
       log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");

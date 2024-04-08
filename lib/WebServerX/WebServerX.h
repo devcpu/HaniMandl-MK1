@@ -34,7 +34,6 @@ struct KeyValue {
 };
 
 void WebserverStart(void);
-void APRSWebServerTick(void);
 
 String getSystemInfoTable();
 String getBuildDateAndTime();

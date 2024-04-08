@@ -60,8 +60,8 @@ bool setupWifiManager() {
   wifiManager.setSTAStaticIPConfig(_ip, _gw, _sn, _dns1, _dns2);
   //   wifiManager.autoConnect("AutoConnectAP");
   if (!wifiManager.autoConnect(
-          "HaniMandlMKI",
-          "Honigkuchen")) {  // TODO(janusz) move to config.h
+          WIFI_AP_NAME,
+          WIFI_AP_PASSWORD)) {  // TODO(janusz) move to config.h
     log_e("failed to connect, we should reset as see if it connects");
     delay(3000);
     ESP.restart();
