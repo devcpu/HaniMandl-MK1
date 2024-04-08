@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-04 19:22
+ * Last Modified: 2024-04-08 12:48
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -191,12 +191,18 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
   }
 }
 
-/* ------------------------------- getWebParam ------------------------------ */
-/// @brief gets the value under given key from given http-request
-/// @param request
-/// @param key
-/// @param cfgvar
-/// @return
+/**
+ * Retrieves the value of a web parameter from the given request.
+ *
+ * @param request The AsyncWebServerRequest object representing the incoming
+ * request.
+ * @param key The key of the web parameter to retrieve.
+ * @param cfgvar A pointer to the variable where the retrieved value will be
+ * stored.
+ *
+ * @return The value of the web parameter, or an empty string if the parameter
+ * is not found.
+ */
 String getWebParam(AsyncWebServerRequest *request, const char *key,
                    uint8_t *cfgvar) {
   String rtvar = "";
@@ -214,11 +220,15 @@ String getWebParam(AsyncWebServerRequest *request, const char *key,
   }
 }
 
-/* ------------------------------- getWebParam ------------------------------ */
-/// @brief gets the value under given key from given http-request
-/// @param request
-/// @param key
-/// @return
+/**
+ * Retrieves the value of a specified parameter from the HTTP request.
+ *
+ * @param request The pointer to the AsyncWebServerRequest object representing
+ * the HTTP request.
+ * @param key The key of the parameter to retrieve.
+ * @return The value of the specified parameter, or an empty string if the
+ * parameter is not found.
+ */
 String getWebParam(AsyncWebServerRequest *request, const char *key) {
   String rtvar = "";
   if (request->hasParam(key)) {
@@ -236,7 +246,6 @@ String getWebParam(AsyncWebServerRequest *request, const char *key) {
   return rtvar;
 }
 
-/* ------------------------------- showRequest ------------------------------ */
 #if CORE_DEBUG_LEVEL > 4
 /**
  * @brief return count of param and
@@ -308,6 +317,16 @@ int showRequest(AsyncWebServerRequest *request) { return request->params(); }
 ..###..###..########.########...######...#######...######..##....##.########....##...
 */
 
+/**
+ * Handles WebSocket events.
+ *
+ * @param server The WebSocket server instance.
+ * @param client The WebSocket client instance.
+ * @param type The type of WebSocket event.
+ * @param arg Additional argument associated with the event.
+ * @param data The data received from the client.
+ * @param len The length of the data received.
+ */
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
                AwsEventType type, void *arg, uint8_t *data, size_t len) {
   log_d("got event");

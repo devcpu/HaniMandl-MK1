@@ -2,20 +2,24 @@
  * Copyright (c) 2023 Johannes G. Arlt - Berlin - Germany
  * License MIT License
  * -----
- * File: /WebTemplate.cpp
- * Project: /home/janusz/git/esp32/HaniMandl-MK1/src
- * Description:
+ * File: WebTemplate.cpp
+ * Project: HaniMandl-MK1
+ * Description: Template-Engine for Webserver
+ * This file contains the implementation of the Template-Engine for the
+ * webserver. It provides functions for generating HTML templates and processing
+ * template variables.
  * -----
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-05 15:29
+ * Last Modified: 2023-12-14 11:25
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebTemplate.h>
 
 extern ESPFS espfs;
+
 struct HTML_Error {
   String ErrorMsg;
   boolean isSended;
@@ -35,6 +39,14 @@ HTML_Error html_error;
 
 extern HMConfig cfg;
 
+/**
+ * @brief Default templating function.
+ *
+ * This function takes a variable as input and returns a string.
+ *
+ * @param var The variable to be processed.
+ * @return The processed string.
+ */
 String DefaultTemplating(const String &var) {
   if (var == "SERVER_IP") {
     log_e("%s", HMConfig::instance().localIP.c_str());
@@ -110,6 +122,12 @@ String DefaultTemplating(const String &var) {
   return "wrong placeholder " + var;
 }
 
+/**
+ * @brief Sets up the filling templating for the given variable.
+ *
+ * @param var The variable to set up the filling templating for.
+ * @return The modified string after setting up the filling templating.
+ */
 String SetupFillingTemplating(const String &var) {
   if (var == "H2TITLE") {
     return "Abfüllung";
