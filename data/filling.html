@@ -1,6 +1,16 @@
-<div id="run_modus" class="w3-container w3-margin">%run_modus%</div>
-<div class="w3-container w3-margin"><h4 id="waagen_gewicht">%waagen_gewicht%</h4></div>
-<div class="w3-container w3-margin"><h2 id="honey_gewicht">%honey_gewicht%</h2></div>
+<table class="w3-table-all w3-bordered w3-striped w3-border w3-hoverable w3-table w3-centered" style="color:#000;">
+    <tr class="w3-green">
+        <th>Run Mode</th>
+        <th>Honig in g:</th>
+        <th>Summe in g:</th>
+    </tr>
+    <tr>
+        <td id="run_modus">%run_modus%</td>
+        <td id="honey_gewicht">%honey_gewicht%</td>
+        <td id="waagen_gewicht">%waagen_gewicht%</td>
+    </tr>
+</table>
+
 <table class="w3-table-all w3-bordered w3-striped w3-border w3-hoverable w3-table w3-centered" style="color:#000;">
     <tr class="w3-green">
         <th>Los-Nr:</th>
@@ -17,14 +27,15 @@
 </table>
 <hr />
 <fieldset>
-    <input type="button" id="startbutton", class="w3-button w3-round-xlarge w3-teal", onclick="sendButton('start')", value="Start" >
-    <input type="button" id="stopbutton", class="w3-button w3-round-xlarge w3-red", onclick="sendButton('stop')", value="STOP">
+    <input type="button" id="startbutton" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('start')" value="Start" >
+    <input type="button" id="finebutton" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('fine')" value="Fine" >
+    <input type="button" id="stopbutton" class="w3-button w3-round-xlarge w3-red" onclick="sendButton('stop')" value="STOP">
 </fieldset>
 
 <fieldset>
     <legend>Modi:</legend>
-    <input type="button", id="hand", class="w3-button w3-round-xlarge w3-teal", onclick="sendButton('hand')", value="Handbetrieb" >
-    <input type="button", id="auto", class="w3-button w3-round-xlarge w3-teal", onclick="sendButton('auto')", value="Automatik" >
+    <input type="button" id="hand" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('hand')" value="Handbetrieb" >
+    <input type="button" id="auto" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('auto')" value="Automatik" >
 </fieldset>
 
 <fieldset>

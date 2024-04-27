@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-05 13:29
+ * Last Modified: 2024-04-27 03:15
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -26,6 +26,8 @@ String HMConfig::runmod2string(RunModus modus) {
       return String("RUN_MODUS_HAND");
     case RUN_MODUS_STOPPED:
       return String("RUN_MODUS_STOPPED");
+    case RUN_MODUS_TEST:
+      return String("RUN_MODUS_TEST");
     default:
       return String("Unknown modus");
   }

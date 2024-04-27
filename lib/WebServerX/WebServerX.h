@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-01 23:12
+ * Last Modified: 2024-04-26 19:42
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -28,9 +28,13 @@
 #include <rom/rtc.h>
 #endif
 
-struct KeyValue {
-  String key;
-  String value;
+struct KeyValueArray {
+  struct KeyValue {
+    String key;
+    String value;
+  };
+  KeyValue keyValue[3];
+  int count;
 };
 
 void WebserverStart(void);
@@ -38,7 +42,7 @@ void WebserverStart(void);
 String getSystemInfoTable();
 String getBuildDateAndTime();
 
-KeyValue split(String wsdata);
+KeyValueArray split(KeyValueArray rval, String wsdata);
 bool isNumber(String val);
 // boolean validateNumber(String test);
 // boolean isNumeric(String str);

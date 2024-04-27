@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 18:55
+ * Last Modified: 2024-04-27 03:20
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -18,7 +18,7 @@
 
 #include <Arduino.h>
 
-#define PROGRAMM_NAME "HaniMandl MK I"
+#define PROGRAMM_NAME "Honey Filling Machine MKI"
 #define SOFTWARE_VERSION "v 0.1"
 
 // data if wifi connected
@@ -32,7 +32,7 @@
 #define WIFI_TIMESERVER "de.pool.ntp.org"
 
 /// data if accesspoint
-#define WIFI_AP_NAME "HanimandlMKI"
+#define WIFI_AP_NAME "Honey Filling Machine MKI"
 #define WIFI_AP_PASSWORD "Honigkuchen"
 #define HONEY_FARM_NAME "BIO-Imkerei St. Johannis"
 
@@ -44,6 +44,7 @@
 #define PIN_LOADCELL_SCK 17
 #define PIN_SERVO 33
 #define PIN_WIFI_LED 21
+#define PIN_BUZZER 22
 
 // calc avg from how many times read
 #define LOADCELL_READ_TIMES 3

@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 13:41
+ * Last Modified: 2024-04-26 16:46
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -18,7 +18,7 @@
 
 #include <Arduino.h>
 
-#define PROGRAMM_NAME "HaniMandl MK I"
+#define PROGRAMM_NAME "Honey Filling Machine MKI"
 #define SOFTWARE_VERSION "v 0.1"
 
 
@@ -30,7 +30,7 @@
 #define WIFI_TIMESERVER "de.pool.ntp.org"
 
 /// data if accesspoint
-#define WIFI_AP_NAME = "HanimandlMKI";
+#define WIFI_AP_NAME = "Honey Filling Machine MKI";
 #define WIFI_AP_PASSWORD = "Honigkuchen";
 #define HONEY_FARM_NAME = "";
 

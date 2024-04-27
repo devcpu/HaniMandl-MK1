@@ -2,25 +2,34 @@
     <fieldset>
         <legend>Imkerei</legend>
         <label>Name:
-            <input type="text" maxlength="18" name="beekeeping" value="%beekeeping%" required><br />
+            <input type="text" maxlength="36" name="beekeeping" value="%beekeeping%" required><br />
         </label><br />
        </fieldset>
     <fieldset>
         <legend>Servo</legend>
         <label>Servo max. Winkel
-            <input type="text" maxlength="18" name="angle_max_hard" value="%angle_max_hard%" required><br />
+            <input type="text" maxlength="18" name="angle_max_hard" id="angle_max_hard" value="%angle_max_hard%" required>
+            <input type="button" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton2('servo_test', 'angle_max_hard')" value="Test">
+            <br />
         </label><br />
         <label>Servo min Winkel
-            <input type="text" maxlength="18" name="angle_min_hard" value="%angle_min_hard%" required><br />
+            <input type="text" maxlength="18" name="angle_min_hard" id="angle_min_hard" value="%angle_min_hard%" required>
+            <input type="button" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton2('servo_test', 'angle_min_hard')" value="Test">
+            <br />
         </label><br />
         <label>Betrieb max. Winkel (kann im Füllmodus fein verstellt werden)
-            <input type="text" maxlength="18" name="angle_max" value="%angle_max%" required><br />
+            <input type="text" maxlength="18" name="angle_max" id="angle_max" value="%angle_max%" required>
+            <input type="button" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton2('servo_test', 'angle_max')" value="Test" >
+            <br />
         </label><br />
         <label>Betrieb min. Winkel (kann im Füllmodus fein verstellt werden)
-            <input type="text" maxlength="18" name="angle_min" value="%angle_min%" required><br />
+            <input type="text" maxlength="18" name="angle_min" id="angle_min" value="%angle_min%" required>
+            <input type="button" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton2('servo_test', 'angle_min')" value="Test" ><br />
         </label><br />
         <label>Betrieb Winkel Feinfüllung (kann im Füllmodus fein verstellt werden)
-            <input type="text" maxlength="18" name="angle_fine" value="%angle_fine%" required><br />
+            <input type="text" maxlength="18" name="angle_fine" id="angle_fine" value="%angle_fine%" required>
+            <input type="button" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton2('servo_test', 'angle_fine')" value="Test" >
+            <br />
         </label><br />
     </fieldset>
     <fieldset>

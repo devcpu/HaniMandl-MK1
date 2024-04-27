@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 21:52
+ * Last Modified: 2024-04-27 02:05
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -18,7 +18,6 @@
 AsyncWebServer server(80);
 // extern DNSServer dns;
 extern Ticker ticker;
-// extern HMConfig cfg;
 
 // default custom static IP
 // char static_ip[16] = "10.0.1.59";

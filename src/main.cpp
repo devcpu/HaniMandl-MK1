@@ -9,9 +9,10 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 19:27
+ * Last Modified: 2024-04-27 02:54
  * Modified By: Johannes G.  Arlt (janusz)
  */
+#ifndef UNIT_TEST
 
 #include <main.h>
 
@@ -32,10 +33,10 @@ void setup() {
   WebserverStart();
   setupLoadcell();
   setupServo();
-  // FIXME remove before release
-  servo.write(HMConfig::instance().servodata.angle_max);
-  delay(2000);
-  servo.write(HMConfig::instance().servodata.angle_min);
+  // // FIXME remove before release
+  // servo.write(HMConfig::instance().servodata.angle_max);
+  // delay(2000);
+  // servo.write(HMConfig::instance().servodata.angle_min);
 
   log_i("%s", HMConfig::instance().beekeeping.c_str());
   log_i("Setup done! Starting loop ... ");
@@ -64,3 +65,5 @@ void loop() {
   // weight2seriell(weight_current);
   handleWeightAndServo(weight_current);
 }
+
+#endif

@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 23:08
+ * Last Modified: 2024-04-27 03:52
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -22,7 +22,12 @@
 
 #include "esp_log.h"
 
-typedef enum { RUN_MODUS_STOPPED, RUN_MODUS_HAND, RUN_MODUS_AUTO } RunModus;
+typedef enum {
+  RUN_MODUS_STOPPED,
+  RUN_MODUS_HAND,
+  RUN_MODUS_AUTO,
+  RUN_MODUS_TEST
+} RunModus;
 
 struct MQTTServerData {
   String server_user;
@@ -50,22 +55,53 @@ typedef enum {
   FILLING_STATUS_STOPPED,
 } FillingStatus;
 
+typedef enum {
+  SERVO_STATUS_CLOSED,
+  SERVO_STATUS_OPEN,
+  SERVO_STATUS_FINE,
+  SERVO_STATUS_STOPPED,
+} ServoStatus;
+
+typedef enum {
+  SCALE_STATUS_STANDBY,
+  SCALE_STATUS_TARE,
+  SCALE_STATUS_CALIBRATE,
+  SCALE_STATUS_MEASURE,
+  SCALE_STATUS_STOPPED,
+} ScaleStatus;
+
+typedef enum {
+  SCALE_MODE_AUTO,
+  SCALE_MODE_MANUAL,
+  SCALE_MODE_CALIBRATE,
+  SCALE_MODE_STOPPED,
+} ScaleMode;
+
+typedef enum {
+  HAND_MODE_CLOSED,
+  HAND_MODE_OPEN,
+  HAND_MODE_FINE,
+} HandMode;
+
 /// @brief all data relatet servo
 struct ServoData {
   /// @brief max degree of Servo
-  uint8_t angle_max_hard = 180;
+  uint8_t angle_max_hard = 120;
 
   /// @brief min degree of Servo
   uint8_t angle_min_hard = 0;
 
   /// @brief max degree of MHMKI full open
-  uint8_t angle_max = 120;
+  uint8_t angle_max = 110;
 
   /// @brief min degree of MHMKI closed
-  uint8_t angle_min = 10;
+  uint8_t angle_min = 3;
 
   /// @brief degree for fine filling
   uint8_t angle_fine = 45;
+
+  /// @brief test angle
+  uint16_t angle_test = 0;
 };
 class HMConfig {
  public:
@@ -81,11 +117,10 @@ class HMConfig {
   /// @brief holds servo config
   ServoData servodata;
 
-  /// @brief from [Start] - Button
-  bool start = false;
+  HandMode hm = HAND_MODE_CLOSED;
 
   /// @brief Los Number for this honey and filling
-  String los_number = "L001-23";
+  String los_number = "L001-02";
 
   /// @brief current date
   String date_filling = "";
@@ -100,13 +135,13 @@ class HMConfig {
   int16_t weight_honey = 0;
 
   /// @brief starts fine filling at this weight
-  uint16_t weight_fine = static_cast<uint16_t>((weight_filling * 0.7));
+  uint16_t weight_fine = static_cast<uint16_t>((weight_filling * 0.3));
 
   /// @brief  weight of an empty glass
   uint16_t glass_empty = 222;
 
   /// @brief toleranc for automatic detection
-  uint8_t glass_tolerance = glass_empty / 15;
+  uint8_t glass_tolerance = 5;
 
   /// @brief  how many glasses we are filling in this run
   uint16_t glass_count = 0;

@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-08 13:13
+ * Last Modified: 2024-04-27 04:00
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -94,11 +94,15 @@ int handleWeightAndServo(float weight_scale_brutto) {
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
       delay(5000);  // FIXME config var instand fix!
       glass.setFollowUpAdjustment();
-      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
-      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
-      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
-      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
-      log_i("Piiiiiiiiiip Piiiiiiiiiip Piiiiiiiiiip ");
+      log_i("Piiiiiiiiiip");
+      tone(PIN_BUZZER, 1750, 200);
+      delay(400);
+      log_i("Piiiiiiiiiip");
+      tone(PIN_BUZZER, 1750, 200);
+      delay(400);
+      log_i("Piiiiiiiiiip");
+      tone(PIN_BUZZER, 1750, 200);
+      // delay(400);
       hmcfg.fs = FILLING_STATUS_CLOSED;
     }
 
@@ -123,7 +127,22 @@ int handleWeightAndServo(float weight_scale_brutto) {
   /* --------------------------------------------------------------------------
    */
   else if (hmcfg.run_modus == RUN_MODUS_HAND) {
+    if (hmcfg.hm == HAND_MODE_CLOSED) {
+      log_e("Closed filling");
+      servo.write(hmcfg.servodata.angle_min);
+    } else if (hmcfg.hm == HAND_MODE_OPEN) {
+      log_e("Open filling");
+      servo.write(hmcfg.servodata.angle_max);
+    } else if (hmcfg.hm == HAND_MODE_FINE) {
+      log_e("Fine filling");
+      servo.write(hmcfg.servodata.angle_fine);
+    } else {
+      log_e("No catch found! hmcfg.hm=%d", hmcfg.hm);
+      log_d("\n");
+    }
+    // servo.write(hmcfg.servodata.angle_max);
   }
+
   /* -------------------------------- HAND END --------------------------------
    */
 
@@ -131,6 +150,13 @@ int handleWeightAndServo(float weight_scale_brutto) {
   // weight_glass_netto=%d", runmod2string(hmcfg.run_modus).c_str(),
   // fillingstatus2string(hmcfg.fs).c_str(), weight_scale_brutto,
   // weight_glass_netto); log_d("\n");
+
+  else if (hmcfg.run_modus == RUN_MODUS_TEST) {
+    log_e("hmcfg.run_modus == RUN_MODUS_TEST");
+    log_e("weight_scale_brutto=%d", weight_scale_brutto);
+    servo.write(hmcfg.servodata.angle_test);
+  }
+
   return 1;
 }
 

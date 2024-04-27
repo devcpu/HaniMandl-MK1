@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-08 23:16
+ * Last Modified: 2024-04-27 00:21
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -53,7 +53,7 @@ void Glass::setScaleUnit(float sunits) {
   // set hony weight
   if (sunits > _glass_weight) {
     _honey_weight = sunits - _glass_weight;
-    log_d("_honey_weight=%d", _honey_weight);
+    // log_d("_honey_weight=%d", _honey_weight);
   }
 
   // glass on scale?

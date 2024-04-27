@@ -12,7 +12,7 @@ function checkReload() {
 
     reload_timeout -= 1;
     if (reload_timeout <= 0) {
-        alert("Keine Verbindung mehr zm Hanimandl!");
+        alert("Keine Verbindung mehr zur Honey Filling Machine MK I");
         location.reload();
     }
 }
@@ -44,6 +44,7 @@ setInterval(checkReload, 500);
 function sendValue(value) {
     if (socket.readyState === WebSocket.OPEN) {
       socket.send(value);
+      console.log('Value sent:', value);
     } else {
       console.error('WebSocket connection is not open');
     }
@@ -90,7 +91,7 @@ socket.onmessage = function (evt) {
 
   function value_change(key, direction, min, max) {
     var value = parseInt(document.getElementById(key).value, 10);
-    console.log("decrease " + key + ":" + value);
+    console.log("change" + key + ":" + value);
     value = isNaN(value) ? 0 : value;
     value >= max ? value = max : '';
     value <=  min ? value = min : '';
@@ -105,9 +106,21 @@ socket.onmessage = function (evt) {
 
 
 function sendButton(name) {
-    console.log("sendButton :" + name);
     sendValue("button=" + name);
+    console.log("sendButton :" + name);
 }
+
+function sendButton2(name, field_name) {
+    console.log("sendButton2 :" + name + " " + field_name);
+    var x = document.getElementById(field_name).value;
+    console.log("x:" + x);
+    var value = parseInt(x, 10);
+    console.log("value:" + value);
+    var request_value = "button=" + name + "&" + field_name + "=" + value;
+    sendValue(request_value);
+    console.log("sendButton2 :" + request_value);
+}
+
 
 function checkReboot() {
     if (window.confirm("eh, really reboot")) {

@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 23:01
+ * Last Modified: 2024-04-27 04:12
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -94,6 +94,10 @@ void WebserverStart(void) {
       if (isNumber(weight_filling_S)) {
         HMConfig::instance().weight_filling = weight_filling_S.toInt();
       }
+      String glass_empty_S = (getWebParam(request, "glass_empty"));
+      if (isNumber(glass_empty_S)) {
+        HMConfig::instance().glass_empty = glass_empty_S.toInt();
+      }
       HMConfig::instance().date_filling = getWebParam(request, "date_filling");
       HMConfig::instance().los_number = getWebParam(request, "los_number");
     }
@@ -114,6 +118,49 @@ void WebserverStart(void) {
 
   WebServer->on("/setup", HTTP_GET, [](AsyncWebServerRequest *request) {
     showRequest(request);
+    log_e("->on /setup");
+    String beekeeping = getWebParam(request, "beekeeping");
+    if (beekeeping != "") {
+      HMConfig::instance().beekeeping = beekeeping;
+      log_e("saved data beekeeping: %s",
+            HMConfig::instance().beekeeping.c_str());
+    }
+    String angle_max_hard_S = getWebParam(request, "angle_max_hard");
+    if (isNumber(angle_max_hard_S)) {
+      HMConfig::instance().servodata.angle_max_hard = angle_max_hard_S.toInt();
+      log_e("saved data angle_max_hard=%d",
+            HMConfig::instance().servodata.angle_max_hard);
+    }
+    String angle_min_hard_S = getWebParam(request, "angle_min_hard");
+    if (isNumber(angle_min_hard_S)) {
+      HMConfig::instance().servodata.angle_min_hard = angle_min_hard_S.toInt();
+      log_e("saved data angle_min_hard=%d",
+            HMConfig::instance().servodata.angle_min_hard);
+    }
+    String angle_max_S = getWebParam(request, "angle_max");
+    if (isNumber(angle_max_S)) {
+      HMConfig::instance().servodata.angle_max = angle_max_S.toInt();
+      log_e("saved data angle_max=%d",
+            HMConfig::instance().servodata.angle_max);
+    }
+    String angle_min_S = getWebParam(request, "angle_min");
+    if (isNumber(angle_min_S)) {
+      HMConfig::instance().servodata.angle_min = angle_min_S.toInt();
+      log_e("saved data angle_min=%d",
+            HMConfig::instance().servodata.angle_min);
+    }
+    String angle_fine_S = getWebParam(request, "angle_fine");
+    if (isNumber(angle_fine_S)) {
+      HMConfig::instance().servodata.angle_fine = angle_fine_S.toInt();
+      log_e("saved data angle_fine=%d",
+            HMConfig::instance().servodata.angle_fine);
+    }
+    String glass_tolerance_S = getWebParam(request, "glass_tolerance");
+    if (isNumber(glass_tolerance_S)) {
+      HMConfig::instance().glass_tolerance = glass_tolerance_S.toInt();
+      log_e("saved data glass_tolerance=%d",
+            HMConfig::instance().glass_tolerance);
+    }
     request->send(SPIFFS, "/master.html", "text/html", false, SetupTemplating);
   });
 
@@ -297,7 +344,7 @@ int showRequest(AsyncWebServerRequest *request) {
     } else if (p->isPost()) {
       log_d("POST %s: %s\n", p->name().c_str(), p->value().c_str());
     } else {
-      log_d("GET/PUT/... %s: %s\n", p->name().c_str(), p->value().c_str());
+      log_d("GET/PUT/... %s: %s", p->name().c_str(), p->value().c_str());
     }
   }
   return params_count;
@@ -347,58 +394,146 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
       log_d("%s\n", reinterpret_cast<char *>(data));
       String wsdata = String(reinterpret_cast<char *>(data));
       log_d("%s", wsdata.c_str());
-      KeyValue rdata = split(wsdata);
-      log_d("key: %s", rdata.key.c_str());
-      log_d("value: %s", rdata.value.c_str());
+      KeyValueArray rdata;
+      rdata.count = 0;
+      rdata.keyValue[0].key = "";
+      rdata.keyValue[0].value = "";
+      rdata = split(rdata, wsdata);
+      log_d("key: %s", rdata.keyValue[0].key.c_str());
+      log_d("value: %s", rdata.keyValue[0].value.c_str());
 
-      if (rdata.key == "angle_max") {
+      if (rdata.keyValue[0].key == "angle_max") {
         log_d("got angle_max");
-        if (isNumber(rdata.value)) {
+        if (isNumber(rdata.keyValue[0].value)) {
           log_d("Before: %d", HMConfig::instance().servodata.angle_max);
-          HMConfig::instance().servodata.angle_max = rdata.value.toInt();
+          HMConfig::instance().servodata.angle_max =
+              rdata.keyValue[0].value.toInt();
           log_d("After: %d", HMConfig::instance().servodata.angle_max);
         } else {
-          log_d("value of angle_max is not a valid Int %s", rdata.value);
+          log_d("value of angle_max is not a valid Int %s",
+                rdata.keyValue[0].value);
         }
       }
 
-      if (rdata.key == "angle_fine") {
+      if (rdata.keyValue[0].key == "angle_fine") {
         log_d("got angle_fine");
-        if (isNumber(rdata.value)) {
+        if (isNumber(rdata.keyValue[0].value)) {
           log_d("Before: %d", HMConfig::instance().servodata.angle_fine);
-          HMConfig::instance().servodata.angle_fine = rdata.value.toInt();
+          HMConfig::instance().servodata.angle_fine =
+              rdata.keyValue[0].value.toInt();
           log_d("After: %d", HMConfig::instance().servodata.angle_fine);
         } else {
-          log_d("value of angle_fine is not a valid Int %s", rdata.value);
+          log_d("value of angle_fine is not a valid Int %s",
+                rdata.keyValue[0].value);
         }
       }
 
-      if (rdata.key == "weight_fine") {
+      if (rdata.keyValue[0].key == "weight_fine") {
         log_d("got weight_fine");
-        if (isNumber(rdata.value)) {
+        if (isNumber(rdata.keyValue[0].value)) {
           log_d("Before: %d", HMConfig::instance().weight_fine);
-          HMConfig::instance().weight_fine = rdata.value.toInt();
+          HMConfig::instance().weight_fine = rdata.keyValue[0].value.toInt();
           log_d("After: %d", HMConfig::instance().weight_fine);
         } else {
-          log_e("value of weight_fine is not a valid Int %s", rdata.value);
+          log_e("value of weight_fine is not a valid Int %s",
+                rdata.keyValue[0].value);
         }
       }
 
-      if (rdata.key == "button") {
-        log_d("got button with %s", rdata.value);
-        if (rdata.value == "auto") {
+      if (rdata.keyValue[0].key == "glass_tolerance") {
+        log_d("got glass_tolerance");
+        if (isNumber(rdata.keyValue[0].value)) {
+          log_d("Before: %d", HMConfig::instance().glass_tolerance);
+          HMConfig::instance().glass_tolerance =
+              rdata.keyValue[0].value.toInt();
+          log_d("After: %d", HMConfig::instance().glass_tolerance);
+        } else {
+          log_e("value of glass_tolerance is not a valid Int %s",
+                rdata.keyValue[0].value);
+        }
+      }
+
+      if (rdata.keyValue[0].key == "button") {
+        log_d("got button with %s", rdata.keyValue[0].value);
+        if (rdata.keyValue[0].value == "auto") {
           HMConfig::instance().run_modus = RUN_MODUS_AUTO;
           HMConfig::instance().fs = FILLING_STATUS_CLOSED;
-        } else if (rdata.value == "hand") {
+          log_e("auto set");
+        } else if (rdata.keyValue[0].value == "hand") {
           HMConfig::instance().run_modus = RUN_MODUS_HAND;
-        } else if (rdata.value == "start") {
+          HMConfig::instance().fs = FILLING_STATUS_CLOSED;
+          log_e("hand set");
+        } else if (rdata.keyValue[0].value == "start") {
           log_d("[Start]");
-          HMConfig::instance().start = true;
-        } else if (rdata.value == "stop") {
-          HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
+          HMConfig::instance().hm = HAND_MODE_OPEN;
+        } else if (rdata.keyValue[0].value == "stop") {
+          log_d("[Stop]");
+          HMConfig::instance().hm = HAND_MODE_CLOSED;
+        } else if (rdata.keyValue[0].value == "fine") {
+          log_d("[Fine]");
+          HMConfig::instance().hm = HAND_MODE_FINE;
+        } else if (rdata.keyValue[0].value == "servo_test") {
+          log_e("button servo_test");
+          // log_e("rdata.count=%d", rdata.count);
+          // log_e("rdata.keyValue[0].key: %s", rdata.keyValue[0].key.c_str());
+          // log_e("rdata.keyValue[0].value: %d",
+          // rdata.keyValue[0].value.toInt()); log_e("rdata.keyValue[1].key:
+          // %s", rdata.keyValue[1].key.c_str());
+          log_e("rdata.keyValue[1].value: %d", rdata.keyValue[1].value.toInt());
+          if (rdata.keyValue[1].key == "angle_max_hard") {
+            log_e("button servo_test angle_max_hard");
+            if (isNumber(rdata.keyValue[1].value)) {
+              log_e("button servo_test angle_max_hard with int=%d",
+                    rdata.keyValue[1].value.toInt());
+              HMConfig::instance().servodata.angle_max_hard =
+                  rdata.keyValue[1].value.toInt();
+              HMConfig::instance().servodata.angle_test =
+                  rdata.keyValue[1].value.toInt();
+              HMConfig::instance().run_modus = RUN_MODUS_TEST;
+            }
+          }
+          if (rdata.keyValue[1].key == "angle_min_hard") {
+            log_e("button servo_test angle_min_hard");
+            if (isNumber(rdata.keyValue[1].value)) {
+              log_e("button servo_test angle_min_hard with int=%d",
+                    rdata.keyValue[1].value.toInt());
+              HMConfig::instance().servodata.angle_min_hard =
+                  rdata.keyValue[1].value.toInt();
+              HMConfig::instance().run_modus = RUN_MODUS_TEST;
+              HMConfig::instance().servodata.angle_test =
+                  rdata.keyValue[1].value.toInt();
+            }
+          }
+          if (rdata.keyValue[1].key == "angle_max") {
+            if (isNumber(rdata.keyValue[1].value)) {
+              HMConfig::instance().servodata.angle_max =
+                  rdata.keyValue[1].value.toInt();
+              HMConfig::instance().run_modus = RUN_MODUS_TEST;
+              HMConfig::instance().servodata.angle_test =
+                  rdata.keyValue[1].value.toInt();
+            }
+          }
+          if (rdata.keyValue[1].key == "angle_min") {
+            if (isNumber(rdata.keyValue[1].value)) {
+              HMConfig::instance().servodata.angle_min =
+                  rdata.keyValue[1].value.toInt();
+              HMConfig::instance().run_modus = RUN_MODUS_TEST;
+              HMConfig::instance().servodata.angle_test =
+                  rdata.keyValue[1].value.toInt();
+            }
+          }
+          if (rdata.keyValue[1].key == "angle_fine") {
+            if (isNumber(rdata.keyValue[1].value)) {
+              HMConfig::instance().servodata.angle_fine =
+                  rdata.keyValue[1].value.toInt();
+              HMConfig::instance().run_modus = RUN_MODUS_TEST;
+              HMConfig::instance().servodata.angle_test =
+                  rdata.keyValue[1].value.toInt();
+            }
+          }
         } else {
-          log_e("Got wrong value for %s: %s", rdata.value.c_str(),
-                rdata.key.c_str());
+          log_e("Got wrong value for %s: %s", rdata.keyValue[1].key.c_str(),
+                rdata.keyValue[1].key.c_str());
         }
       }
     }
@@ -414,18 +549,83 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
  *
  * @return a KeyValue object.
  */
-KeyValue split(String wsdata) {
+KeyValueArray split(KeyValueArray rval, String wsdata) {
   log_d("%s", wsdata.c_str());
-  KeyValue rval;
-  uint8_t idx = wsdata.indexOf("=");
-  rval.key = wsdata.substring(0, idx);
-  rval.value = wsdata.substring(idx + 1);
-  log_d("Key: %s Value: %s", rval.key.c_str(), rval.value.c_str());
+
+  uint8_t count = 0;
+  uint16_t str_position = 0;
+  uint8_t key_value_idx = 0;
+  bool found_amp = false;
+
+  for (uint8_t i = 0; i < wsdata.length(); i++) {
+    if (wsdata[i] == '=') {
+      count++;
+      log_e("count = %d", count);
+    }
+  }
+  if (count < 1) {
+    log_e("No '=' found in %s", wsdata.c_str());
+    return rval;
+  } else {
+    for (uint16_t i = 0; i < wsdata.length(); i++) {
+      log_e("str_position=%d; key_value_idx=%d; i=%d; char: %c", str_position,
+            key_value_idx, i, wsdata[i]);
+      if (wsdata[i] == '=') {
+        log_e("str_position=%d; key_value_idx=%d; i=%d; key: %s", str_position,
+              key_value_idx, i, wsdata.substring(str_position, i).c_str());
+        rval.keyValue[key_value_idx].key =
+            wsdata.substring(str_position, i).c_str();
+        str_position = i;
+
+        for (uint8_t j = i; j < wsdata.length(); j++) {
+          log_e("str_position=%d; key_value_idx=%d; i=%d; j=%d; char: %c",
+                str_position, key_value_idx, i, j, wsdata[j]);
+          if (wsdata[j] == '&') {
+            log_e(
+                "catch '&' str_position=%d; key_value_idx=%d; i)%d; j=%d; "
+                "value: %s",
+                str_position, key_value_idx, i, j,
+                wsdata.substring(i + 1, j).c_str());
+            rval.keyValue[key_value_idx].value =
+                wsdata.substring(i + 1, j).c_str();
+            str_position = j + 1;
+            i = j;
+            found_amp = true;
+            key_value_idx++;
+            log_e("END if wsdata[j] == &");
+            break;
+          }
+          log_e("END for wsdata[j] search for &");
+        }
+        if (found_amp) {
+          found_amp = false;
+        } else {
+          log_e("str_position=%d; key_value_idx=%d; i=%d; value: %s",
+                str_position, key_value_idx, i,
+                wsdata.substring(i + 1, wsdata.length()).c_str());
+          rval.keyValue[key_value_idx].value =
+              wsdata.substring(i + 1, wsdata.length()).c_str();
+          str_position = wsdata.length();
+          rval.count = key_value_idx;
+          log_e("END if wsdata[i] == '=' ");
+        }
+      }
+      log_e("END for wsdata.length()");
+    }
+    log_e("END else");
+  }
+  log_e("MULTIVALUE: str_position=%d; key_value_idx=%d", str_position,
+        key_value_idx);
+  rval.count = key_value_idx;
   return rval;
 }
 
-// void loop(void) {
-//   sendSocketData();
+//   if (y == count) {
+//     log_e("value: %s", wsdata.substring(i + 1, wsdata.length()).c_str());
+//     rval.keyValue[y].value = wsdata.substring(i + 1, wsdata.length());
+//     idxx[y] = wsdata.length();
+//     y++;
+//   rval.count = y;
 // }
 
 void sendSocketData() {

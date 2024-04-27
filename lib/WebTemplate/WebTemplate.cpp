@@ -12,7 +12,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-08 23:00
+ * Last Modified: 2024-04-27 02:23
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -37,8 +37,6 @@ struct HTML_Error {
 
 HTML_Error html_error;
 
-extern HMConfig cfg;
-
 /**
  * @brief Default templating function.
  *
@@ -48,6 +46,7 @@ extern HMConfig cfg;
  * @return The processed string.
  */
 String DefaultTemplating(const String &var) {
+  log_e("DefaultTemplating %s", var.c_str());
   if (var == "SERVER_IP") {
     log_e("%s", HMConfig::instance().localIP.c_str());
     return HMConfig::instance().localIP;
@@ -77,28 +76,44 @@ String DefaultTemplating(const String &var) {
     return String(HMConfig::instance().weight_filling);
   }
   if (var == "beekeeping") {
-    return HMConfig::instance().beekeeping;
+    String s = HMConfig::instance().beekeeping;
+    log_e("beekeeping: %s", s.c_str());
+    return s;
   }
   if (var == "angle_max_hard") {
-    return String(HMConfig::instance().servodata.angle_max_hard);
+    String s = String(HMConfig::instance().servodata.angle_max_hard);
+    log_e("angle_max_hard: %s", s.c_str());
+    return s;
   }
   if (var == "angle_min_hard") {
-    return String(HMConfig::instance().servodata.angle_min_hard);
+    String s = String(HMConfig::instance().servodata.angle_min_hard);
+    log_e("angle_min_hard: %s", s.c_str());
+    return s;
   }
   if (var == "angle_max") {
-    return String(HMConfig::instance().servodata.angle_max);
+    String s = String(HMConfig::instance().servodata.angle_max);
+    log_e("angle_max: %s", s.c_str());
+    return s;
   }
   if (var == "angle_min") {
-    return String(HMConfig::instance().servodata.angle_min);
+    String s = String(HMConfig::instance().servodata.angle_min);
+    log_e("angle_min: %s", s.c_str());
+    return s;
   }
   if (var == "angle_fine") {
-    return String(HMConfig::instance().servodata.angle_fine);
+    String s = String(HMConfig::instance().servodata.angle_fine);
+    log_e("angle_fine: %s", s.c_str());
+    return s;
   }
   if (var == "glass_tolerance") {
-    return String(HMConfig::instance().glass_tolerance);
+    String s = String(HMConfig::instance().glass_tolerance);
+    log_e("glass_tolerance: %s", s.c_str());
+    return s;
   }
   if (var == "weight_calibrate") {
-    return String(HMConfig::instance().weight_calibrate);
+    String s = String(HMConfig::instance().weight_calibrate);
+    log_e("weight_calibrate: %s", s.c_str());
+    return s;
   }
   if (var == "glass_count") {
     return String(HMConfig::instance().glass_count);
@@ -132,6 +147,7 @@ String DefaultTemplating(const String &var) {
  * @return The modified string after setting up the filling templating.
  */
 String SetupFillingTemplating(const String &var) {
+  log_e("SetupFillingTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "Abfüllung";
   }
@@ -142,6 +158,7 @@ String SetupFillingTemplating(const String &var) {
 }
 
 String SetupTemplating(const String &var) {
+  log_e("SetupTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "Grundeinrichtung";
   }
@@ -152,6 +169,7 @@ String SetupTemplating(const String &var) {
 }
 
 String CalibrateTemplating(const String &var) {
+  log_e("CalibrateTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "Waage kalibrieren";
   }
@@ -162,6 +180,7 @@ String CalibrateTemplating(const String &var) {
 }
 
 String SetupWlanTemplating(const String &var) {
+  log_e("SetupWlanTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "Einrichtung Wlan";
   }
@@ -172,6 +191,7 @@ String SetupWlanTemplating(const String &var) {
 }
 
 String UpdateFirmwareTemplating(const String &var) {
+  log_e("UpdateFirmwareTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "Update Firmware";
   }
@@ -182,6 +202,7 @@ String UpdateFirmwareTemplating(const String &var) {
 }
 
 String FillingTemplating(const String &var) {
+  log_e("FillingTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "Abfüllung";
   }
@@ -192,6 +213,7 @@ String FillingTemplating(const String &var) {
 }
 
 String SystemInfoTemplating(const String &var) {
+  log_e("SystemInfoTemplating %s", var.c_str());
   if (var == "H2TITLE") {
     return "System Info";
   }
@@ -203,6 +225,7 @@ String SystemInfoTemplating(const String &var) {
 }
 
 String JSTemplating(const String &var) {
+  log_e("JSTemplating %s", var.c_str());
   if (var == "SERVER_IP") {
     String localIP = HMConfig::instance().localIP;
     log_i("Local IP: %s", localIP.c_str());
@@ -212,6 +235,7 @@ String JSTemplating(const String &var) {
 }
 
 String DefaultProcessor(const String &var) {
+  log_e("DefaultProcessor %s", var.c_str());
   if (var == "H2TITLE") {
     return "Main Menue";
   }
@@ -240,6 +264,7 @@ String DefaultProcessor(const String &var) {
  */
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size) {
+  log_e("optionsFieldGenerator %s", name);
   ESP_LOGD("WebServerX", "%s", name);
   ESP_LOGD("WebServerX", "%s", selected.c_str());
 
@@ -258,6 +283,10 @@ String optionsFieldGenerator(String selected, const char *name,
 }
 
 bool isNumber(String val) {
+  log_e("isNumber %s", val.c_str());
+  if (val.length() == 0) {
+    return false;
+  }
   char buf[val.length() + 1];
   val.toCharArray(buf, val.length() + 1);
   for (uint8_t i = 0; i < val.length(); i++) {
@@ -278,6 +307,7 @@ bool isNumber(String val) {
  * @return	mixed
  */
 String table2DGenerator(Table2RData *systemdata, boolean bold) {
+  log_e("table2DGenerator");
   uint8_t sz = sizeof(systemdata);  // FIXME(janusz)
   log_d("Size of systemdata: %d", sz);
   log_d("bold: %d", bold);
