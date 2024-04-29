@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-26 16:46
+ * Last Modified: 2024-04-29 10:45
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -52,6 +52,6 @@
 #define SERVO_MIN_PULSE 500;
 #define SERVO_MAX_PULSE 2500;
 
-#define WEB_INPUT_MAX_LENGTH 31
+#define WEB_INPUT_MAX_LENGTH 32
 
 #endif  // LIB_APPCONFIG_APPCONFIG_H_

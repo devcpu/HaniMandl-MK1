@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-27 04:00
+ * Last Modified: 2024-04-28 15:11
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -92,6 +92,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
     }
 
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
+      log_e("delay(5000)");
       delay(5000);  // FIXME config var instand fix!
       glass.setFollowUpAdjustment();
       log_i("Piiiiiiiiiip");
@@ -128,13 +129,13 @@ int handleWeightAndServo(float weight_scale_brutto) {
    */
   else if (hmcfg.run_modus == RUN_MODUS_HAND) {
     if (hmcfg.hm == HAND_MODE_CLOSED) {
-      log_e("Closed filling");
+      // log_e("Closed filling");
       servo.write(hmcfg.servodata.angle_min);
     } else if (hmcfg.hm == HAND_MODE_OPEN) {
-      log_e("Open filling");
+      // log_e("Open filling");
       servo.write(hmcfg.servodata.angle_max);
     } else if (hmcfg.hm == HAND_MODE_FINE) {
-      log_e("Fine filling");
+      // log_e("Fine filling");
       servo.write(hmcfg.servodata.angle_fine);
     } else {
       log_e("No catch found! hmcfg.hm=%d", hmcfg.hm);

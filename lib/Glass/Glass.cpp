@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-27 00:21
+ * Last Modified: 2024-04-28 21:33
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -26,7 +26,7 @@ void Glass::reset() {
   _config_glass_tolerance = hmcfg.glass_tolerance;
   _config_glass_empty = hmcfg.glass_empty;
   _glass_weight = 0;  //
-  _honey_weight = 0;
+  _honey_in_glass_weight_filled = 0;
   // _weight_last = 0;
   _is_full = false;
   _is_fine_full = false;
@@ -34,6 +34,9 @@ void Glass::reset() {
   _is_glass_removed = false;
   _glass_in_work = false;
   _no_glass = true;
+  if (_cutoff_weight == 0) {
+    _cutoff_weight = _config_weight_filling;
+  }
 }
 
 void Glass::setTaraWeight(uint16_t tara_weight) { _glass_weight = tara_weight; }
@@ -47,12 +50,12 @@ void Glass::setScaleUnit(float sunits) {
   // if (_glass_weight > 10) {
 
   if (sunits < 10) {
-    _honey_weight = 0;
+    _honey_in_glass_weight_filled = 0;
   }
 
   // set hony weight
   if (sunits > _glass_weight) {
-    _honey_weight = sunits - _glass_weight;
+    _honey_in_glass_weight_filled = sunits - _glass_weight;
     // log_d("_honey_weight=%d", _honey_weight);
   }
 
@@ -64,20 +67,23 @@ void Glass::setScaleUnit(float sunits) {
   }
 
   // glass full?
-  if (_honey_weight >= _config_weight_filling - follow_up_adjustment) {
-    log_d("_is_full Honig!: %d HonigMax: %d Korr: %d Sum: %d", _honey_weight,
-          _config_weight_filling, follow_up_adjustment,
-          _config_weight_filling - follow_up_adjustment);
-    // Serial.printf("_is_full    %6.2f     sunits", sunits);
+  if (_honey_in_glass_weight_filled >= _cutoff_weight) {
+    log_d(
+        "\n\t[_honey_weight (filled)=%d]\n\t[_config_weight_filling (target "
+        "class)=%d]\n\t[weight_filling (target "
+        "conf)=%d]\n\t[_cutoff_weight=%d]\n\t[follow_up_adjustment=%d]",
+        _honey_in_glass_weight_filled, _config_weight_filling,
+        HMConfig::instance().weight_filling, _cutoff_weight,
+        _follow_up_adjustment);
     _is_full = true;
   } else {
     _is_full = false;
   }
 
   // filled until fine fill?
-  if (_honey_weight >= _config_weight_servo_fine &&
-      (_honey_weight < _config_weight_filling)) {
-    log_d("_is_fine_full");
+  if (_honey_in_glass_weight_filled >= _config_weight_servo_fine &&
+      (_honey_in_glass_weight_filled < _config_weight_filling)) {
+    // log_d("_is_fine_full");
     // Serial.printf("\r _is_fine_full      %6.2f sunits", sunits);
     _is_fine_full = true;
   } else {
@@ -91,7 +97,7 @@ void Glass::setScaleUnit(float sunits) {
     // log_d("sunits=%f", sunits);
     // log_d("_config_glass_empty=%d", _config_glass_empty);
     // log_d("_config_glass_tolerance=%d", _config_glass_tolerance);
-    log_d("_is_auto_start");
+    // log_d("_is_auto_start");
     // Serial.printf("\r _is_auto_start     %6.2f sunits", sunits);
     _is_auto_start = true;
   } else {
@@ -102,7 +108,7 @@ void Glass::setScaleUnit(float sunits) {
   if (sunits >
       _config_glass_empty + _config_glass_tolerance + 5) {  // TODO - replace 5
     // Serial.printf("_glass_in_work %6.2f  sunits", sunits);
-    log_d("_glass_in_work");
+    // log_d("_glass_in_work");
     _glass_in_work = true;
   } else {
     _glass_in_work = false;
@@ -129,6 +135,20 @@ void Glass::setScaleUnit(float sunits) {
     _is_glass_removed = false;
   }
 
-  HMConfig::instance().weight_honey = _honey_weight;
+  HMConfig::instance().weight_honey = _honey_in_glass_weight_filled;
   // log_d("weight_honey=%d", HMConfig::instance().weight_honey);
+}
+
+void Glass::setFollowUpAdjustment() {
+  _follow_up_adjustment =
+      _honey_in_glass_weight_filled - _config_weight_filling;
+  _cutoff_weight = _cutoff_weight - _follow_up_adjustment;  // FIXME - + or - ?
+  log_d(
+      "\n\t[_honey_weight (filled)=%d]\n\t[_config_weight_filling (target "
+      "class)=%d]\n\t[weight_filling (target "
+      "conf)=%d]\n\t[_cutoff_weight=%d]\n\t[follow_up_adjustment=%d]",
+      _honey_in_glass_weight_filled, _config_weight_filling,
+      HMConfig::instance().weight_filling, _cutoff_weight,
+      _follow_up_adjustment);
+  _is_full = true;
 }

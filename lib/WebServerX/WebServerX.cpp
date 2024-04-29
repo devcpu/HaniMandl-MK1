@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-27 04:12
+ * Last Modified: 2024-04-29 11:15
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -34,20 +34,22 @@ void WebserverStart(void) {
     request->send(404);
   });
 
-  WebServer->serveStatic("/hanimandlmk1.css", SPIFFS, "/hanimandlmk1.css");
+  WebServer->serveStatic("/honeyFillingMachine.css", SPIFFS,
+                         "/honeyFillingMachine.css");
   WebServer->serveStatic("/w3.css", SPIFFS, "/w3.css");
   WebServer->serveStatic("/w3pro.css", SPIFFS, "/w3pro.css");
   WebServer->serveStatic("/w3-theme-xcolor.css", SPIFFS,
                          "/w3-theme-xcolor.css");
   WebServer->serveStatic("/rebootinfo", SPIFFS, "/reboot.html");
   WebServer->serveStatic("/wabe.jpg", SPIFFS, "/wabe.jpg");
-  //   WebServer->serveStatic("/hanimandlmk1.js", SPIFFS, "/hanimandlmk1.js");
+  //   WebServer->serveStatic("/honeyFillingMachine.js", SPIFFS,
+  //   "/honeyFillingMachine.js");
 
   // nonstatic! because, it needs templating!
-  WebServer->on("/hanimandlmk1.js", HTTP_GET,
+  WebServer->on("/honeyFillingMachine.js", HTTP_GET,
                 [](AsyncWebServerRequest *request) {
-                  log_e("/hanimandlmk1.js");
-                  request->send(SPIFFS, "/hanimandlmk1.js",
+                  log_e("/honeyFillingMachine.js");
+                  request->send(SPIFFS, "/honeyFillingMachine.js",
                                 "application/javascript", false, JSTemplating);
                 });
 

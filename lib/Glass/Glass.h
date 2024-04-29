@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-08 23:17
+ * Last Modified: 2024-04-28 21:32
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -48,16 +48,10 @@ class Glass {
   // has to set to true if filling starts
   void setGlassInWork(bool status = true) { _glass_in_work = status; }
 
-  void setFollowUpAdjustment() {
-    follow_up_adjustment = _honey_weight - _config_weight_filling;
-  }
+  void setFollowUpAdjustment();
 
   // FIXME what is that?
   // uint8_t corr_conter = 0;
-
-  /// @brief  diff between target honey weight and real weight after follow up
-  /// time
-  int16_t follow_up_adjustment = 3;
 
  private:
   bool _is_auto_start = false;
@@ -66,6 +60,13 @@ class Glass {
   bool _is_full = false;
   bool _glass_in_work = false;
   bool _no_glass = true;
+
+  /// @brief calulated weight for close servo
+  int16_t _cutoff_weight = 0;
+
+  /// @brief  diff between target honey weight and real weight after follow up
+  /// time
+  int16_t _follow_up_adjustment = 3;
 
   /// @brief
   uint16_t _config_glass_empty = 0;
@@ -77,10 +78,7 @@ class Glass {
   uint8_t _config_glass_tolerance = 0;
 
   /// @brief real honey weight
-  int16_t _honey_weight = 0;
-
-  // /// @brief
-  // int16_t _weight_last = 0;
+  int16_t _honey_in_glass_weight_filled = 0;
 
   /// @brief target weight (from HMConfig)
   uint16_t _config_weight_filling = 0;

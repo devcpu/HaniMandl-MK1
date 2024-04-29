@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-27 03:52
+ * Last Modified: 2024-04-28 14:26
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -135,7 +135,7 @@ class HMConfig {
   int16_t weight_honey = 0;
 
   /// @brief starts fine filling at this weight
-  uint16_t weight_fine = static_cast<uint16_t>((weight_filling * 0.3));
+  uint16_t weight_fine = static_cast<uint16_t>((weight_filling * 0.9));
 
   /// @brief  weight of an empty glass
   uint16_t glass_empty = 222;
