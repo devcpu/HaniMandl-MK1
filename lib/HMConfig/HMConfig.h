@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-28 14:26
+ * Last Modified: 2024-04-29 14:11
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -103,6 +103,9 @@ struct ServoData {
   /// @brief test angle
   uint16_t angle_test = 0;
 };
+
+// TODO - change into subclasses instand of structs?
+// TODO - read and write from json
 class HMConfig {
  public:
   static HMConfig& instance() {
@@ -111,7 +114,7 @@ class HMConfig {
   }
   static String runmod2string(RunModus modus);
   static String fillingstatus2string(FillingStatus status);
-  String version = SOFTWARE_VERSION;
+  String version = SOFTWARE_VERSION;  // TODO(janusz)
   String beekeeping = PROGRAMM_NAME;  // TODO(janusz)
 
   /// @brief holds servo config

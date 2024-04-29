@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-08 19:22
+ * Last Modified: 2024-04-29 17:12
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -21,13 +21,17 @@
 // https://github.com/tzapu/WiFiManager
 // #include <ESPAsyncWiFiManager.h>
 #include <HMConfig.h>
+#include <NTPClient.h>
 #include <Ticker.h>
 #include <appconfig.h>
 
 #include "esp_log.h"
+#include "time.h"
 
 // void tick(void);
 // void configModeCallback(AsyncWiFiManager *myWiFiManager);
 bool setupWifi(void);
+String getNTPDate(int16_t gmt_offset_sec, int16_t daylight_offset_sec,
+                  const char *ntpserver);
 
 #endif  // LIB_WIWIMANAGERX_WIFIMANAGERX_H_

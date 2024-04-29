@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-28 15:11
+ * Last Modified: 2024-04-29 14:32
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -29,8 +29,14 @@ void setupServo() {
 
 int handleWeightAndServo(float weight_scale_brutto) {
   HMConfig& hmcfg = HMConfig::instance();  // TODO - got pointer?
-  //   log_d("automatic=%s fs=%s", hmcfg.runmod2string(hmcfg.run_modus).c_str(),
-  //         hmcfg.fillingstatus2string(hmcfg.fs).c_str());
+
+  if (hmcfg.hm == HAND_MODE_CLOSED && hmcfg.run_modus == RUN_MODUS_AUTO) {
+    servo.write(hmcfg.servodata.angle_min);
+    log_e("STOP Button in auto mode pressed! [STOP]");
+    hmcfg.run_modus = RUN_MODUS_STOPPED;
+    hmcfg.fs = FILLING_STATUS_STOPPED;
+    return 0;
+  }
 
   if (hmcfg.run_modus == RUN_MODUS_AUTO &&
       (hmcfg.fs == FILLING_STATUS_CLOSED ||
@@ -84,7 +90,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
     }
 
     if (glass.isFull() && hmcfg.fs == FILLING_STATUS_FINE) {
-      // TODO(janusz) Gewichtskorektur
+      // TODO - (janusz) Gewichtskorektur
       servo.write(hmcfg.servodata.angle_min);
       log_i("Glass full! :-)))");
       hmcfg.fs = FILLING_STATUS_FOLLOW_UP;
@@ -92,16 +98,17 @@ int handleWeightAndServo(float weight_scale_brutto) {
     }
 
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
+      tone(PIN_BUZZER, 1750, 200);
       log_e("delay(5000)");
       delay(5000);  // FIXME config var instand fix!
       glass.setFollowUpAdjustment();
-      log_i("Piiiiiiiiiip");
+      log_e("Piiiiiiiiiip");
       tone(PIN_BUZZER, 1750, 200);
       delay(400);
-      log_i("Piiiiiiiiiip");
+      log_e("Piiiiiiiiiip");
       tone(PIN_BUZZER, 1750, 200);
       delay(400);
-      log_i("Piiiiiiiiiip");
+      log_e("Piiiiiiiiiip");
       tone(PIN_BUZZER, 1750, 200);
       // delay(400);
       hmcfg.fs = FILLING_STATUS_CLOSED;

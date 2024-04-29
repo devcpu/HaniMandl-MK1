@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 10:45
+ * Last Modified: 2024-04-29 12:54
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -44,7 +44,7 @@
 #define PIN_LOADCELL_SCK 17
 #define PIN_SERVO 33
 #define PIN_WIFI_LED 21
-#define PIN_BUZZER 22
+#define PIN_BUZZER 16
 
 // calc avg from how many times read
 #define LOADCELL_READ_TIMES 3

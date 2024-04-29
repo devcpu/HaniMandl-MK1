@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-27 02:05
+ * Last Modified: 2024-04-29 17:27
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -103,4 +103,26 @@ bool setupWifi() {
   // // keep LED on
   // digitalWrite(PIN_WIFI_LED, LOW);
   // return true;
+}
+
+String getNTPDate(int16_t gmt_offset_sec, int16_t daylight_offset_sec,
+                  const char *ntpserver) {
+  uint8_t retry = 0;
+  struct tm timeinfo;
+  do {
+    Serial.print(".");
+    configTime(gmt_offset_sec, daylight_offset_sec, ntpserver);
+    delay(2000);
+  } while (!getLocalTime(&timeinfo) && ++retry < 10);
+  Serial.println();
+  if (retry >= 10) {
+    log_e("Failed to obtain time after 10 retries");
+    return String("0");
+  }
+
+  char buffer[80];
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d", &timeinfo);
+  String timeString = String(buffer);
+  log_e("Date: %s", timeString.c_str());
+  return timeString;
 }

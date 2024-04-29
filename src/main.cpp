@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-27 02:54
+ * Last Modified: 2024-04-29 17:14
  * Modified By: Johannes G.  Arlt (janusz)
  */
 #ifndef UNIT_TEST
@@ -26,13 +26,19 @@ Ticker ticker;
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
   log_i("Start Setup");
+  HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
   espfs.setup();
   setupWifi();
+
+  HMConfig::instance().date_filling =
+      getNTPDate(3600L, 3600L, "pool.ntp.org");  // TODO - move to config
+
   WebserverStart();
   setupLoadcell();
   setupServo();
+  pinMode(PIN_BUZZER, OUTPUT);
+
   // // FIXME remove before release
   // servo.write(HMConfig::instance().servodata.angle_max);
   // delay(2000);

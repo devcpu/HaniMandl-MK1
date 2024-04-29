@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-28 21:33
+ * Last Modified: 2024-04-29 14:17
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -21,6 +21,7 @@ Glass::Glass() { this->reset(); }
  */
 void Glass::reset() {
   HMConfig& hmcfg = HMConfig::instance();
+  // FIXME - double data! It will not change, is set in frontend!
   _config_weight_filling = hmcfg.weight_filling;
   _config_weight_servo_fine = hmcfg.weight_fine;
   _config_glass_tolerance = hmcfg.glass_tolerance;

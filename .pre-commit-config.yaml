@@ -22,7 +22,7 @@ repos:
   - id: mixed-line-ending
   - id: check-merge-conflict
   - id: forbid-submodules
-  - id: check-byte-order-marker
+  - id: fix-byte-order-marker
   - id: check-json
   - id: pretty-format-json
   - id: check-toml

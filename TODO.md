@@ -4,10 +4,22 @@
 - [ ] EEPORM
 - [ ] Touch-Sensor
 - [ ] Display
-- [ ] Scale
-- [ ] Servo
+- [X] Scale
+- [X] Servo
 - [ ] Documentation
 - [ ] I18N
+
+# Buttons on scale:
+- [ ] Start
+- [ ] Fine
+- [ ] Stop
+- [ ] Hand | Auto (toggle)
+
+# LEDs:
+
+- [ ] on | dual error
+- [ ] filling | dual ready
+- [ ] auto | dual hand
 
 # Fields in EEPROM
 
