@@ -9,11 +9,13 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 14:26
+ * Last Modified: 2024-04-29 19:06
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <WebServerX.h>
+
+extern Glass glass;
 
 AsyncWebServer *WebServer;
 AsyncWebSocket *ws;
@@ -95,6 +97,10 @@ void WebserverStart(void) {
       String weight_filling_S = (getWebParam(request, "weight_filling"));
       if (isNumber(weight_filling_S)) {
         HMConfig::instance().weight_filling = weight_filling_S.toInt();
+        // NOTE - Importend! Also change weight_fine
+        HMConfig::instance().weight_fine =
+            HMConfig::instance().weight_filling * 0.9;
+        glass.cutoff_weight = HMConfig::instance().weight_filling;
       }
       String glass_empty_S = (getWebParam(request, "glass_empty"));
       if (isNumber(glass_empty_S)) {
@@ -587,20 +593,13 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
           HMConfig::instance().hm = HAND_MODE_FINE;
 
           /*
-           ######   #######  ##    ## ######## ####  ######           ########
-          ########  ######  ########
-          ##    ## ##     ## ###   ## ##        ##  ##    ##             ## ##
-          ##    ##    ##
-          ##       ##     ## ####  ## ##        ##  ##                   ## ##
-          ##          ##
-          ##       ##     ## ## ## ## ######    ##  ##   ####            ##
-          ######    ######     ##
-          ##       ##     ## ##  #### ##        ##  ##    ##             ## ##
-          ##    ##
-          ##    ## ##     ## ##   ### ##        ##  ##    ##             ## ##
-          ##    ##    ##
-           ######   #######  ##    ## ##       ####  ######   #######    ##
-          ########  ######     ##
+          ##      ##  ######     ######## ########  ######  ########
+          ##  ##  ## ##    ##       ##    ##       ##    ##    ##
+          ##  ##  ## ##             ##    ##       ##          ##
+          ##  ##  ##  ######        ##    ######    ######     ##
+          ##  ##  ##       ##       ##    ##             ##    ##
+          ##  ##  ## ##    ##       ##    ##       ##    ##    ##
+           ###  ###   ######        ##    ########  ######     ##
           */
 
         } else if (rdata.keyValue[0].value == "servo_test") {
