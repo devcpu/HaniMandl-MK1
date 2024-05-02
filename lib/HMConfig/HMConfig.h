@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 14:11
+ * Last Modified: 2024-05-01 10:03
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -138,7 +138,8 @@ class HMConfig {
   int16_t weight_honey = 0;
 
   /// @brief starts fine filling at this weight
-  uint16_t weight_fine = static_cast<uint16_t>((weight_filling * 0.9));
+  // FIXME - one place only see WebServerX.cpp -> WebServer->on("/setupfilling"
+  uint16_t weight_fine = static_cast<uint16_t>((weight_filling - 50));
 
   /// @brief  weight of an empty glass
   uint16_t glass_empty = 222;

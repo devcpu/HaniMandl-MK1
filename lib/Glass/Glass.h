@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-28 21:32
+ * Last Modified: 2024-04-29 19:07
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -21,6 +21,10 @@
 class Glass {
  public:
   Glass();
+
+  /// @brief calulated weight for close servo
+  int16_t cutoff_weight = 0;
+
   /// @brief gets units from scale and calc all value in class
   /// @param sunits units from scale
   void setScaleUnit(float sunits);
@@ -54,15 +58,14 @@ class Glass {
   // uint8_t corr_conter = 0;
 
  private:
+  void _logFillingData();
+
   bool _is_auto_start = false;
   bool _is_glass_removed = false;
   bool _is_fine_full = false;
   bool _is_full = false;
   bool _glass_in_work = false;
   bool _no_glass = true;
-
-  /// @brief calulated weight for close servo
-  int16_t _cutoff_weight = 0;
 
   /// @brief  diff between target honey weight and real weight after follow up
   /// time
@@ -79,9 +82,6 @@ class Glass {
 
   /// @brief real honey weight
   int16_t _honey_in_glass_weight_filled = 0;
-
-  /// @brief target weight (from HMConfig)
-  uint16_t _config_weight_filling = 0;
 
   /// @brief starts weight fine filling (from HMConfig)
   uint16_t _config_weight_servo_fine = 0;

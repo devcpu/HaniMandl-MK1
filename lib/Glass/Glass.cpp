@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-29 14:17
+ * Last Modified: 2024-04-29 20:06
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -20,23 +20,16 @@ Glass::Glass() { this->reset(); }
  * Resets all values
  */
 void Glass::reset() {
-  HMConfig& hmcfg = HMConfig::instance();
-  // FIXME - double data! It will not change, is set in frontend!
-  _config_weight_filling = hmcfg.weight_filling;
-  _config_weight_servo_fine = hmcfg.weight_fine;
-  _config_glass_tolerance = hmcfg.glass_tolerance;
-  _config_glass_empty = hmcfg.glass_empty;
   _glass_weight = 0;  //
   _honey_in_glass_weight_filled = 0;
-  // _weight_last = 0;
   _is_full = false;
   _is_fine_full = false;
   _is_auto_start = false;
   _is_glass_removed = false;
   _glass_in_work = false;
   _no_glass = true;
-  if (_cutoff_weight == 0) {
-    _cutoff_weight = _config_weight_filling;
+  if (cutoff_weight == 0) {
+    cutoff_weight = HMConfig::instance().weight_filling;
   }
 }
 
@@ -50,6 +43,8 @@ void Glass::setScaleUnit(float sunits) {
   //   log_e("sunits=%6.2f", sunits);
   // if (_glass_weight > 10) {
 
+  _logFillingData();
+
   if (sunits < 10) {
     _honey_in_glass_weight_filled = 0;
   }
@@ -61,29 +56,23 @@ void Glass::setScaleUnit(float sunits) {
   }
 
   // glass on scale?
-  if (sunits > _config_glass_empty - _config_glass_tolerance) {
+  if (sunits >
+      HMConfig::instance().glass_empty - HMConfig::instance().glass_tolerance) {
     _no_glass = false;
   } else {
     _no_glass = true;
   }
 
   // glass full?
-  if (_honey_in_glass_weight_filled >= _cutoff_weight) {
-    log_d(
-        "\n\t[_honey_weight (filled)=%d]\n\t[_config_weight_filling (target "
-        "class)=%d]\n\t[weight_filling (target "
-        "conf)=%d]\n\t[_cutoff_weight=%d]\n\t[follow_up_adjustment=%d]",
-        _honey_in_glass_weight_filled, _config_weight_filling,
-        HMConfig::instance().weight_filling, _cutoff_weight,
-        _follow_up_adjustment);
+  if (_honey_in_glass_weight_filled >= cutoff_weight) {
     _is_full = true;
   } else {
     _is_full = false;
   }
 
   // filled until fine fill?
-  if (_honey_in_glass_weight_filled >= _config_weight_servo_fine &&
-      (_honey_in_glass_weight_filled < _config_weight_filling)) {
+  if (_honey_in_glass_weight_filled >= HMConfig::instance().weight_fine &&
+      (_honey_in_glass_weight_filled < HMConfig::instance().weight_filling)) {
     // log_d("_is_fine_full");
     // Serial.printf("\r _is_fine_full      %6.2f sunits", sunits);
     _is_fine_full = true;
@@ -93,12 +82,15 @@ void Glass::setScaleUnit(float sunits) {
 
   // auto start
   // TODO config autostart
-  if (sunits > _config_glass_empty - _config_glass_tolerance &&
-      sunits < _config_glass_empty + _config_glass_tolerance) {
+  if (sunits > HMConfig::instance().glass_empty -
+                   HMConfig::instance().glass_tolerance &&
+      sunits < HMConfig::instance().glass_empty +
+                   HMConfig::instance().glass_tolerance) {
     // log_d("sunits=%f", sunits);
-    // log_d("_config_glass_empty=%d", _config_glass_empty);
-    // log_d("_config_glass_tolerance=%d", _config_glass_tolerance);
-    // log_d("_is_auto_start");
+    // log_d("HMConfig::instance().glass_empty=%d",
+    // HMConfig::instance().glass_empty);
+    // log_d("HMConfig::instance().glass_tolerance=%d",
+    // HMConfig::instance().glass_tolerance); log_d("_is_auto_start");
     // Serial.printf("\r _is_auto_start     %6.2f sunits", sunits);
     _is_auto_start = true;
   } else {
@@ -106,8 +98,9 @@ void Glass::setScaleUnit(float sunits) {
   }
 
   // FIXME? diff _is_auto_start and _glass_in_work?
-  if (sunits >
-      _config_glass_empty + _config_glass_tolerance + 5) {  // TODO - replace 5
+  if (sunits > HMConfig::instance().glass_empty +
+                   HMConfig::instance().glass_tolerance +
+                   5) {  // TODO - replace 5
     // Serial.printf("_glass_in_work %6.2f  sunits", sunits);
     // log_d("_glass_in_work");
     _glass_in_work = true;
@@ -124,11 +117,12 @@ void Glass::setScaleUnit(float sunits) {
   // _weight_last = sunits;
 
   // auto emergency stop, if glass is removed
-  if (sunits < _config_glass_empty * 0.8 &&
+  if (sunits < HMConfig::instance().glass_empty * 0.8 &&
       (HMConfig::instance().fs == FILLING_STATUS_OPEN ||  // FIXME hmcfg?
        HMConfig::instance().fs == FILLING_STATUS_FINE)) {
     // log_d("sunits=%f", sunits);
-    // log_d("_config_glass_empty=%d", _config_glass_empty);
+    // log_d("HMConfig::instance().glass_empty=%d",
+    // HMConfig::instance().glass_empty);
     log_d("_is_glass_removed");
     // Serial.printf("\r _is_glass_removed  %6.2f sunits", sunits);
     _is_glass_removed = true;
@@ -142,14 +136,19 @@ void Glass::setScaleUnit(float sunits) {
 
 void Glass::setFollowUpAdjustment() {
   _follow_up_adjustment =
-      _honey_in_glass_weight_filled - _config_weight_filling;
-  _cutoff_weight = _cutoff_weight - _follow_up_adjustment;  // FIXME - + or - ?
-  log_d(
-      "\n\t[_honey_weight (filled)=%d]\n\t[_config_weight_filling (target "
-      "class)=%d]\n\t[weight_filling (target "
-      "conf)=%d]\n\t[_cutoff_weight=%d]\n\t[follow_up_adjustment=%d]",
-      _honey_in_glass_weight_filled, _config_weight_filling,
-      HMConfig::instance().weight_filling, _cutoff_weight,
-      _follow_up_adjustment);
+      _honey_in_glass_weight_filled - HMConfig::instance().weight_filling;
+  cutoff_weight = cutoff_weight - _follow_up_adjustment;  // FIXME - + or - ?
+  _logFillingData();
   _is_full = true;
+}
+
+void Glass::_logFillingData() {
+  log_d(
+      "\n\t[_honey_weight (filled)=%d]"
+      "\n\t[HMConfig.weight_filling (target)=%d]"
+      "\n\t[weight_fine=%d]"
+      "\n\t[_cutoff_weight=%d]"
+      "\n\t[follow_up_adjustment=%d]",
+      _honey_in_glass_weight_filled, HMConfig::instance().weight_filling,
+      HMConfig::instance().weight_fine, cutoff_weight, _follow_up_adjustment);
 }

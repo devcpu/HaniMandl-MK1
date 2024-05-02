@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-26 19:42
+ * Last Modified: 2024-04-30 13:02
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -20,10 +20,13 @@
 #include <ArduinoJson.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <ElegantOTA.h>
+#include <Glass.h>
 #include <HMConfig.h>
 #include <SPIFFS.h>
 #include <WebTemplate.h>
 #include <appconfig.h>
+
 #ifdef ESP32
 #include <rom/rtc.h>
 #endif
