@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-30 10:58
+ * Last Modified: 2024-04-30 12:31
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 STRATO AG Berlin, Germany
@@ -105,7 +105,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
       // delay(5000);  // FIXME config var instand fix!
       uint64_t static endmillis;
       if (first_run) {
-        endmillis = millis() + 5000;
+        endmillis = millis() + 5000;  // TODO - config?
         first_run = false;
       }
       if (millis() > endmillis) {

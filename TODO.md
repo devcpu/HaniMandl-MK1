@@ -49,6 +49,7 @@
 - [ ] angle_max_hard
 - [ ] angle_max
 - [ ] angle_min
+
 - [ ] angle_fine
 - [ ] calibrate_weight
 - [ ] glass_tolerance

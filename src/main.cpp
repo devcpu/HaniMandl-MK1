@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 17:14
+ * Last Modified: 2024-04-30 13:11
  * Modified By: Johannes G.  Arlt (janusz)
  */
 #ifndef UNIT_TEST
@@ -67,6 +67,8 @@ void loop() {
   // show_scale_data();
   weight_current = scale.get_units(LOADCELL_READ_TIMES);
   HMConfig::instance().weight_current = weight_current;
+  // server.handleClient(); wieso geht das doch?
+  // ElegantOTA.loop();
   sendSocketData();
   // weight2seriell(weight_current);
   handleWeightAndServo(weight_current);

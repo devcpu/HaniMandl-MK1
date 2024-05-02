@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 16:28
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 19:06
+ * Last Modified: 2024-05-01 10:02
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -99,7 +99,8 @@ void WebserverStart(void) {
         HMConfig::instance().weight_filling = weight_filling_S.toInt();
         // NOTE - Importend! Also change weight_fine
         HMConfig::instance().weight_fine =
-            HMConfig::instance().weight_filling * 0.9;
+            HMConfig::instance().weight_filling -
+            50;  // FIXME - one place only see HMCOnfig.weight_fine
         glass.cutoff_weight = HMConfig::instance().weight_filling;
       }
       String glass_empty_S = (getWebParam(request, "glass_empty"));
@@ -206,6 +207,7 @@ void WebserverStart(void) {
     // ESPHelper::reboot(request); //FIXME -
   });
 
+  ElegantOTA.begin(WebServer);
   WebServer->begin();
   log_e("HTTP WebServer started");
 }
