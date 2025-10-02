@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-05 13:50
+ * Last Modified: 2025-10-02 22:49
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -51,7 +51,7 @@ String ESPHelper::getFlashMode() {
 // TODO - const char * getChipModel();
 // TODO - uint8_t getChipCores();
 // TODO -
-Table2RData *ESPHelper::getSystemInfoTable(void) {
+Table2RData* ESPHelper::getSystemInfoTable(void) {
 #ifdef ESP32
   static Table2RData systemdata[30];
   systemdata[0] = {String("SoftwareVersion:"), HMConfig::instance().version};
@@ -141,9 +141,9 @@ String ESPHelper::getBuildDateAndTime() {
   int day = 0;
   int year = 0;
 
-  sscanf(mdate, "%s %d %d", bdt, &day, &year);  // flawfinder: ignore
+  sscanf(mdate, "%s %d %d", bdt, &day, &year);
 
-  const char *monthNames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  const char* monthNames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
   for (int i = 0; i < 12; i++) {
     if (strcmp(bdt, monthNames[i]) == 0) {

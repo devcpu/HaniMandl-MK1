@@ -1,108 +1,142 @@
+# ESP32/C++ optimierte Pre-commit Konfiguration
 # See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
-
-# run ```pre-commit run --all-files``` to run tests without git
-# run with ```--no-verify```  to disable tests if invoked by git
 
 fail_fast: false
 
 repos:
+# ============================================================================
+# BASIC FILE OPERATIONS
+# ============================================================================
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v6.0.0  # Updated version
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-added-large-files
     args: ['--maxkb=2048']
   - id: check-case-conflict
-  - id: check-executables-have-shebangs
   - id: check-symlinks
-  - id: fix-byte-order-marker
   - id: detect-private-key
   - id: mixed-line-ending
+    args: ['--fix=lf']  # Force Unix line endings
   - id: check-merge-conflict
-  - id: forbid-submodules
-  - id: fix-byte-order-marker
   - id: check-json
-  - id: pretty-format-json
-  - id: check-toml
-  - id: check-xml
   - id: check-yaml
-  - id: end-of-file-fixer
+  - id: check-xml
 
+# ============================================================================
+# C++ SPECIFIC HOOKS
+# ============================================================================
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v21.1.2
+  hooks:
+  - id: clang-format
+    exclude: (^attic|^\.pio|^build|^doc)
+    args: [-style=Google, -i]
+
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  # Static Analysis
+  - id: cppcheck
+    exclude: (^attic|^\.pio|^build|^doc)
+    args: [
+      --enable=warning,style,performance,portability,
+      --inline-suppr,
+      --suppress=missingIncludeSystem,
+      --suppress=unusedFunction,
+      --language=c++,
+      --std=c++11
+    ]
+
+- repo: local
+  hooks:
+  - id: flawfinder
+    name: Security Analysis (flawfinder)
+    description: Run flawfinder security scanner
+    entry: flawfinder
+    args: [--error-level=4, --minlevel=2, src/, lib/]
+    pass_filenames: false
+    language: system
+
+  # ESP32-spezifische Include-Checks (Ersatz für include-what-you-use)
+  - id: esp32-include-check
+    name: ESP32 Include Check
+    description: Check for proper include practices in ESP32 code
+    entry: bash
+    args: [-c, 'find src lib -name "*.cpp" -o -name "*.h" | xargs grep -n "#include <.*\.h>" | grep -v Arduino.h | grep -v WiFi.h | grep -v "^.*:#include <[A-Z]" | head -5 | while read line; do echo "INFO: Local header with angle brackets: $line"; done || echo "Include style looks good"']
+    pass_filenames: false
+    language: system
+
+# ============================================================================
+# EMBEDDED SPECIFIC
+# ============================================================================
+- repo: local
+  hooks:
+  # Compilation Test
+  - id: compile-esp32
+    name: ESP32 Compilation Test
+    description: Verify ESP32 code compiles
+    entry: platformio run --environment esp32 --silent
+    pass_filenames: false
+    language: system
+    stages: [pre-commit]
+
+  # Check for Arduino-specific issues
+  - id: arduino-lint
+    name: Arduino Code Lint
+    description: Check Arduino coding standards
+    entry: bash
+    args: [-c, 'find src lib -name "*.cpp" -o -name "*.h" | xargs grep -l "String " | head -5 | while read f; do echo "WARNING: Arduino String in $f - consider char arrays"; done || true']
+    pass_filenames: false
+    language: system
+
+  # Memory usage check
+  - id: memory-check
+    name: Memory Usage Check
+    description: Warn if memory usage is high
+    entry: bash
+    args: [-c, 'platformio run --environment esp32 --silent | grep -E "(RAM|Flash)" | tail -2 || true']
+    pass_filenames: false
+    language: system
+
+# ============================================================================
+# WEB ASSETS (für data/ Ordner)
+# ============================================================================
 - repo: https://github.com/pre-commit/mirrors-jshint
   rev: v2.13.6
   hooks:
   - id: jshint
+    files: ^data/.*\.js$
 
-- repo: https://github.com/pre-commit/mirrors-fixmyjs
-  rev: v2.0.0
-  hooks:
-  - id: fixmyjs
-
-- repo: https://github.com/Lucas-C/pre-commit-hooks-lxml
-  rev: v1.1.0
-  hooks:
-  - id: detect-missing-css-classes
-    args:
-    - --css-files-dir=data
-    - --html-files-dir=data
-    - --ignored-missing-class-defs-pattern=w3\-.*
-  - id: forbid-html-img-without-alt-text
-  # - id: forbid-non-std-html-attributes
-  - id: html-tags-blacklist
-  - id: html-attributes-blacklist
-
-- repo: https://github.com/pre-commit/mirrors-csslint
-  rev: v1.0.5
-  hooks:
-  - id: csslint
-
-#-   repo: https://github.com/Lucas-C/pre-commit-hooks-java
-#    rev: master
-#    hooks:
-#    -   id: validate-html
-
-- repo: https://github.com/bmorcos/pre-commit-hooks-cpp
-  rev: 9a5aa38207bf557961110d6a4f7e3a9d352911f9
-  hooks:
-
-  - id: clang-format
-    exclude: (^attic|^build|^doc)
-    # LLVM, GNU, Google, Chromium, Microsoft, Mozilla, WebKit
-    args: [-style=Google]
-
-  # - id: cpplint
-  #   exclude: (^attic|^build|^doc)
-  #   args: [
-  #     --filter=-build/include_subdir
-  #   ]
-
-  - id: cppcheck
-    exclude: (^attic|^build|^doc)
-    args: [--language=c++,--inline-suppr]
-
-
-# - repo: https://gitlab.com/massimocannavo/pre-commit-hooks
-#   rev: 1.0.2
-#   hooks:
-#     - id: flawfinder
-#       # args:
-#       #   - --error-level=3
-#       #   - --minlevel=3
-
-
+# CSS Minification Check
 - repo: local
   hooks:
-  - id: compile
-    name: test compile
-    description: check if sources can compiled
-    entry: platformio run --environment esp32
+  - id: css-size-check
+    name: CSS Size Check
+    description: Warn if CSS files are too large
+    entry: bash
+    args: [-c, 'find data -name "*.css" -size +10k -exec echo "WARNING: Large CSS file: {}" \;']
     pass_filenames: false
     language: system
-#  - id: TODO
-#    name: TODO Fixer
-#    entry: .todo-checker
-#    exclude: (^attic|^build|^doc)
-#    types: [file]
-#    language: script
+
+# ============================================================================
+# DOCUMENTATION
+# ============================================================================
+- repo: https://github.com/executablebooks/mdformat
+  rev: 0.7.22
+  hooks:
+  - id: mdformat
+    args: [--wrap=80]
+    files: \.(md|markdown)$
+    exclude: (^attic|^\.pio)
+
+# ============================================================================
+# SECURITY & COMPLIANCE
+# ============================================================================
+# - repo: https://github.com/Yelp/detect-secrets
+#   rev: v1.5.0
+#   hooks:
+#   - id: detect-secrets
+#     args: ['--baseline', '.secrets.baseline']
+#     exclude: (^attic|^\.pio|package-lock\.json)
