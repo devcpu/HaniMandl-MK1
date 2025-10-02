@@ -1,4 +1,4 @@
-# HaniMandl-MK1 TODOs:
+# uHuFiMa TODOs:
 
 - [ ] WiFi-Manager
 - [ ] EEPORM

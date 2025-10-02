@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: WebTemplate.h
- * Project: HaniMandl-MK1/src
+ * Project: uHuFiMa
  * Description:
  * -----
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-08 21:47
+ * Last Modified: 2024-10-05 00:00
  * Modified By: Johannes G.  Arlt (janusz)
  */
 

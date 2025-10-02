@@ -4,11 +4,10 @@
         <legend>Wlan Modus:</legend>
                 <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_sta" checked onClick="showHide('id_wlan_modus_sta', 'id_wlan_modus_ap')"><label>mit Router verbunden (im heimischen Netzwerk)</label><br />
                 <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_ap" onClick="showHide('id_wlan_modus_ap', 'id_wlan_modus_sta')"><label>Hanimanl ist Accresspoint</label>
+                <!-- <br /><br /><input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen"> -->
     </fieldset>
-</form>
 
 <dev id="id_wlan_modus_sta" class=" w3-margin" style="display: block;  background-color: #ff9800;">
-<form action="setupwlan" class="w3-container w3-left-align">
     <fieldset>
         <legend>Zugangsdaten Router:</legend>
         <label>SSID:</label>
@@ -18,24 +17,21 @@
         <input type="password" class="w3-input" name="sta_pass">
         <br />
         <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
-        </div>
     </fieldset>
 </form>
 </dev>
 
 
 <dev id="id_wlan_modus_ap" class=" w3-margin" style="display: none; background-color: #ff5722!important;">
-<form action="setupwlan" class="w3-container w3-left-align">
     <fieldset style="w3-deep-orange">
-        <legend>Zugangsdaten zum Hanimandl AccessPoint:</legend>
+        <legend>Zugangsdaten uHu-Honigabfüller AccessPoint:</legend>
         <label>SSID:</label>
         <input type="text" class="w3-input" name="ap_user" value="%ap_user%">
         <br />
-        <label>Passwort Router:</label>
+        <label>Passwort uHu-Honigabfüller:</label>
         <input type="password" class="w3-input" name="ap_pass">
         <br />
         <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
-        </div>
     </fieldset>
 </form>
 </dev>
@@ -51,7 +47,7 @@
 <form id="id_ip_address_fix" action="setupwlan" class="w3-container w3-left-align w3-margin"  style="display: none;">
 <fieldset>
     <legend>Fixe IP-Adressen:</legend>
-    <label>IP-Adresse Hanimandl:</label>
+    <label>IP-Adresse uHuFiMa:</label>
     <input type="text" class="w3-input" name="ip_local" value="%ip_local%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
     <br />
     <label>IP-Adresse Gateway:</label>
@@ -107,7 +103,7 @@
 
 <form action="setupwlan" class="w3-container w3-left-align w3-margin">
     <fieldset>
-        <legend>API Server:</legend>
+        <legend>API Request:</legend>
         <input class="w3-check" type="checkbox" id="id_api_active" name="api_active"  onClick="show('id_api_active', 'id_api_server')"><label>API-Server aktivieren:</label><br />
         <div id="id_api_server" class="w3-container w3-left-align">
         <input class="w3-check" type="checkbox" name="api_tls"><label>TLS für API-Server aktivieren:</label><br />

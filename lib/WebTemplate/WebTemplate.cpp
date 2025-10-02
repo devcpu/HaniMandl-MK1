@@ -3,7 +3,7 @@
  * License MIT License
  * -----
  * File: WebTemplate.cpp
- * Project: HaniMandl-MK1
+ * Project: uHuFiMa
  * Description: Template-Engine for Webserver
  * This file contains the implementation of the Template-Engine for the
  * webserver. It provides functions for generating HTML templates and processing
@@ -12,7 +12,7 @@
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-27 02:23
+ * Last Modified: 2024-10-04 23:57
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
