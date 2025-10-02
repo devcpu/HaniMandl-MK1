@@ -32,8 +32,10 @@ void setup() {
   espfs.setup();
   setupWifi();
 
-  HMConfig::instance().date_filling =
+  String temp_date =
       getNTPDate(3600L, 3600L, "pool.ntp.org");  // TODO - move to config
+  strlcpy(HMConfig::instance().date_filling, temp_date.c_str(),
+          sizeof(HMConfig::instance().date_filling));
 
   WebserverStart();
   setupLoadcell();
@@ -45,7 +47,7 @@ void setup() {
   // delay(2000);
   // servo.write(HMConfig::instance().servodata.angle_min);
 
-  log_i("%s", HMConfig::instance().beekeeping.c_str());
+  log_i("%s", HMConfig::instance().beekeeping);
   log_i("Setup done! Starting loop ... ");
 }
 
@@ -64,15 +66,27 @@ void donothing() {
 float weight_current = 0;
 
 void loop() {
-  //   // donothing();
-  // show_scale_data();
-  weight_current = scale.get_units(LOADCELL_READ_TIMES);
-  HMConfig::instance().weight_current = weight_current;
-  // server.handleClient(); wieso geht das doch?
-  // ElegantOTA.loop();
-  sendSocketData();
-  // weight2seriell(weight_current);
+  static unsigned long lastWeightRead = 0;
+  static unsigned long lastSocketSend = 0;
+
+  // Gewicht nur alle 300ms lesen (noch seltener für AP-Modus)
+  if (millis() - lastWeightRead > 300) {
+    weight_current = scale.get_units(1);  // Nur 1x lesen statt 3x
+    HMConfig::instance().weight_current = weight_current;
+    lastWeightRead = millis();
+  }
+
+  // WebSocket nur alle 1000ms senden (weniger frequent für AP)
+  if (millis() - lastSocketSend > 1000) {
+    sendSocketData();
+    lastSocketSend = millis();
+  }
+
   handleWeightAndServo(weight_current);
+
+  // KRITISCH für AP-Modus: Mehr Zeit für WiFi/WebServer!
+  yield();
+  delay(10);  // Zusätzliche Pause für Core 0 Tasks
 }
 
 #endif

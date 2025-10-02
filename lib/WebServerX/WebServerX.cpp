@@ -30,7 +30,9 @@ void WebserverStart(void) {
   WebServer->addHandler(ws);
 
   WebServer->onNotFound([](AsyncWebServerRequest *request) {
+#if CORE_DEBUG_LEVEL > 4
     showRequest(request);
+#endif
     log_e("%s not found! Send 404",
           request->url().c_str());  // TODO - // better send info to client
     request->send(404);
@@ -48,12 +50,12 @@ void WebserverStart(void) {
   //   "/honeyFillingMachine.js");
 
   // nonstatic! because, it needs templating!
-  WebServer->on("/honeyFillingMachine.js", HTTP_GET,
-                [](AsyncWebServerRequest *request) {
-                  log_e("/honeyFillingMachine.js");
-                  request->send(SPIFFS, "/honeyFillingMachine.js",
-                                "application/javascript", false, JSTemplating);
-                });
+  WebServer->on(
+      "/honeyFillingMachine.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+        log_e("/honeyFillingMachine.js");
+        request->send(SPIFFS, "/honeyFillingMachine.js",
+                      "application/javascript", false, JSTemplatingWrapper);
+      });
 
   /*
   .########...#######..##.....##.########.########.##....##
@@ -80,20 +82,26 @@ void WebserverStart(void) {
   WebServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_d("/");
     // first run wizard
-    if (HMConfig::instance().beekeeping == "") {  // first run wizard
+    if (strlen(HMConfig::instance().beekeeping) == 0) {  // first run wizard
       log_d("redirect to setup");
       request->redirect("/setup");
     }
-    request->send(SPIFFS, "/master.html", "text/html", false, DefaultProcessor);
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  DefaultTemplatingWrapper);
   });
 
   WebServer->on("/filling", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  FillingTemplating);
+                  FillingTemplatingWrapper);
   });
 
   WebServer->on("/setupfilling", HTTP_GET, [](AsyncWebServerRequest *request) {
-    if (showRequest(request)) {  // we got data
+#if CORE_DEBUG_LEVEL > 4
+    int paramCount = showRequest(request);
+#else
+    int paramCount = request->params();
+#endif
+    if (paramCount) {  // we got data
       String weight_filling_S = (getWebParam(request, "weight_filling"));
       if (isNumber(weight_filling_S)) {
         HMConfig::instance().weight_filling = weight_filling_S.toInt();
@@ -107,32 +115,44 @@ void WebserverStart(void) {
       if (isNumber(glass_empty_S)) {
         HMConfig::instance().glass_empty = glass_empty_S.toInt();
       }
-      HMConfig::instance().date_filling = getWebParam(request, "date_filling");
-      HMConfig::instance().los_number = getWebParam(request, "los_number");
+      String temp_date = getWebParam(request, "date_filling");
+      strlcpy(HMConfig::instance().date_filling, temp_date.c_str(),
+              sizeof(HMConfig::instance().date_filling));
+
+      String temp_los = getWebParam(request, "los_number");
+      strlcpy(HMConfig::instance().los_number, temp_los.c_str(),
+              sizeof(HMConfig::instance().los_number));
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  SetupFillingTemplating);
+                  SetupFillingTemplatingWrapper);
   });
 
   WebServer->on("/emptyglass", HTTP_GET, [](AsyncWebServerRequest *request) {
-    if (showRequest(request)) {
+#if CORE_DEBUG_LEVEL > 4
+    int paramCount = showRequest(request);
+#else
+    int paramCount = request->params();
+#endif
+    if (paramCount) {
       String glass_empty_S = (getWebParam(request, "glass_empty"));
       if (isNumber(glass_empty_S)) {
         HMConfig::instance().glass_empty = glass_empty_S.toInt();
       }
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  SetupFillingTemplating);
+                  SetupFillingTemplatingWrapper);
   });
 
   WebServer->on("/setup", HTTP_GET, [](AsyncWebServerRequest *request) {
+#if CORE_DEBUG_LEVEL > 4
     showRequest(request);
+#endif
     log_e("->on /setup");
     String beekeeping = getWebParam(request, "beekeeping");
     if (beekeeping != "") {
-      HMConfig::instance().beekeeping = beekeeping;
-      log_e("saved data beekeeping: %s",
-            HMConfig::instance().beekeeping.c_str());
+      strlcpy(HMConfig::instance().beekeeping, beekeeping.c_str(),
+              sizeof(HMConfig::instance().beekeeping));
+      log_e("saved data beekeeping: %s", HMConfig::instance().beekeeping);
     }
     String angle_max_hard_S = getWebParam(request, "angle_max_hard");
     if (isNumber(angle_max_hard_S)) {
@@ -170,26 +190,33 @@ void WebserverStart(void) {
       log_e("saved data glass_tolerance=%d",
             HMConfig::instance().glass_tolerance);
     }
-    request->send(SPIFFS, "/master.html", "text/html", false, SetupTemplating);
+    request->send(SPIFFS, "/master.html", "text/html", false,
+                  SetupTemplatingWrapper);
   });
 
   WebServer->on("/calibrate", HTTP_GET, [](AsyncWebServerRequest *request) {
+#if CORE_DEBUG_LEVEL > 4
     showRequest(request);
+#endif
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  CalibrateTemplating);
+                  CalibrateTemplatingWrapper);
   });
 
   WebServer->on("/setupwlan", HTTP_GET, [](AsyncWebServerRequest *request) {
+#if CORE_DEBUG_LEVEL > 4
     showRequest(request);
+#endif
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  SetupWlanTemplating);
+                  SetupWlanTemplatingWrapper);
   });
 
   WebServer->on("/updatefirmware", HTTP_GET,
                 [](AsyncWebServerRequest *request) {
+#if CORE_DEBUG_LEVEL > 4
                   showRequest(request);
+#endif
                   request->send(SPIFFS, "/master.html", "text/html", false,
-                                UpdateFirmwareTemplating);
+                                UpdateFirmwareTemplatingWrapper);
                 });
 
   /* ------------------------------- System Info ------------------------------
@@ -197,7 +224,7 @@ void WebserverStart(void) {
   WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest *request) {
     log_e("/systeminfo");
     request->send(SPIFFS, "/master.html", "text/html", false,
-                  SystemInfoTemplating);
+                  SystemInfoTemplatingWrapper);
   });
 
   /* --------------------------------- Reboot ---------------------------------
@@ -347,7 +374,7 @@ int showRequest(AsyncWebServerRequest *request) {
   int params_count = request->params();
   log_d("count params_count %d", params_count);
   for (i = 0; i < params_count; i++) {
-    AsyncWebParameter *p = request->getParam(i);
+    const AsyncWebParameter *p = request->getParam(i);
     if (p->isFile()) {
       log_d("FILE %s: %s, size: %u\n", p->name().c_str(), p->value().c_str(),
             p->size());

@@ -1,0 +1,10 @@
+// Debug-Code zum Testen der Core-Verteilung
+void debugCoreUsage() {
+    Serial.printf("Main Loop läuft auf Core: %d\n", xPortGetCoreID());
+}
+
+// In WebServerX.cpp Lambda-Funktionen:
+// [](AsyncWebServerRequest *request) {
+//     Serial.printf("WebServer läuft auf Core: %d\n", xPortGetCoreID());
+//     // ... rest of handler
+// }

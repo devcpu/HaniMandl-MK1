@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-05-01 10:03
+ * Last Modified: 2025-10-02 21:14
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -30,20 +30,20 @@ typedef enum {
 } RunModus;
 
 struct MQTTServerData {
-  String server_user;
-  String server_passwd;
-  String server_ip;
-  String server_port;
-  String server_token;
+  char server_user[WEB_INPUT_MAX_LENGTH];
+  char server_passwd[WEB_INPUT_MAX_LENGTH];
+  char server_ip[16];     // IPv4: xxx.xxx.xxx.xxx
+  char server_port[6];    // Port: 65535
+  char server_token[64];  // Token can be longer
   bool server_tls;
 };
 
 struct WlanConfig {
-  String ip_address;
-  String net_mask;
-  String gw;
-  String dns1;
-  String dns2;
+  char ip_address[16];  // IPv4: xxx.xxx.xxx.xxx
+  char net_mask[16];    // IPv4: xxx.xxx.xxx.xxx
+  char gw[16];          // IPv4: xxx.xxx.xxx.xxx
+  char dns1[16];        // IPv4: xxx.xxx.xxx.xxx
+  char dns2[16];        // IPv4: xxx.xxx.xxx.xxx
 };
 
 typedef enum {
@@ -112,10 +112,10 @@ class HMConfig {
     static HMConfig _instance;
     return _instance;
   }
-  static String runmod2string(RunModus modus);
-  static String fillingstatus2string(FillingStatus status);
-  String version = SOFTWARE_VERSION;  // TODO(janusz)
-  String beekeeping = PROGRAMM_NAME;  // TODO(janusz)
+  static const char* runmod2string(RunModus modus);
+  static const char* fillingstatus2string(FillingStatus status);
+  const char* version = SOFTWARE_VERSION;  // TODO(janusz)
+  char beekeeping[64] = PROGRAMM_NAME;     // Made changeable char array
 
   /// @brief holds servo config
   ServoData servodata;
@@ -123,10 +123,10 @@ class HMConfig {
   HandMode hm = HAND_MODE_CLOSED;
 
   /// @brief Los Number for this honey and filling
-  String los_number = "L001-02";
+  char los_number[16] = "L001-02";
 
   /// @brief current date
-  String date_filling = "";
+  char date_filling[32] = "";
 
   /// @brief netto target weight of glass
   uint16_t weight_filling = 500;
@@ -154,7 +154,7 @@ class HMConfig {
   uint32_t boot_count = 0;
 
   /// @brief local IP, comes from route or static configured
-  String localIP;
+  char localIP[16] = "";  // IPv4: xxx.xxx.xxx.xxx
 
   /// @brief weight for calibration
   uint32_t weight_calibrate = 509;

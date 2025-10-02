@@ -24,7 +24,7 @@
 #include <Glass.h>
 #include <HMConfig.h>
 #include <SPIFFS.h>
-#include <WebTemplate.h>
+#include <WebTemplateOptimized.h>
 #include <appconfig.h>
 
 #ifdef ESP32

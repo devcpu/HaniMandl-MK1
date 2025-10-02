@@ -106,7 +106,7 @@ void show_scale_data() {
   log_d("OFFSET: %d\n", scale.get_offset());
   log_d("scale.get_value(5) = %f", scale.get_value(LOADCELL_READ_TIMES));
   log_d("Result %.0fg\n\n", round(scale.get_units(LOADCELL_READ_TIMES)));
-  String result = String(round(scale.get_units(LOADCELL_READ_TIMES)), 0);
+  // Removed String usage - just log the result directly
   log_i("%6.2f g", round(scale.get_units(LOADCELL_READ_TIMES)));
 }
 

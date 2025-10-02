@@ -54,8 +54,8 @@
 
 void setupServo();
 int handleWeightAndServo(float weight_current);
-String runmod2string(RunModus mod);
-String fillingstatus2string(FillingStatus status);
+const char* runmod2string(RunModus mod);
+const char* fillingstatus2string(FillingStatus status);
 int log_event(float weight_current, int16_t weight_fill_current,
               FillingStatus status, uint16_t weight_last);
 

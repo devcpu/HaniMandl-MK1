@@ -69,7 +69,9 @@ bool setupWifi() {
   Serial.println("\nConnected to the WiFi network");
   Serial.print("[+] ESP32 IP : ");
   Serial.println(WiFi.localIP());
-  HMConfig::instance().localIP = WiFi.localIP().toString();
+  String temp_ip = WiFi.localIP().toString();
+  strlcpy(HMConfig::instance().localIP, temp_ip.c_str(),
+          sizeof(HMConfig::instance().localIP));
   // // set callback that gets called when connecting to previous WiFi fails,
   // and we need to start configuration mode
   // wifiManager.setAPCallback(configModeCallback);

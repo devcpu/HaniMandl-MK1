@@ -20,23 +20,22 @@
 #include <ESPHelper.h>
 #include <HMConfig.h>
 
-static const String mainmenue(
-    "<br /><form action='.' method='get'><button>Hauptmeü</button></form><br "
-    "/>");
-static const String htmltitle = HONEY_FARM_NAME;
-static const String h3title = PROGRAMM_NAME;
+static const char mainmenue[] PROGMEM =
+    "<br /><form action='.' method='get'><button>Hauptmeü</button></form><br />";
+static const char* const htmltitle = HONEY_FARM_NAME;
+static const char* const h3title = PROGRAMM_NAME;
 
-String DefaultTemplating(const String &var);
+const char* DefaultTemplating(const char* var);
 
-String DefaultProcessor(const String &var);
-String FillingTemplating(const String &var);
-String SetupFillingTemplating(const String &var);
-String SetupTemplating(const String &var);
-String CalibrateTemplating(const String &var);
-String SetupWlanTemplating(const String &var);
-String UpdateFirmwareTemplating(const String &var);
-String SystemInfoTemplating(const String &var);
-String JSTemplating(const String &var);
+const char* DefaultProcessor(const char* var);
+const char* FillingTemplating(const char* var);
+const char* SetupFillingTemplating(const char* var);
+const char* SetupTemplating(const char* var);
+const char* CalibrateTemplating(const char* var);
+const char* SetupWlanTemplating(const char* var);
+const char* UpdateFirmwareTemplating(const char* var);
+const char* SystemInfoTemplating(const char* var);
+const char* JSTemplating(const char* var);
 
 String optionsFieldGenerator(String selected, const char *name,
                              String data[][2], uint8_t size);

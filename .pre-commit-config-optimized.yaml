@@ -1,0 +1,133 @@
+# ESP32/C++ optimierte Pre-commit Konfiguration
+# See https://pre-commit.com for more information
+
+fail_fast: false
+
+repos:
+# ============================================================================
+# BASIC FILE OPERATIONS
+# ============================================================================
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0  # Updated version
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-added-large-files
+    args: ['--maxkb=2048']
+  - id: check-case-conflict
+  - id: check-symlinks
+  - id: detect-private-key
+  - id: mixed-line-ending
+    args: ['--fix=lf']  # Force Unix line endings
+  - id: check-merge-conflict
+  - id: check-json
+  - id: check-yaml
+  - id: check-xml
+
+# ============================================================================
+# C++ SPECIFIC HOOKS
+# ============================================================================
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v17.0.4
+  hooks:
+  - id: clang-format
+    exclude: (^attic|^\.pio|^build|^doc)
+    args: [-style=Google, -i]
+
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  # Static Analysis
+  - id: cppcheck
+    exclude: (^attic|^\.pio|^build|^doc)
+    args: [
+      --enable=warning,style,performance,portability,
+      --inline-suppr,
+      --suppress=missingIncludeSystem,
+      --suppress=unusedFunction,
+      --language=c++,
+      --std=c++11
+    ]
+
+  # Security Analysis
+  - id: flawfinder
+    exclude: (^attic|^\.pio|^build|^doc)
+    args: [--error-level=4, --minlevel=2]
+
+  # Include Guard Check
+  - id: include-what-you-use
+    exclude: (^attic|^\.pio|^build|^doc|test)
+    args: [--verbose=1]
+
+# ============================================================================
+# EMBEDDED SPECIFIC
+# ============================================================================
+- repo: local
+  hooks:
+  # Compilation Test
+  - id: compile-esp32
+    name: ESP32 Compilation Test
+    description: Verify ESP32 code compiles
+    entry: platformio run --environment esp32 --silent
+    pass_filenames: false
+    language: system
+    stages: [commit]
+
+  # Check for Arduino-specific issues
+  - id: arduino-lint
+    name: Arduino Code Lint
+    description: Check Arduino coding standards
+    entry: bash
+    args: [-c, 'find src lib -name "*.cpp" -o -name "*.h" | xargs grep -l "String " | head -5 | while read f; do echo "WARNING: Arduino String in $f - consider char arrays"; done || true']
+    pass_filenames: false
+    language: system
+
+  # Memory usage check
+  - id: memory-check
+    name: Memory Usage Check
+    description: Warn if memory usage is high
+    entry: bash
+    args: [-c, 'platformio run --environment esp32 --silent | grep -E "(RAM|Flash)" | tail -2 || true']
+    pass_filenames: false
+    language: system
+
+# ============================================================================
+# WEB ASSETS (für data/ Ordner)
+# ============================================================================
+- repo: https://github.com/pre-commit/mirrors-jshint
+  rev: v2.13.6
+  hooks:
+  - id: jshint
+    files: ^data/.*\.js$
+
+# CSS Minification Check
+- repo: local
+  hooks:
+  - id: css-size-check
+    name: CSS Size Check
+    description: Warn if CSS files are too large
+    entry: bash
+    args: [-c, 'find data -name "*.css" -size +10k -exec echo "WARNING: Large CSS file: {}" \;']
+    pass_filenames: false
+    language: system
+
+# ============================================================================
+# DOCUMENTATION
+# ============================================================================
+- repo: https://github.com/executablebooks/mdformat
+  rev: 0.7.17
+  hooks:
+  - id: mdformat
+    args: [--wrap=80]
+    files: \.(md|markdown)$
+    exclude: (^attic|^\.pio)
+
+# ============================================================================
+# SECURITY & COMPLIANCE
+# ============================================================================
+- repo: https://github.com/Yelp/detect-secrets
+  rev: v1.4.0
+  hooks:
+  - id: detect-secrets
+    args: ['--baseline', '.secrets.baseline']
+    exclude: (^attic|^\.pio|package-lock\.json)

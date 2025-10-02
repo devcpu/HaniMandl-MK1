@@ -48,8 +48,8 @@ HTML_Error html_error;
 String DefaultTemplating(const String &var) {
   log_e("DefaultTemplating %s", var.c_str());
   if (var == "SERVER_IP") {
-    log_e("%s", HMConfig::instance().localIP.c_str());
-    return HMConfig::instance().localIP;
+    log_e("%s", HMConfig::instance().localIP);
+    return String(HMConfig::instance().localIP);
   }
   if (var == "HTMLTILE") {
     return htmltitle;
