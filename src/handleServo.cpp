@@ -71,17 +71,41 @@ int handleWeightAndServo(float weight_scale_brutto) {
       return 0;
     }
 
-    // starts if automodus and new empty glass
-    if (glass.isAutoStart() && hmcfg.fs == FILLING_STATUS_STANDBY) {
-      delay(500);
-      glass.setScaleUnit(scale.get_units());      // cool down
-      if (glass.isAutoStart()) {                  // 2nd check
-        glass.setTaraWeight(scale.get_units(5));  // TODO - 5 makes delay
-        servo.write(hmcfg.servodata.angle_max);
-        hmcfg.fs = FILLING_STATUS_OPEN;
-        glass.setGlassInWork(true);
-        log_d("switch to automodus");
-        return 0;
+    // Nicht-blockierender AutoStart (ersetzt delay(500))
+    {
+      static bool autostart_pending = false;     // wartet auf Stabilisierung
+      static uint32_t autostart_t0 = 0;          // Startzeit des Fensters
+      const uint32_t AUTOSTART_SETTLE_MS = 500;  // ehemals delay(500)
+
+      if (hmcfg.fs == FILLING_STATUS_STANDBY) {
+        if (!autostart_pending && glass.isAutoStart()) {
+          autostart_pending = true;
+          autostart_t0 = millis();
+        }
+        if (autostart_pending) {
+          // Abbruch falls Zustand wieder weg
+          if (!glass.isAutoStart()) {
+            autostart_pending = false;  // Zurücksetzen
+          } else if (millis() - autostart_t0 >= AUTOSTART_SETTLE_MS) {
+            // Stabil genug – zweite Prüfung
+            glass.setScaleUnit(scale.get_units());  // "cool down" Messung
+            if (glass.isAutoStart()) {
+              glass.setTaraWeight(
+                  scale.get_units(5));  // TODO: 5 -> konfigurierbar
+              servo.write(hmcfg.servodata.angle_max);
+              hmcfg.fs = FILLING_STATUS_OPEN;
+              glass.setGlassInWork(true);
+              autostart_pending = false;
+              log_d("switch to automodus (non-blocking autostart)");
+              return 0;
+            }
+            // Falls zweite Prüfung scheitert -> erneut warten
+            autostart_t0 = millis();
+          }
+        }
+      } else {
+        // Anderer Status -> aufräumen
+        autostart_pending = false;
       }
     }
 
@@ -101,29 +125,46 @@ int handleWeightAndServo(float weight_scale_brutto) {
     }
 
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
-      log_e("delay(5000)");
-      // delay(5000);  // FIXME config var instand fix!
-      uint64_t static endmillis;
-      if (first_run) {
-        endmillis = millis() + 5000;  // TODO - config?
-        first_run = false;
-      }
-      if (millis() > endmillis) {
-        first_run = true;
-        glass.setFollowUpAdjustment();
-        log_e("Piiiiiiiiiip");
-        tone(PIN_BUZZER, 1750, 200);
-        delay(400);
-        log_e("Piiiiiiiiiip");
-        tone(PIN_BUZZER, 1750, 200);
-        delay(400);
-        log_e("Piiiiiiiiiip");
-        tone(PIN_BUZZER, 1750, 200);
-        // delay(400);
-        hmcfg.fs = FILLING_STATUS_CLOSED;
-        return 0;
-      } else {
-        return 0;
+      // Nicht-blockierende Follow-Up Sequenz (ersetzt delay(5000) + 2x400ms)
+      static uint8_t follow_step = 0;
+      static uint32_t follow_tRef = 0;
+      const uint32_t FOLLOW_WAIT_MS = 5000;  // TODO: konfigurierbar
+      const uint32_t BUZZER_GAP_MS = 400;    // TODO: konfigurierbar
+
+      switch (follow_step) {
+        case 0:  // Wartephase nach "voll"
+          if (first_run) {
+            follow_tRef = millis();
+            first_run = false;
+          }
+          if (millis() - follow_tRef >= FOLLOW_WAIT_MS) {
+            glass.setFollowUpAdjustment();
+            log_e("Piiiiiiiiiip (1)");
+            tone(PIN_BUZZER, 1750, 200);
+            follow_tRef = millis();
+            follow_step = 1;
+          }
+          return 0;
+        case 1:  // zweiter Ton nach Pause
+          if (millis() - follow_tRef >= BUZZER_GAP_MS) {
+            log_e("Piiiiiiiiiip (2)");
+            tone(PIN_BUZZER, 1750, 200);
+            follow_tRef = millis();
+            follow_step = 2;
+          }
+          return 0;
+        case 2:  // dritter Ton nach Pause
+          if (millis() - follow_tRef >= BUZZER_GAP_MS) {
+            log_e("Piiiiiiiiiip (3)");
+            tone(PIN_BUZZER, 1750, 200);
+            follow_step = 3;
+          }
+          return 0;
+        case 3:  // Abschluss
+          hmcfg.fs = FILLING_STATUS_CLOSED;
+          follow_step = 0;
+          first_run = true;
+          return 0;
       }
     }
 

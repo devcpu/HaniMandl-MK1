@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2025-10-02 21:14
+ * Last Modified: 2025-10-03 12:01
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -183,7 +183,32 @@ class HMConfig {
   void readJsonConfig();
 
  private:
-  HMConfig(){};
+  HMConfig()
+      : servodata(),
+        hm(HAND_MODE_CLOSED),
+        los_number{"L001-02"},
+        date_filling{""},
+        weight_filling(500),
+        weight_current(0),
+        weight_honey(0),
+        weight_fine(static_cast<uint16_t>(
+            500 - 50)),  // derived from weight_filling default
+        glass_empty(222),
+        glass_tolerance(5),
+        glass_count(0),
+        boot_count(0),
+        localIP{""},
+        weight_calibrate(509),
+        OFFSET(-92840),
+        SCALE(346.023590),
+        run_modus(RUN_MODUS_STOPPED),
+        fs(FILLING_STATUS_CLOSED),
+        mqtt_server{// zero / defaults
+                    "", "", "", "", "", false},
+        api_server{"", "", "", "", "", false},
+        wlan{"", "", "", "", ""} {
+    // beekeeping + version already initialized inline
+  }
   HMConfig(const HMConfig&);
   HMConfig& operator=(const HMConfig&);
 };

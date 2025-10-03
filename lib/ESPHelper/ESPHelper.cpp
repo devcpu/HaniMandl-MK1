@@ -141,7 +141,11 @@ String ESPHelper::getBuildDateAndTime() {
   int day = 0;
   int year = 0;
 
-  sscanf(mdate, "%s %d %d", bdt, &day, &year);
+  // Sicher: Monatskürzel hat immer 3 Buchstaben (Jan..Dec) -> Feldbreite
+  // begrenzen Vorher: sscanf(mdate, "%s %d %d", bdt, &day, &year); // konnte
+  // theoretisch mehr lesen
+  sscanf(mdate, "%3s %d %d", bdt, &day,
+         &year);  // cppcheck fixed: add field width
 
   const char* monthNames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};

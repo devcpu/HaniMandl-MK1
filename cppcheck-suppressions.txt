@@ -1,0 +1,19 @@
+# cppcheck suppressions for HaniMandl-MK1
+# Ziel: Nur echte, relevante Probleme sichtbar lassen.
+# Format: <id>[:<filename>[:<line>]]
+# Doku: https://cppcheck.sourceforge.io/manual.pdf
+
+# Framework/Arduino erzeugt häufig fehlinterpretiertes System-Include
+missingIncludeSystem
+
+# Portable-Bedenken für Embedded nicht immer sinnvoll
+# portability*
+
+# Falls gelegentlich unbenutzte statische Hilfsfunktionen entstehen (Review-Modus sonst CI)
+# unusedFunction
+
+# Beispiel für gezieltes Suppress (aktivieren falls nötig):
+# unusedFunction:lib/SomeFile/feature_X.cpp
+
+# Inkonklusive Meldungen nur im CI auswerten
+# inconclusive

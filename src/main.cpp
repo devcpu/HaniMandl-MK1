@@ -9,13 +9,15 @@
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-11-07 20:50
+ * Last Modified: 2025-10-03 12:19
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef UNIT_TEST
 
 #include <main.h>
+
+#include "freertos_setup.h"
 
 ESPFS espfs;
 HX711 scale;
@@ -30,12 +32,8 @@ void setup() {
   log_i("Start Setup");
   HMConfig::instance().run_modus = RUN_MODUS_STOPPED;
   espfs.setup();
-  setupWifi();
-
-  String temp_date =
-      getNTPDate(3600L, 3600L, "pool.ntp.org");  // TODO - move to config
-  strlcpy(HMConfig::instance().date_filling, temp_date.c_str(),
-          sizeof(HMConfig::instance().date_filling));
+  setupWifi();  // initial WiFi setup (non-blocking task will manage
+                // connection/NTP)
 
   WebserverStart();
   setupLoadcell();
@@ -48,45 +46,26 @@ void setup() {
   // servo.write(HMConfig::instance().servodata.angle_min);
 
   log_i("%s", HMConfig::instance().beekeeping);
-  log_i("Setup done! Starting loop ... ");
-}
-
-void donothing() {
-  static int counter = 0;
-  static char looper[12] = "|/-\\|/-\\";  // Flawfinder: ignore
-  if (counter == 8) {
-    counter = 0;
-  }
-  Serial.print("\b");
-  Serial.print(looper[counter]);
-  counter += 1;
-  delay(100);
+  startSystemTasks();
+  log_i("Setup done! FreeRTOS tasks started ... ");
 }
 
 float weight_current = 0;
 
 void loop() {
-  static unsigned long lastWeightRead = 0;
   static unsigned long lastSocketSend = 0;
-
-  // Gewicht nur alle 300ms lesen (noch seltener für AP-Modus)
-  if (millis() - lastWeightRead > 300) {
-    weight_current = scale.get_units(1);  // Nur 1x lesen statt 3x
-    HMConfig::instance().weight_current = weight_current;
-    lastWeightRead = millis();
-  }
-
+  // Gewicht wird jetzt im sensorTask gelesen und via Queue aktualisiert
   // WebSocket nur alle 1000ms senden (weniger frequent für AP)
   if (millis() - lastSocketSend > 1000) {
-    sendSocketData();
+    HMConfig::instance().weight_current =
+        weight_current;  // ensure latest cached value
+    sendSocketData();    // still executed in loop context
     lastSocketSend = millis();
   }
-
-  handleWeightAndServo(weight_current);
-
+  // Servo Logik läuft jetzt im servoTask
   // KRITISCH für AP-Modus: Mehr Zeit für WiFi/WebServer!
   yield();
-  delay(10);  // Zusätzliche Pause für Core 0 Tasks
+  delay(5);  // kleine Pause
 }
 
 #endif

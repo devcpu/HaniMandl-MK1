@@ -41,13 +41,19 @@ repos:
   - id: cppcheck
     exclude: (^attic|^\.pio|^build|^doc)
     args: [
-      --enable=warning,style,performance,portability,
-      --inline-suppr,
-      --suppress=missingIncludeSystem,
-      --suppress=unusedFunction,
+      # Lokal: nur relevante Kategorien für schnelle Rückmeldung
+      --enable=warning,performance,style,
       --language=c++,
-      --std=c++11
+      --std=c++11,
+      --inline-suppr,
+      --suppressions-list=cppcheck-suppressions.txt,
+      --error-exitcode=2
     ]
+
+    # Hinweis CI (nicht hier aktiv):
+    # cppcheck --enable=all,performance,style,portability,warning,cert --inconclusive \
+    #   --force --project=compile_commands.json --xml --xml-version=2 \
+    #   --suppressions-list=cppcheck-suppressions.txt src lib 2> cppcheck-report.xml
 
 - repo: local
   hooks:
