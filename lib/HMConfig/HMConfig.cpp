@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-27 03:15
+ * Last Modified: 2025-10-03 19:24
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -54,7 +54,8 @@ const char* HMConfig::fillingstatus2string(FillingStatus status) {
 
 void HMConfig::writeJsonConfig() {
   String output;
-  StaticJsonDocument<1024> doc_json;
+  StaticJsonDocument<1536> doc_json;
+  doc_json["config_version"] = config_version;
 
   JsonObject servodata_json = doc_json.createNestedObject("servodata");
   servodata_json["angle_max_hard"] = servodata.angle_max_hard;
@@ -69,7 +70,6 @@ void HMConfig::writeJsonConfig() {
   doc_json["weight_fine"] = weight_fine;
   doc_json["glass_empty"] = glass_empty;
   doc_json["glass_tolerance"] = glass_tolerance;
-  doc_json["glass_count"] = glass_count;
   doc_json["boot_count"] = boot_count;
   doc_json["OFFSET"] = OFFSET;
   doc_json["SCALE"] = SCALE;
@@ -91,13 +91,26 @@ void HMConfig::writeJsonConfig() {
   api_server_json["server_tls"] = api_server.server_tls;
 
   serializeJson(doc_json, output);
-  espfs.writeString("hmconfig.json", output);
+  espfs.writeString("/hmconfig.json", output);
 }
 
 void HMConfig::readJsonConfig() {
-  String input = espfs.readString("hmconfig.json");
+  String input = espfs.readString("/hmconfig.json");
   if (input.length() <= 0) {
-    return;
+    // Try template fallback
+    String tmpl = espfs.readString("/hmconfig_template.json");
+    if (tmpl.length() > 0) {
+      log_w("hmconfig.json missing -> seeding from hmconfig_template.json");
+      input =
+          tmpl;  // parse template, then persisted file will be written later
+    } else {
+      log_w(
+          "hmconfig.json & template missing -> using compiled defaults and "
+          "writing new file");
+      config_version = CONFIG_VERSION;
+      writeJsonConfig();
+      return;
+    }
   }
 
   StaticJsonDocument<1536> doc_json;
@@ -107,7 +120,35 @@ void HMConfig::readJsonConfig() {
   if (error) {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.c_str());
-    return;
+    // Corrupt file: keep current in-memory defaults; attempt template fallback
+    // once
+    String tmpl = espfs.readString("/hmconfig_template.json");
+    if (tmpl.length() > 0 && tmpl != input) {
+      DeserializationError err2 = deserializeJson(doc_json, tmpl);
+      if (!err2) {
+        log_w("Recovered config from template after corrupt hmconfig.json");
+      } else {
+        log_w("Template also invalid; writing defaults");
+        writeJsonConfig();
+        return;
+      }
+    } else {
+      writeJsonConfig();
+      return;
+    }
+  }
+
+  bool upgradeNeeded = false;
+  uint16_t fileVersion = doc_json["config_version"] | 0;  // 0 => missing field
+  if (fileVersion == 0) {
+    // pre-versioned file
+    upgradeNeeded = true;
+    config_version = CONFIG_VERSION;
+  } else if (fileVersion < CONFIG_VERSION) {
+    upgradeNeeded = true;
+    config_version = CONFIG_VERSION;
+  } else {
+    config_version = fileVersion;
   }
 
   JsonObject servodata_json = doc_json["servodata"];
@@ -128,9 +169,9 @@ void HMConfig::readJsonConfig() {
   weight_fine = doc_json["weight_fine"].as<unsigned int>();          // 400
   glass_empty = doc_json["glass_empty"].as<unsigned int>();          // 222
   glass_tolerance = doc_json["glass_tolerance"].as<unsigned int>();  // 22
-  glass_count = doc_json["glass_count"].as<unsigned int>();          // 2000
   boot_count = doc_json["boot_count"].as<unsigned long>();           // 12000
-  OFFSET = doc_json["OFFSET"].as<unsigned long>();                   // 456789
+  // OFFSET can be negative (tare baseline). Use signed long extraction.
+  OFFSET = doc_json["OFFSET"].as<long>();  // may be negative
   SCALE = doc_json["SCALE"].as<double>();  // 346.02359
 
   JsonObject mqtt_server_json = doc_json["mqtt_server"];
@@ -190,6 +231,107 @@ void HMConfig::readJsonConfig() {
 
   const char* temp_wlan_dns2 = wlan_json["dns2"] | "";
   strlcpy(wlan.dns2, temp_wlan_dns2, sizeof(wlan.dns2));
+
+  bool corrected = validateAndFix();
+  if (upgradeNeeded || corrected ||
+      input == espfs.readString("/hmconfig_template.json")) {
+    writeJsonConfig();  // persist derived runtime copy; template remains
+                        // untouched
+  }
 }
 
 // HMConfig::HMConfig(void) { log_e("Bad, very bad!!!"); }
+
+bool HMConfig::validateAndFix() {
+  bool changed = false;
+  // Servo hard limits
+  const uint8_t SERVO_ABS_MIN = 0;
+  const uint8_t SERVO_ABS_MAX = 180;
+  if (servodata.angle_min_hard < SERVO_ABS_MIN) {
+    servodata.angle_min_hard = SERVO_ABS_MIN;
+    changed = true;
+  }
+  if (servodata.angle_min_hard > SERVO_ABS_MAX) {
+    servodata.angle_min_hard = 0;
+    changed = true;
+  }
+  if (servodata.angle_max_hard > SERVO_ABS_MAX) {
+    servodata.angle_max_hard = SERVO_ABS_MAX;
+    changed = true;
+  }
+  if (servodata.angle_max_hard <
+      servodata.angle_min_hard + 5) {  // ensure sensible span
+    servodata.angle_max_hard = servodata.angle_min_hard + 5;
+    changed = true;
+  }
+
+  // User servo range clamped into hard range
+  if (servodata.angle_min < servodata.angle_min_hard) {
+    servodata.angle_min = servodata.angle_min_hard;
+    changed = true;
+  }
+  if (servodata.angle_min > servodata.angle_max_hard) {
+    servodata.angle_min = servodata.angle_min_hard;
+    changed = true;
+  }
+  if (servodata.angle_max > servodata.angle_max_hard) {
+    servodata.angle_max = servodata.angle_max_hard;
+    changed = true;
+  }
+  if (servodata.angle_max < servodata.angle_min) {
+    servodata.angle_max = servodata.angle_min;
+    changed = true;
+  }
+  if (servodata.angle_fine < servodata.angle_min) {
+    servodata.angle_fine = servodata.angle_min;
+    changed = true;
+  }
+  if (servodata.angle_fine > servodata.angle_max) {
+    servodata.angle_fine = servodata.angle_max;
+    changed = true;
+  }
+
+  // Weights & tolerance
+  const uint16_t WEIGHT_MIN = 50;    // arbitrary safety low bound
+  const uint16_t WEIGHT_MAX = 5000;  // upper bound to avoid nonsense
+  if (weight_filling < WEIGHT_MIN) {
+    weight_filling = WEIGHT_MIN;
+    changed = true;
+  }
+  if (weight_filling > WEIGHT_MAX) {
+    weight_filling = WEIGHT_MAX;
+    changed = true;
+  }
+  // weight_fine must be below weight_filling
+  if (weight_fine >= weight_filling) {
+    uint16_t newFine =
+        (weight_filling > 50) ? (weight_filling - 50) : (weight_filling / 2);
+    if (newFine != weight_fine) {
+      weight_fine = newFine;
+      changed = true;
+    }
+  }
+  // glass_empty should not exceed target filling weight (soft rule)
+  if (glass_empty > weight_filling && weight_filling > 0) {
+    glass_empty =
+        (weight_filling > 100) ? (weight_filling / 2) : (weight_filling / 2);
+    changed = true;
+  }
+  // tolerance reasonable range 1..100
+  if (glass_tolerance == 0) {
+    glass_tolerance = 1;
+    changed = true;
+  }
+  if (glass_tolerance > 100) {
+    glass_tolerance = 100;
+    changed = true;
+  }
+
+  // SCALE sanity: avoid zero which would break division logic elsewhere
+  if (SCALE == 0) {
+    SCALE = 1;
+    changed = true;
+  }
+
+  return changed;
+}

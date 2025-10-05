@@ -2,6 +2,8 @@
 # See https://pre-commit.com for more information
 
 fail_fast: false
+# Top-level exclude for generic generated / archive directories (applies to all hooks unless they override)
+exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\.pio/|build/)'
 
 repos:
 # ============================================================================
@@ -11,7 +13,9 @@ repos:
   rev: v6.0.0  # Updated version
   hooks:
   - id: trailing-whitespace
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
   - id: end-of-file-fixer
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
   - id: check-added-large-files
     args: ['--maxkb=2048']
   - id: check-case-conflict
@@ -64,6 +68,7 @@ repos:
     args: [--error-level=4, --minlevel=2, src/, lib/]
     pass_filenames: false
     language: system
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
   # ESP32-spezifische Include-Checks (Ersatz für include-what-you-use)
   - id: esp32-include-check
@@ -73,6 +78,7 @@ repos:
     args: [-c, 'find src lib -name "*.cpp" -o -name "*.h" | xargs grep -n "#include <.*\.h>" | grep -v Arduino.h | grep -v WiFi.h | grep -v "^.*:#include <[A-Z]" | head -5 | while read line; do echo "INFO: Local header with angle brackets: $line"; done || echo "Include style looks good"']
     pass_filenames: false
     language: system
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
 # ============================================================================
 # EMBEDDED SPECIFIC
@@ -87,6 +93,7 @@ repos:
     pass_filenames: false
     language: system
     stages: [pre-commit]
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
   # Check for Arduino-specific issues
   - id: arduino-lint
@@ -96,6 +103,7 @@ repos:
     args: [-c, 'find src lib -name "*.cpp" -o -name "*.h" | xargs grep -l "String " | head -5 | while read f; do echo "WARNING: Arduino String in $f - consider char arrays"; done || true']
     pass_filenames: false
     language: system
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
   # Memory usage check
   - id: memory-check
@@ -105,15 +113,17 @@ repos:
     args: [-c, 'platformio run --environment esp32 --silent | grep -E "(RAM|Flash)" | tail -2 || true']
     pass_filenames: false
     language: system
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
 # ============================================================================
 # WEB ASSETS (für data/ Ordner)
 # ============================================================================
-- repo: https://github.com/pre-commit/mirrors-jshint
-  rev: v2.13.6
+- repo: https://github.com/pre-commit/mirrors-eslint
+  rev: v9.11.1
   hooks:
-  - id: jshint
+  - id: eslint
     files: ^data/.*\.js$
+    additional_dependencies: ["eslint@9.11.1"]
 
 # CSS Minification Check
 - repo: local
@@ -125,6 +135,7 @@ repos:
     args: [-c, 'find data -name "*.css" -size +10k -exec echo "WARNING: Large CSS file: {}" \;']
     pass_filenames: false
     language: system
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
 # ============================================================================
 # DOCUMENTATION
@@ -135,7 +146,7 @@ repos:
   - id: mdformat
     args: [--wrap=80]
     files: \.(md|markdown)$
-    exclude: (^attic|^\.pio)
+    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
 # ============================================================================
 # SECURITY & COMPLIANCE

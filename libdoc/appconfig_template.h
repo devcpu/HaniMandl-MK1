@@ -21,7 +21,6 @@
 #define PROGRAMM_NAME "Honey Filling Machine MKI"
 #define SOFTWARE_VERSION "v 0.1"
 
-
 // data if wifi connected
 #define WIFI_PASSWORD ""
 #define WIFI_SSID ""
@@ -33,7 +32,6 @@
 #define WIFI_AP_NAME = "Honey Filling Machine MKI";
 #define WIFI_AP_PASSWORD = "Honigkuchen";
 #define HONEY_FARM_NAME = "";
-
 
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
 #define WIFI_TIME_ZONE "CET-1CEST,M3.5.0,M10.5.0/3"

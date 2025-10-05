@@ -6,10 +6,10 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-29 20:06
+ * Last Modified: 2025-10-03 18:43
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
- * Copyright (c) 2023 STRATO AG Berlin, Germany
+ * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
  */
 
 #include <Glass.h>
@@ -43,7 +43,7 @@ void Glass::setScaleUnit(float sunits) {
   //   log_e("sunits=%6.2f", sunits);
   // if (_glass_weight > 10) {
 
-  _logFillingData();
+  // _logFillingData();
 
   if (sunits < 10) {
     _honey_in_glass_weight_filled = 0;

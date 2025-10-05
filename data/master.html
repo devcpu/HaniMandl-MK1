@@ -18,6 +18,7 @@
         <a class="w3-bar-item w3-button" href="/setupfilling">Einstellungen Abfüllung</a>
         <a class="w3-bar-item w3-button" href="/setup">Grundeinrichtung</a>
         <a class="w3-bar-item w3-button" href="/calibrate">Waage kalibrieren</a>
+        <a class="w3-bar-item w3-button" href="/hmconfig">Anzeige Konfiguration</a>
         <a class="w3-bar-item w3-button" href="/setupwlan">Konfiguration WLan</a>
         <a class="w3-bar-item w3-button" href="/updatefirmware">Firmware Update</a>
         <a class="w3-bar-item w3-button" href="/systeminfo">System Info</a>
@@ -30,6 +31,16 @@
     <div style='text-align:center;'><noscript>Bitte JavaScript aktivieren, sonst läuft nix!<br /></noscript></div>
     <div id='error' name='errormsg' display: none>%ERRORMSG%</div>
     %BODY%
+    <div class="w3-container w3-small w3-margin-top">
+        <div class="w3-row-padding w3-border w3-round w3-light-grey">
+            <div class="w3-third"><b>Status:</b> <span id="filling_status">-</span></div>
+            <div class="w3-third"><b>WiFi:</b> <span id="wifi_state">-</span></div>
+            <div class="w3-third"><b>HB Latency:</b> <span id="hb_latency">-</span>s</div>
+        </div>
+        <div class="w3-row-padding w3-small">
+            <div><b>Gläser gesamt:</b> <span id="glass_count">0</span></div>
+        </div>
+    </div>
     <div style='text-align:right;font-size:11px;'><a href='https://dl7uxa.de' target='_blank' style='color:#aaa;'>uHuFiMa v 0.2 by Jan (DL7UXA)</a>
     </div>
     <script>

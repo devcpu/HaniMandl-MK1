@@ -9,11 +9,17 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-10-02 22:49
+ * Last Modified: 2025-10-04 00:50
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #include <ESPHelper.h>
+#include <esp_chip_info.h>
+#include <esp_spi_flash.h>
+#include <esp_system.h>
+#ifdef ESP32
+#include <esp_heap_caps.h>
+#endif
 
 /**
  * The function `getChipId` returns a string that combines the hexadecimal
@@ -47,58 +53,68 @@ String ESPHelper::getFlashMode() {
  *
  * @return a string that contains a table of system information.
  */
-// TODO -  pse add ESP.getMaxFreeBlockSize() and ESP.getHeapFragmentation()
-// TODO - const char * getChipModel();
-// TODO - uint8_t getChipCores();
-// TODO -
+// TODO implemented: add max free block size + heap fragmentation metrics
 Table2RData* ESPHelper::getSystemInfoTable(void) {
 #ifdef ESP32
-  static Table2RData systemdata[30];
-  systemdata[0] = {String("SoftwareVersion:"), HMConfig::instance().version};
-  systemdata[1] = {String("Build DateTime:"), getBuildDateAndTime()};
-  systemdata[2] = {String("SDKVersion:"), String(ESP.getSdkVersion())};
-  systemdata[3] = {String("Uptime:"),
-                   String(millis() / 1000 / 60, DEC) + "min"};
-  //   systemdata[4] = {String("Chip Revision:"),
-  //   String(ESP.getChipRevision())};
-  systemdata[5] = {String("ESP32 Chip ID:"), ESPHelper::getChipId()};
-  systemdata[6] = {String("Reset Reason CPU0:"),
-                   ESPHelper::getResetReason(rtc_get_reset_reason(0))};
-  systemdata[7] = {String("Reset Reason CPU1:"),
-                   ESPHelper::getResetReason(rtc_get_reset_reason(1))};
-  systemdata[8] = {String("CpuFreqMHz:"), String(ESP.getCpuFreqMHz()) + "MHz"};
-  systemdata[9] = {String("CycleCount:"), String(ESP.getCycleCount())};
-  systemdata[10] = {String("FlashChipMode:"), String(ESP.getFlashChipMode())};
-  systemdata[11] = {String("FlashChipSize:"),
-                    String(ESP.getFlashChipSize() / 1024 / 1024) + "MB"};
-  systemdata[12] = {String("FlashChipSpeed:"),
-                    String(ESP.getFlashChipSpeed() / 1024 / 1024) + "MHz"};
-  systemdata[13] = {String("SketchSize:"),
-                    String(ESP.getSketchSize() / 1024) + "kB"};
-  systemdata[14] = {String("FreeSketchSpace:"),
-                    String(ESP.getFreeSketchSpace() / 1024) + "kB"};
-  systemdata[15] = {String("SketchMD5:"), String(ESP.getSketchMD5())};
-  systemdata[16] = {String("HeapSize:"),
-                    String(ESP.getHeapSize() / 1024) + "kB"};
-  systemdata[17] = {String("FreeHeap:"),
-                    String(ESP.getFreeHeap() / 1024) + "kB"};
-  systemdata[18] = {String("MaxAllocHeap:"),
-                    String(ESP.getMaxAllocHeap() / 1024) + "kB"};
-  systemdata[19] = {String("MinFreeHeap:"),
-                    String(ESP.getMinFreeHeap() / 1024) + "kB"};
-  //   systemdata[20] = {String("MaxFreeBlockSize:"),
-  //                     String(ESP.getMaxFreeBlockSize() / 1024) + "kB"};
-  //   systemdata[21] = {String("HeapFragmentation:"),
-  //                     String(ESP.getHeapFragmentation() / 1024) + "kB"};
-  systemdata[22] = {String("Flash ide  size:"),
-                    String(ESP.getFlashChipSize() / 1024) + "kB"};
-  systemdata[23] = {String("Flash ide speed:"),
-                    String(ESP.getFlashChipSpeed() / 1000 / 1000) + "MHz"};
-  systemdata[24] = {String("Flash ide mode:"), ESPHelper::getFlashMode()};
-  systemdata[25] = {String("Sketch size: "),
-                    String(ESP.getSketchSize() / 1024) + "kB"};
-  systemdata[26] = {String("Free sketch size:"),
-                    String(ESP.getFreeSketchSpace() / 1024) + "kB"};
+  static Table2RData systemdata[40];
+  int i = 0;
+  systemdata[i++] = {String("SoftwareVersion:"), HMConfig::instance().version};
+  systemdata[i++] = {String("Build DateTime:"), getBuildDateAndTime()};
+  systemdata[i++] = {String("SDKVersion:"), String(ESP.getSdkVersion())};
+  systemdata[i++] = {String("Uptime:"),
+                     String(millis() / 1000 / 60, DEC) + "min"};
+  systemdata[i++] = {String("ESP32 Chip ID:"), ESPHelper::getChipId()};
+  systemdata[i++] = {String("Chip Revision:"), String(ESP.getChipRevision())};
+  systemdata[i++] = {String("Chip Model:"), String(ESP.getChipModel())};
+  systemdata[i++] = {String("Chip Cores:"), String(ESP.getChipCores())};
+  systemdata[i++] = {String("Chip Features:"), ESPHelper::getFeatureSummary()};
+  systemdata[i++] = {String("Reset Reason CPU0:"),
+                     ESPHelper::getResetReason(rtc_get_reset_reason(0))};
+  systemdata[i++] = {String("Reset Reason CPU1:"),
+                     ESPHelper::getResetReason(rtc_get_reset_reason(1))};
+  systemdata[i++] = {String("CpuFreqMHz:"),
+                     String(ESP.getCpuFreqMHz()) + "MHz"};
+  systemdata[i++] = {String("CycleCount:"), String(ESP.getCycleCount())};
+  // Flash basics
+  systemdata[i++] = {String("FlashChipSize:"),
+                     String(ESP.getFlashChipSize() / 1024 / 1024) + "MB"};
+  systemdata[i++] = {String("FlashChipSpeed:"),
+                     String(ESP.getFlashChipSpeed() / 1000 / 1000) + "MHz"};
+  systemdata[i++] = {String("FlashChipMode:"), String(ESP.getFlashChipMode())};
+  // Sketch usage
+  uint32_t sketchSize = ESP.getSketchSize();
+  uint32_t freeSketch = ESP.getFreeSketchSpace();
+  char flashLayout[48];
+  snprintf(flashLayout, sizeof(flashLayout), "%lukB used / %lukB free",
+           (unsigned long)(sketchSize / 1024),
+           (unsigned long)(freeSketch / 1024));
+  systemdata[i++] = {String("Flash Layout:"), String(flashLayout)};
+  systemdata[i++] = {String("SketchSize:"), String(sketchSize / 1024) + "kB"};
+  systemdata[i++] = {String("FreeSketchSpace:"),
+                     String(freeSketch / 1024) + "kB"};
+  systemdata[i++] = {String("SketchMD5:"), String(ESP.getSketchMD5())};
+  // Heap metrics
+  systemdata[i++] = {String("HeapSize:"),
+                     String(ESP.getHeapSize() / 1024) + "kB"};
+  systemdata[i++] = {String("FreeHeap:"),
+                     String(ESP.getFreeHeap() / 1024) + "kB"};
+  systemdata[i++] = {String("MaxAllocHeap:"),
+                     String(ESP.getMaxAllocHeap() / 1024) + "kB"};
+  systemdata[i++] = {String("MinFreeHeap:"),
+                     String(ESP.getMinFreeHeap() / 1024) + "kB"};
+  size_t largest_free_block =
+      heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
+  size_t total_free_heap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+  uint32_t fragPct = 0;
+  if (total_free_heap > 0 && largest_free_block <= total_free_heap) {
+    fragPct = (uint32_t)((100ULL * (total_free_heap - largest_free_block)) /
+                         total_free_heap);
+  }
+  systemdata[i++] = {String("MaxFreeBlockSize:"),
+                     String(largest_free_block / 1024) + "kB"};
+  systemdata[i++] = {String("HeapFragmentation:"), String(fragPct) + "%"};
+  // Termination marker
+  systemdata[i] = {String(), String()};
 #elif defined(ESP8266)
   static Table2RData systemdata[15];
   systemdata[0] = {String("SoftwareVersion:"), HMConfig::instance().version};
@@ -121,11 +137,56 @@ Table2RData* ESPHelper::getSystemInfoTable(void) {
                     String(ESP.getFreeSketchSpace() / 1024) + "kB"};
   systemdata[12] = {String("Free heap:"),
                     String(ESP.getFreeHeap() / 1024) + "kB"};
+  systemdata[13] = {String(), String()};
 #endif
   return systemdata;
   // String systemInfoTable = table2DGenerator(systemdata, sizeof(systemdata) /
   // sizeof(systemdata[0]), true); return systemInfoTable; // + mainmenue; FIXME
 }
+
+// ---- Extended helpers ----
+String ESPHelper::getShortId() {
+  uint64_t mac = ESP.getEfuseMac();  // 48-bit value in low bits
+  char buf[13];                      // 12 hex chars + NUL
+// Use inttypes.h macro for portability instead of hard-coded %llX
+#include <inttypes.h>
+  snprintf(buf, sizeof(buf), "%012" PRIX64, (uint64_t)mac & 0xFFFFFFFFFFFFULL);
+  return String(buf);
+}
+
+String ESPHelper::getChipModelString() {
+#ifdef ESP32
+  return String(ESP.getChipModel());
+#else
+  return String("UNKNOWN");
+#endif
+}
+
+String ESPHelper::getFeatureSummary() {
+#ifdef ESP32
+  esp_chip_info_t info;
+  esp_chip_info(&info);
+  String f;
+  if (info.features & CHIP_FEATURE_WIFI_BGN) f += "WiFi ";
+  if (info.features & CHIP_FEATURE_BT) f += "BT ";
+  if (info.features & CHIP_FEATURE_BLE) f += "BLE ";
+  if (info.features & CHIP_FEATURE_EMB_FLASH)
+    f += "embFlash ";
+  else
+    f += "extFlash ";
+  // esp_spiram_is_initialized is the Arduino-ESP32 symbol for PSRAM presence
+  if (esp_spiram_is_initialized())
+    f += "PSRAM";
+  else
+    f += "noPSRAM";
+  f.trim();
+  return f;
+#else
+  return String("n/a");
+#endif
+}
+
+// printChipInfo removed (info now fully integrated into table)
 
 /**
  * The function GetBuildDateAndTime returns a string representing the build date

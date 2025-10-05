@@ -1,0 +1,15 @@
+{
+  "name": "hani-mandl-web-assets",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Dev tooling for Honey Filling Machine web UI (linting only)",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "eslint": "^9.11.1",
+    "globals": "^15.9.0"
+  }
+}

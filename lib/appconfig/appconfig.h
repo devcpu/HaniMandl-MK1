@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 23:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 12:54
+ * Last Modified: 2025-10-04 00:13
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -19,7 +19,7 @@
 #include <Arduino.h>
 
 #define PROGRAMM_NAME "Honey Filling Machine MKI"
-#define SOFTWARE_VERSION "v 0.1"
+#define SOFTWARE_VERSION "v 0.3"
 
 // data if wifi connected
 #define WIFI_PASSWORD "HerbertMueller23"
@@ -45,6 +45,11 @@
 #define PIN_SERVO 33
 #define PIN_WIFI_LED 21
 #define PIN_BUZZER 16
+
+// Emergency stop button / touch pad
+#define PIN_STOP_BTN 27  // GPIO27 also touch channel T7
+#define PIN_STOP_TOUCH_CHANNEL T7
+#define STOP_DEBOUNCE_MS 15  // mechanical: 30–50ms; touch: 5–15ms
 
 // calc avg from how many times read
 #define LOADCELL_READ_TIMES 3

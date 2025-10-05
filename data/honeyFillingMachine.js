@@ -1,23 +1,117 @@
-//window.onload
+/* eslint-env browser */
+/* Project: Honey Filling Machine MK I Web UI
+ * Linting via ESLint (.eslintrc.json). Console usage is allowed for
+ * diagnostics.
+ */
 
-socket = new WebSocket("ws://%SERVER_IP%/ws");
+// window.onload
 
-var reload_timeout = 20;
-function checkReload() {
-    //FIXME - test only
-    var glass_count = document.getElementById("glass_count");
-    if (glass_count) {
-        glass_count.innerHTML = reload_timeout;
-    }
+let socket = null;
+let reconnectAttempts = 0;
+let lastMessageTs = Date.now();
+let lastHeartbeatTs = Date.now();
+let lastWeightTs = Date.now();
+let connectionWarned = false;
+const RELOAD_DEAD_MS = 60000;  // 60s ohne Nachricht -> reload
+const WARN_AFTER_MS = 20000;   // 20s Warnung
+const STALE_WEIGHT_MS = 5000;  // nach 5s ohne Update als stale markieren
+const CLIENT_PING_INTERVAL_MS = 25000;  // eigenes leichtes Keepalive
 
-    reload_timeout -= 1;
-    if (reload_timeout <= 0) {
-        alert("Keine Verbindung mehr zur Honey Filling Machine MK I");
-        location.reload();
-    }
+function markButtons(enabled) {
+  const ids = [
+    'startbutton', 'finebutton', 'stopbutton', 'hand', 'auto'
+  ];  // relevante Haupt-Buttons
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !enabled;
+  });
 }
 
-setInterval(checkReload, 500);
+function openSocket() {
+  const url = 'ws://%SERVER_IP%/ws';
+  try {
+    socket && socket.close();
+  } catch (e) {
+  }
+  socket = new WebSocket(url);
+  const attempt = ++reconnectAttempts;
+  console.log('WS connecting attempt #' + attempt);
+  socket.onopen = () => {
+    console.log('WS connected');
+    reconnectAttempts = 0;
+    connectionWarned = false;
+    markButtons(true);
+  };
+  socket.onclose = (ev) => {
+    console.warn('WS closed code=' + ev.code + ' reason=' + (ev.reason || ''));
+    markButtons(false);
+    scheduleReconnect();
+  };
+  socket.onerror = (err) => {
+    console.error('WS error', err);
+    try {
+      socket.close();
+    } catch (e) {
+    }
+  };
+  socket.onmessage = handleMessage;
+}
+
+function scheduleReconnect() {
+  const base = 500;    // 0.5s
+  const maxD = 10000;  // 10s
+  const delay = Math.min(maxD, base * Math.pow(2, reconnectAttempts));
+  console.log(
+      'Reconnecting in ' + delay + 'ms (attempt=' + reconnectAttempts + ')');
+  setTimeout(() => {
+    openSocket();
+  }, delay);
+}
+
+// Client Ping (falls sonst keine Aktivität) – verhindert Idle Drops auf einigen
+// Setups
+setInterval(() => {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return;
+  const now = Date.now();
+  if (now - lastMessageTs > CLIENT_PING_INTERVAL_MS / 2) {
+    try {
+      socket.send('ping=1');
+    } catch (e) {
+      console.warn('ping send failed', e);
+    }
+  }
+}, CLIENT_PING_INTERVAL_MS);
+
+setInterval(() => {
+  const now = Date.now();
+  const since = now - lastMessageTs;
+  if (since > WARN_AFTER_MS && !connectionWarned) {
+    console.warn('Verbindung verzögert (' + since + 'ms)');
+    connectionWarned = true;
+  }
+  if (since > RELOAD_DEAD_MS) {
+    alert('Keine Verbindung mehr zur Honey Filling Machine MK I');
+    location.reload();
+  }
+  // Heartbeat Latenz-Anzeige
+  const hbEl = document.getElementById('hb_latency');
+  if (hbEl) {
+    const hbDelta = (now - lastHeartbeatTs) / 1000;
+    hbEl.innerHTML = hbDelta.toFixed(1);
+  }
+  // Stale-Markierung für Gewichte
+  const wEl = document.getElementById('waagen_gewicht');
+  const hEl = document.getElementById('honey_gewicht');
+  const stale = (now - lastWeightTs) > STALE_WEIGHT_MS;
+  [wEl, hEl].forEach(el => {
+    if (el) {
+      if (stale)
+        el.classList.add('stale');
+      else
+        el.classList.remove('stale');
+    }
+  });
+}, 1000);
 // socket.onopen = function (evt) {
 // }
 
@@ -42,110 +136,171 @@ setInterval(checkReload, 500);
 
 // Function to send a value via WebSocket
 function sendValue(value) {
-    if (socket.readyState === WebSocket.OPEN) {
-      socket.send(value);
-      console.log('Value sent:', value);
-    } else {
-      console.error('WebSocket connection is not open');
-    }
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(value);
+    console.log('Value sent:', value);
+  } else {
+    console.error('WebSocket connection is not open');
+  }
+}
+
+function setText(id, value) {
+  var el = document.getElementById(id);
+  if (el !== null && el !== undefined) {
+    el.innerHTML = value;
+  }
+}
+
+let initialSnapshotReceived = false;
+
+// Helper to consistently render integer gram values (round to nearest g)
+function asInt(value) {
+  if (value === undefined || value === null) return 0;
+  const n = Number(value);
+  if (!isFinite(n)) return value;  // leave weird payloads untouched
+  return Math.round(n);
+}
+
+function handleMessage(evt) {
+  lastMessageTs = Date.now();
+  let msg;
+  try {
+    msg = JSON.parse(evt.data);
+  } catch (e) {
+    console.error('Bad JSON', evt.data);
+    return;
   }
 
-socket.onmessage = function (evt) {
-    if (reload_timeout < 20) {
-        reload_timeout += 3;
-    }
-
-    var data = JSON.parse(evt.data);
-
-    //FIXME - active for release
-    // var glass_count = document.getElementById("glass_count");
-    // if (glass_count) {
-    //     glass_count.innerHTML = data.glass_count;
-    // }
-
-    var waagen_gewicht = document.getElementById("waagen_gewicht");
-    if (waagen_gewicht) {
-        waagen_gewicht.innerHTML = data.waagen_gewicht;
-    }
-
-    var honey_gewicht = document.getElementById("honey_gewicht");
-    if (honey_gewicht) {
-        honey_gewicht.innerHTML = data.honey_gewicht;
-    }
-
-    var run_modus = document.getElementById("run_modus");
-    if (run_modus) {
-        run_modus.innerHTML = data.run_modus;
-    }
-};
-
-  function set_value(key, min, max) {
-    var value = parseInt(document.getElementById(key).value, 10);
-    console.log("set_value" + key + ":" + value);
-    value = isNaN(value) ? 0 : value;
-    value >= max ? value = max : '';
-    value <=  min ? value = min : '';
-    sendValue(key + "=" + value);
+  // Snapshot full state
+  if (msg.type === 'snapshot') {
+    initialSnapshotReceived = true;
+    setText('waagen_gewicht', asInt(msg.weight_current));
+    setText('honey_gewicht', asInt(msg.weight_honey || 0));
+    setText('run_modus', msg.run_modus);
+    setText('glass_count', msg.glass_count);
+    // Optional: weitere Felder (servo, wifi)
+    return;
   }
 
-
-  function value_change(key, direction, min, max) {
-    var value = parseInt(document.getElementById(key).value, 10);
-    console.log("change" + key + ":" + value);
-    value = isNaN(value) ? 0 : value;
-    value >= max ? value = max : '';
-    value <=  min ? value = min : '';
-    if (direction == 'up') {
-        value += 10;
-    } else if (direction == 'down') {
-        value -= 10;
+  // Incremental events (compact t codes)
+  if (msg.t) {
+    switch (msg.t) {
+      case 'w':
+        setText('waagen_gewicht', asInt(msg.v));
+        lastWeightTs = Date.now();
+        if (msg.h !== undefined) {
+          setText('honey_gewicht', asInt(msg.h));
+          lastWeightTs = Date.now();
+        }
+        break;
+      case 'fs':
+        setText('filling_status', msg.v);
+        break;
+      case 'rm':
+        setText('run_modus', msg.v);
+        break;
+      case 'ws':
+        if (msg.connected) {
+          setText('wifi_state', msg.ap ? 'AP' : 'STA');
+        } else {
+          setText('wifi_state', msg.ap ? 'AP' : 'OFF');
+        }
+        break;
+      case 'ntp':
+        // ntp synced indicator optional
+        break;
+      case 'hb':
+        lastHeartbeatTs = Date.now();
+        break;
+      case 'gc':
+        setText('glass_count', msg.v);
+        break;
     }
-    sendValue(key + "=" + value);
-    document.getElementById(key).value = value;
+    return;
   }
+
+  // Fallback für alte/komplette Nachrichten (Kompatibilität)
+  if (msg.waagen_gewicht !== undefined) {
+    setText('waagen_gewicht', asInt(msg.waagen_gewicht));
+  }
+  if (msg.honey_gewicht !== undefined) {
+    setText('honey_gewicht', asInt(msg.honey_gewicht));
+  }
+  if (msg.run_modus !== undefined) {
+    setText('run_modus', msg.run_modus);
+  }
+}
+
+// initial connect
+openSocket();
+
+function set_value(key, min, max) {
+  var value = parseInt(document.getElementById(key).value, 10);
+  console.log('set_value' + key + ':' + value);
+  value = isNaN(value) ? 0 : value;
+  value >= max ? value = max : '';
+  value <= min ? value = min : '';
+  sendValue(key + '=' + value);
+}
+
+
+function value_change(key, direction, min, max) {
+  var value = parseInt(document.getElementById(key).value, 10);
+  console.log('change' + key + ':' + value);
+  value = isNaN(value) ? 0 : value;
+  value >= max ? value = max : '';
+  value <= min ? value = min : '';
+  if (direction == 'up') {
+    value += 10;
+  } else if (direction == 'down') {
+    value -= 10;
+  }
+  sendValue(key + '=' + value);
+  document.getElementById(key).value = value;
+}
 
 
 function sendButton(name) {
-    sendValue("button=" + name);
-    console.log("sendButton :" + name);
+  sendValue('button=' + name);
+  console.log('sendButton :' + name);
 }
 
 function sendButton2(name, field_name) {
-    console.log("sendButton2 :" + name + " " + field_name);
-    var x = document.getElementById(field_name).value;
-    console.log("x:" + x);
-    var value = parseInt(x, 10);
-    console.log("value:" + value);
-    var request_value = "button=" + name + "&" + field_name + "=" + value;
-    sendValue(request_value);
-    console.log("sendButton2 :" + request_value);
+  console.log('sendButton2 :' + name + ' ' + field_name);
+  var x = document.getElementById(field_name).value;
+  console.log('x:' + x);
+  var value = parseInt(x, 10);
+  console.log('value:' + value);
+  var request_value = 'button=' + name + '&' + field_name + '=' + value;
+  sendValue(request_value);
+  console.log('sendButton2 :' + request_value);
 }
 
 
 function checkReboot() {
-    if (window.confirm("eh, really reboot")) {
-        x = new XMLHttpRequest();
-        //window.setTimeout('window.location = "/rebootinfo"', 0);
-        x.open('GET', '/reboot', true);
-        x.send();
-    }
+  if (window.confirm('eh, really reboot')) {
+    const x = new XMLHttpRequest();
+    // window.setTimeout('window.location = "/rebootinfo"', 0);
+    x.open('GET', '/reboot', true);
+    x.send();
+  }
 }
 
 function showHide(show, hide) {
-    console.log("show:" + show);
-    console.log("show:" + hide);
-    var element2show = document.getElementById(show);
-    var element2hide = document.getElementById(hide);
-    // console.log("element2show:" + element2show.innerHTML);
-    // console.log("element2hide" + element2hide.innerHTML);
-    // element2show.style.visibility = 'visible';
-    // element2hide.style.visibility = 'collapse';
-    if (element2show) {
-        element2show.style.display = 'block';
-    }
-    if (element2hide) {
-        element2hide.style.display = 'none';
-    }
+  console.log('show:' + show);
+  console.log('show:' + hide);
+  var element2show = document.getElementById(show);
+  var element2hide = document.getElementById(hide);
+  // console.log("element2show:" + element2show.innerHTML);
+  // console.log("element2hide" + element2hide.innerHTML);
+  // element2show.style.visibility = 'visible';
+  // element2hide.style.visibility = 'collapse';
+  if (element2show) {
+    element2show.style.display = 'block';
+  }
+  if (element2hide) {
+    element2hide.style.display = 'none';
+  }
 }
 
 // function show(key, show_element_id) {
@@ -166,25 +321,24 @@ function showHide(show, hide) {
 // }
 
 function show(key, show_element_id) {
-    console.log(key);
-    console.log(show_element_id);
-    var checkbox = document.getElementById(key);
-    var element2show = document.getElementById(show_element_id);
-    console.log(element2show.innerHTML);
-    if (checkbox.checked) {
-        element2show.style.display = 'block';
-    } else {
-        element2show.style.display = 'none';
-    }
-
+  console.log(key);
+  console.log(show_element_id);
+  var checkbox = document.getElementById(key);
+  var element2show = document.getElementById(show_element_id);
+  console.log(element2show.innerHTML);
+  if (checkbox.checked) {
+    element2show.style.display = 'block';
+  } else {
+    element2show.style.display = 'none';
+  }
 }
 
 function openSidebar() {
-  document.getElementById("mySidebar").style.display = "block";
+  document.getElementById('mySidebar').style.display = 'block';
 }
 
 function closeSidebar() {
-  document.getElementById("mySidebar").style.display = "none";
+  document.getElementById('mySidebar').style.display = 'none';
 }
 
 //     var time = document.getElementById("time");

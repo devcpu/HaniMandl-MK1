@@ -1,0 +1,42 @@
+{
+  "config_version": 1,
+  "servodata": {
+    "angle_max_hard": 120,
+    "angle_min_hard": 0,
+    "angle_max": 90,
+    "angle_min": 3,
+    "angle_fine": 45
+  },
+  "los_number": "L001-02",
+  "date_filling": "",
+  "weight_filling": 500,
+  "weight_fine": 450,
+  "glass_empty": 222,
+  "glass_tolerance": 5,
+  "boot_count": 0,
+  "OFFSET": -92840,
+  "SCALE": 346.02359,
+  "mqtt_server": {
+    "server_user": "",
+    "server_passwd": "",
+    "server_ip": "",
+    "server_port": "",
+    "server_token": "",
+    "server_tls": false
+  },
+  "api_server": {
+    "server_user": "",
+    "server_passwd": "",
+    "server_ip": "",
+    "server_port": "",
+    "server_token": "",
+    "server_tls": false
+  },
+  "wlan": {
+    "ip_address": "",
+    "net_mask": "255.255.255.0",
+    "gw": "",
+    "dns1": "8.8.8.8",
+    "dns2": "8.8.4.4"
+  }
+}

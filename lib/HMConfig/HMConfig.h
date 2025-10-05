@@ -9,7 +9,7 @@
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2025-10-03 12:01
+ * Last Modified: 2025-10-04 03:00
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -92,7 +92,7 @@ struct ServoData {
   uint8_t angle_min_hard = 0;
 
   /// @brief max degree of MHMKI full open
-  uint8_t angle_max = 110;
+  uint8_t angle_max = 90;
 
   /// @brief min degree of MHMKI closed
   uint8_t angle_min = 3;
@@ -112,6 +112,8 @@ class HMConfig {
     static HMConfig _instance;
     return _instance;
   }
+  // Increment this when JSON schema / semantics change
+  static const uint16_t CONFIG_VERSION = 1;
   static const char* runmod2string(RunModus modus);
   static const char* fillingstatus2string(FillingStatus status);
   const char* version = SOFTWARE_VERSION;  // TODO(janusz)
@@ -147,8 +149,16 @@ class HMConfig {
   /// @brief toleranc for automatic detection
   uint8_t glass_tolerance = 5;
 
-  /// @brief  how many glasses we are filling in this run
+  /// @brief total filled glasses (lifetime counter)
+  /// Persistence policy: NOT stored in hmconfig.json anymore. Maintained
+  /// exclusively via Preferences layer (see persistence.cpp) to reduce
+  /// SPIFFS wear and avoid duplication of truth. The JSON field `glass_count`
+  /// is intentionally omitted during read/write.
   uint16_t glass_count = 0;
+
+  /// @brief Emergency stop flag (volatile as it may be set from different task
+  /// context)
+  volatile bool emergency_stop = false;
 
   /// @brief how many this device were are booting
   uint32_t boot_count = 0;
@@ -162,8 +172,9 @@ class HMConfig {
   /// @brief offset for this particular load cell
   int32_t OFFSET = -92840;
 
-  /// @brief scale for this particular load cell
-  int32_t SCALE = 346.023590;
+  /// @brief scale factor (gain) for this particular load cell (allow fractional
+  /// precision)
+  double SCALE = 346.023590;
 
   /// @brief modus now auto / hand / stopped
   RunModus run_modus = RUN_MODUS_STOPPED;
@@ -181,6 +192,10 @@ class HMConfig {
 
   void writeJsonConfig();
   void readJsonConfig();
+  bool validateAndFix();
+
+  /// @brief schema / semantics version of persisted config
+  uint16_t config_version = CONFIG_VERSION;
 
  private:
   HMConfig()

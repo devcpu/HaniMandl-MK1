@@ -6,10 +6,10 @@
  * Created Date: 2023-08-22 16:52
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-23 01:12
+ * Last Modified: 2025-10-03 16:12
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
- * Copyright (c) 2023 STRATO AG Berlin, Germany
+ * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
  */
 
 #ifndef SRC_LOADCELL_H_
@@ -22,10 +22,16 @@
 
 #include "esp_log.h"
 
-int calibrate();
 void weight2seriell();
 void weight2seriell(float weight_current);
 void show_scale_data();
 void setupLoadcell();
+
+// Wait until the HX711 signals readiness or timeout (ms). Returns true if
+// ready.
+bool waitForScaleReady(uint32_t timeoutMs = 250);
+// Safe wrappers with readiness guard. Return NAN on timeout.
+float safeGetUnits(uint8_t times = 1, uint32_t timeoutMs = 250);
+long safeGetValue(uint8_t times = 1, uint32_t timeoutMs = 250);
 
 #endif  // SRC_LOADCELL_H_

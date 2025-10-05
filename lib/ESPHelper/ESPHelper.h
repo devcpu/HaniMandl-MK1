@@ -32,12 +32,19 @@ class ESPHelper {
  public:
   static String getChipId(void);
   static String getBuildDateAndTime(void);
-  static Table2RData *getSystemInfoTable(void);
+  static Table2RData* getSystemInfoTable(void);
   static String getResetReason(RESET_REASON reason);
   //   static void reboot(AsyncWebServerRequest *request);
   static void disconnect(void);
   static void restartESP();
   static String getFlashMode();
+
+  // Extended chip / platform helpers (ESP32 only - safe no-ops or simple
+  // fallbacks elsewhere)
+  static void printChipInfo(Stream& out = Serial);
+  static String getChipModelString();
+  static String getFeatureSummary();  // e.g. "WiFi BT BLE extFlash PSRAM"
+  static String getShortId();         // condensed 6-byte MAC as hex
 };
 
 #endif  // LIB_ESPHELPER_ESPHELPER_H_

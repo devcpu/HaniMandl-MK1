@@ -181,3 +181,10 @@ a {
   }
 
 .bla { position: relative; }
+
+/* Stale data highlighting (weight values outdated) */
+.stale {
+    color: #b30000 !important;
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(255,0,0,0.4);
+}

@@ -6,10 +6,10 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-29 14:06
+ * Last Modified: 2025-10-03 16:12
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
- * Copyright (c) 2023 STRATO AG Berlin, Germany
+ * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
  */
 
 #ifndef SRC_HANDLESERVO_H_

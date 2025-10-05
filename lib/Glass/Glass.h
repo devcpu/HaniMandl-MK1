@@ -6,10 +6,10 @@
  * Created Date: 2023-08-22 23:24
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-29 19:07
+ * Last Modified: 2025-10-03 16:12
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
- * Copyright (c) 2023 STRATO AG Berlin, Germany
+ * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
  */
 
 #ifndef LIB_GLASS_GLASS_H_

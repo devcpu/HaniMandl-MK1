@@ -6,17 +6,25 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-04-30 12:31
+ * Last Modified: 2025-10-04 01:23
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
- * Copyright (c) 2023 STRATO AG Berlin, Germany
+ * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
  */
 
 #include <handleServo.h>
+#include <loadcell.h>  // for safeGetUnits
+
+#include "persistence.h"
 
 extern Servo servo;
 extern Glass glass;
 extern HX711 scale;
+
+// Forward declare buzzer enqueue (provided by freertos_setup.cpp)
+bool enqueueBuzzerPattern(uint16_t freq, uint16_t durationMs, uint8_t count,
+                          uint16_t gapMs, uint32_t initialDelay = 0);
+bool emitGlassCount(uint32_t gc);
 
 bool first_run = true;
 
@@ -31,6 +39,27 @@ void setupServo() {
 
 int handleWeightAndServo(float weight_scale_brutto) {
   HMConfig& hmcfg = HMConfig::instance();  // TODO - got pointer?
+  static uint32_t lastHeartbeat = 0;       // periodic heartbeat
+
+  if (hmcfg.run_modus == RUN_MODUS_AUTO) {
+    uint32_t now = millis();
+    if (now - lastHeartbeat >= 1000) {
+      lastHeartbeat = now;
+      log_d("HB auto fs=%d emg=%d w=%.1f", hmcfg.fs, hmcfg.emergency_stop,
+            weight_scale_brutto);
+    }
+  }
+
+  // Highest priority: emergency stop. One-shot clear after action.
+  if (hmcfg.emergency_stop) {
+    servo.write(hmcfg.servodata.angle_min);
+    hmcfg.run_modus = RUN_MODUS_STOPPED;
+    hmcfg.fs = FILLING_STATUS_STOPPED;
+    hmcfg.hm = HAND_MODE_CLOSED;
+    hmcfg.emergency_stop = false;
+    log_w("[EMERGENCY STOP] immediate close");
+    return 0;
+  }
 
   // FIXME - Stop button decoupled from HAND_MODE_CLOSED
   //  if (hmcfg.hm == HAND_MODE_CLOSED && hmcfg.run_modus == RUN_MODUS_AUTO) {
@@ -53,6 +82,22 @@ int handleWeightAndServo(float weight_scale_brutto) {
    */
 
   if (hmcfg.run_modus == RUN_MODUS_AUTO) {
+    static uint32_t openStateEnterMs = 0;         // when we entered OPEN/FINE
+    static bool openWatchArmed = false;           // track open watchdog
+    static float openStateWeightRef = 0.0f;       // reference weight at OPEN
+    const uint32_t OPEN_MAX_DURATION_MS = 30000;  // 30s max open
+    const uint32_t OPEN_MIN_PROGRESS_MS = 4000;   // after 4s expect progress
+    const float OPEN_PROGRESS_DELTA = 2.0f;       // grams minimal increase
+    // fast early emergency re-check
+    if (hmcfg.emergency_stop) {
+      servo.write(hmcfg.servodata.angle_min);
+      hmcfg.run_modus = RUN_MODUS_STOPPED;
+      hmcfg.fs = FILLING_STATUS_STOPPED;
+      hmcfg.hm = HAND_MODE_CLOSED;
+      hmcfg.emergency_stop = false;
+      log_w("[EMERGENCY STOP] (auto early) close");
+      return 0;  // RET_EM_FAST
+    }
     if (glass.isGlassRemoved() &&
         (hmcfg.fs == FILLING_STATUS_FINE || hmcfg.fs == FILLING_STATUS_OPEN)) {
       servo.write(hmcfg.servodata.angle_min);
@@ -71,41 +116,55 @@ int handleWeightAndServo(float weight_scale_brutto) {
       return 0;
     }
 
-    // Nicht-blockierender AutoStart (ersetzt delay(500))
-    {
-      static bool autostart_pending = false;     // wartet auf Stabilisierung
-      static uint32_t autostart_t0 = 0;          // Startzeit des Fensters
-      const uint32_t AUTOSTART_SETTLE_MS = 500;  // ehemals delay(500)
+    if (hmcfg.emergency_stop) {
+      servo.write(hmcfg.servodata.angle_min);
+      hmcfg.run_modus = RUN_MODUS_STOPPED;
+      hmcfg.fs = FILLING_STATUS_STOPPED;
+      hmcfg.hm = HAND_MODE_CLOSED;
+      hmcfg.emergency_stop = false;
+      log_w("[EMERGENCY STOP] (auto pre-loop) close");
+      return 0;
+    }
 
+    // Simplified non-blocking AutoStart: rely solely on sensorTask updates (no
+    // extra HX711 reads here)
+    {
+      static bool autostart_pending = false;
+      static uint32_t autostart_t0 = 0;
+      const uint32_t AUTOSTART_SETTLE_MS = 500;  // stable presence window
       if (hmcfg.fs == FILLING_STATUS_STANDBY) {
         if (!autostart_pending && glass.isAutoStart()) {
           autostart_pending = true;
           autostart_t0 = millis();
+          log_d("AS:start w=%.1f", weight_scale_brutto);
         }
         if (autostart_pending) {
-          // Abbruch falls Zustand wieder weg
           if (!glass.isAutoStart()) {
-            autostart_pending = false;  // Zurücksetzen
+            autostart_pending = false;
+            log_d("AS:cancel");
           } else if (millis() - autostart_t0 >= AUTOSTART_SETTLE_MS) {
-            // Stabil genug – zweite Prüfung
-            glass.setScaleUnit(scale.get_units());  // "cool down" Messung
+            // Confirm still present and transition to OPEN using current weight
+            // reference
             if (glass.isAutoStart()) {
               glass.setTaraWeight(
-                  scale.get_units(5));  // TODO: 5 -> konfigurierbar
+                  weight_scale_brutto);  // baseline (may be empty glass + drip)
               servo.write(hmcfg.servodata.angle_max);
               hmcfg.fs = FILLING_STATUS_OPEN;
               glass.setGlassInWork(true);
               autostart_pending = false;
-              log_d("switch to automodus (non-blocking autostart)");
-              return 0;
+              openStateEnterMs = millis();
+              openWatchArmed = true;
+              openStateWeightRef = weight_scale_brutto;
+              log_d("AS:OPEN wRef=%.1f", openStateWeightRef);
+              return 0;  // RET_AS_OPEN
             }
-            // Falls zweite Prüfung scheitert -> erneut warten
-            autostart_t0 = millis();
+            // Presence lost exactly at expiry: restart timer if re-detected
+            // later
+            autostart_pending = false;
           }
         }
       } else {
-        // Anderer Status -> aufräumen
-        autostart_pending = false;
+        autostart_pending = false;  // any other state cancels pending
       }
     }
 
@@ -113,6 +172,18 @@ int handleWeightAndServo(float weight_scale_brutto) {
       servo.write(hmcfg.servodata.angle_fine);
       log_d("Reach fine filling. Weight fine is %d", hmcfg.weight_fine);
       hmcfg.fs = FILLING_STATUS_FINE;
+      openStateEnterMs = millis();
+      openStateWeightRef = weight_scale_brutto;
+      return 0;
+    }
+
+    if (hmcfg.emergency_stop) {
+      servo.write(hmcfg.servodata.angle_min);
+      hmcfg.run_modus = RUN_MODUS_STOPPED;
+      hmcfg.fs = FILLING_STATUS_STOPPED;
+      hmcfg.hm = HAND_MODE_CLOSED;
+      hmcfg.emergency_stop = false;
+      log_w("[EMERGENCY STOP] (post-fine) close");
       return 0;
     }
 
@@ -121,51 +192,62 @@ int handleWeightAndServo(float weight_scale_brutto) {
       servo.write(hmcfg.servodata.angle_min);
       log_i("Glass full! :-)))");
       hmcfg.fs = FILLING_STATUS_FOLLOW_UP;
+      openWatchArmed = false;
+      return 0;
+    }
+
+    if (hmcfg.emergency_stop) {
+      servo.write(hmcfg.servodata.angle_min);
+      hmcfg.run_modus = RUN_MODUS_STOPPED;
+      hmcfg.fs = FILLING_STATUS_STOPPED;
+      hmcfg.hm = HAND_MODE_CLOSED;
+      hmcfg.emergency_stop = false;
+      log_w("[EMERGENCY STOP] (post-full) close");
       return 0;
     }
 
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
       // Nicht-blockierende Follow-Up Sequenz (ersetzt delay(5000) + 2x400ms)
-      static uint8_t follow_step = 0;
-      static uint32_t follow_tRef = 0;
+      static bool patternQueued = false;
       const uint32_t FOLLOW_WAIT_MS = 5000;  // TODO: konfigurierbar
-      const uint32_t BUZZER_GAP_MS = 400;    // TODO: konfigurierbar
-
-      switch (follow_step) {
-        case 0:  // Wartephase nach "voll"
-          if (first_run) {
-            follow_tRef = millis();
-            first_run = false;
-          }
-          if (millis() - follow_tRef >= FOLLOW_WAIT_MS) {
-            glass.setFollowUpAdjustment();
-            log_e("Piiiiiiiiiip (1)");
-            tone(PIN_BUZZER, 1750, 200);
-            follow_tRef = millis();
-            follow_step = 1;
-          }
-          return 0;
-        case 1:  // zweiter Ton nach Pause
-          if (millis() - follow_tRef >= BUZZER_GAP_MS) {
-            log_e("Piiiiiiiiiip (2)");
-            tone(PIN_BUZZER, 1750, 200);
-            follow_tRef = millis();
-            follow_step = 2;
-          }
-          return 0;
-        case 2:  // dritter Ton nach Pause
-          if (millis() - follow_tRef >= BUZZER_GAP_MS) {
-            log_e("Piiiiiiiiiip (3)");
-            tone(PIN_BUZZER, 1750, 200);
-            follow_step = 3;
-          }
-          return 0;
-        case 3:  // Abschluss
-          hmcfg.fs = FILLING_STATUS_CLOSED;
-          follow_step = 0;
-          first_run = true;
-          return 0;
+      static uint32_t follow_tRef = 0;
+      if (first_run) {
+        follow_tRef = millis();
+        first_run = false;
+        patternQueued = false;
       }
+      if (hmcfg.emergency_stop) {
+        servo.write(hmcfg.servodata.angle_min);
+        hmcfg.run_modus = RUN_MODUS_STOPPED;
+        hmcfg.fs = FILLING_STATUS_STOPPED;
+        hmcfg.hm = HAND_MODE_CLOSED;
+        hmcfg.emergency_stop = false;
+        patternQueued = false;
+        first_run = true;
+        log_w("[EMERGENCY STOP] (follow-up) close");
+        return 0;
+      }
+      if (!patternQueued && millis() - follow_tRef >= FOLLOW_WAIT_MS) {
+        glass.setFollowUpAdjustment();
+        // 3 Beeps pattern via buzzer queue (1750Hz, 200ms, 3x, 400ms gap)
+        enqueueBuzzerPattern(1750, 200, 3, 400, 0);
+        patternQueued = true;
+      }
+      if (patternQueued) {
+        // Warten bis Pattern durchgelaufen ist: konservativ 3*(duration+gap)
+        if (millis() - follow_tRef >=
+            FOLLOW_WAIT_MS + (3 * (200 + 400) + 200)) {
+          hmcfg.fs = FILLING_STATUS_CLOSED;
+          // Increment glass counter persistence hook
+          hmcfg.glass_count++;
+          emitGlassCount(hmcfg.glass_count);
+          // Mark persistence dirty
+          Persistence::markGlassCountDirty();
+          first_run = true;
+          patternQueued = false;
+        }
+      }
+      return 0;
     }
 
     if (glass.isFull() &&
@@ -176,6 +258,24 @@ int handleWeightAndServo(float weight_scale_brutto) {
       hmcfg.run_modus = RUN_MODUS_STOPPED;
       hmcfg.fs = FILLING_STATUS_STOPPED;
       return 0;
+    }
+    // Watchdog für OPEN/FINE: Kein Fortschritt -> Warnung/Timeout
+    if (openWatchArmed &&
+        (hmcfg.fs == FILLING_STATUS_OPEN || hmcfg.fs == FILLING_STATUS_FINE)) {
+      uint32_t dt = millis() - openStateEnterMs;
+      float delta = weight_scale_brutto - openStateWeightRef;
+      if (dt > OPEN_MIN_PROGRESS_MS && delta < OPEN_PROGRESS_DELTA) {
+        log_w("OPEN WD warn dt=%lu d=%.1f", (unsigned long)dt, delta);
+      }
+      if (dt > OPEN_MAX_DURATION_MS) {
+        log_e("OPEN WD timeout dt=%lu d=%.1f -> FORCE CLOSE", (unsigned long)dt,
+              delta);
+        servo.write(hmcfg.servodata.angle_min);
+        hmcfg.run_modus = RUN_MODUS_STOPPED;
+        hmcfg.fs = FILLING_STATUS_STOPPED;
+        openWatchArmed = false;
+        return 0;  // RET_WD_FORCE
+      }
     }
     // log_e("no if catching");
   }

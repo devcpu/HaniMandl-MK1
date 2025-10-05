@@ -12,10 +12,12 @@
 
 #include "WebTemplateOptimized.h"
 
+#include <ESPHelper.h>
+
 // Static buffer for template responses
 char template_response_buffer[512];
 
-const char *DefaultTemplatingOptimized(const char *var) {
+const char* DefaultTemplatingOptimized(const char* var) {
   if (var == nullptr) return "";
 
   // Use string comparison for const char*
@@ -126,12 +128,12 @@ void formatFloatToBuffer(float value, int precision) {
 
 extern ESPFS espfs;
 
-String DefaultTemplatingWrapper(const String &var) {
-  const char *result = DefaultTemplatingOptimized(var.c_str());
+String DefaultTemplatingWrapper(const String& var) {
+  const char* result = DefaultTemplatingOptimized(var.c_str());
   return String(result);
 }
 
-String FillingTemplatingWrapper(const String &var) {
+String FillingTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("Abfüllung");
   }
@@ -141,7 +143,7 @@ String FillingTemplatingWrapper(const String &var) {
   return DefaultTemplatingWrapper(var);
 }
 
-String SetupFillingTemplatingWrapper(const String &var) {
+String SetupFillingTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("Abfüllung");
   }
@@ -151,7 +153,7 @@ String SetupFillingTemplatingWrapper(const String &var) {
   return DefaultTemplatingWrapper(var);
 }
 
-String SetupTemplatingWrapper(const String &var) {
+String SetupTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("Grundeinrichtung");
   }
@@ -161,7 +163,7 @@ String SetupTemplatingWrapper(const String &var) {
   return DefaultTemplatingWrapper(var);
 }
 
-String CalibrateTemplatingWrapper(const String &var) {
+String CalibrateTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("Waage kalibrieren");
   }
@@ -171,7 +173,7 @@ String CalibrateTemplatingWrapper(const String &var) {
   return DefaultTemplatingWrapper(var);
 }
 
-String SetupWlanTemplatingWrapper(const String &var) {
+String SetupWlanTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("Einrichtung Wlan");
   }
@@ -181,7 +183,7 @@ String SetupWlanTemplatingWrapper(const String &var) {
   return DefaultTemplatingWrapper(var);
 }
 
-String UpdateFirmwareTemplatingWrapper(const String &var) {
+String UpdateFirmwareTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("Update Firmware");
   }
@@ -191,19 +193,96 @@ String UpdateFirmwareTemplatingWrapper(const String &var) {
   return DefaultTemplatingWrapper(var);
 }
 
-String SystemInfoTemplatingWrapper(const String &var) {
+String SystemInfoTemplatingWrapper(const String& var) {
   if (var == "H2TITLE") {
     return String("System Information");
   }
   if (var == "BODY") {
-    // System info would need to be implemented
-    return String("System Info Page");
+    Table2RData* rows = ESPHelper::getSystemInfoTable();
+    String html;
+    html.reserve(1024);
+    html +=
+        F("<div class='w3-container'><h4>Systemstatus</h4><table "
+          "class='w3-table w3-striped w3-small'>");
+    // ESP32 variant currently fills indices up to 26; guard with a sane max
+    const size_t maxRows = 30;  // size of static array in ESPHelper
+    for (size_t i = 0; i < maxRows; ++i) {
+      if (rows[i].label.length() == 0) break;  // termination marker
+      html += F("<tr><td>");
+      html += rows[i].label;
+      html += F("</td><td>");
+      html += rows[i].value;
+      html += F("</td></tr>");
+    }
+    html += F("</table></div>");
+    return html;
   }
   return DefaultTemplatingWrapper(var);
 }
 
-String JSTemplatingWrapper(const String &var) {
+String JSTemplatingWrapper(const String& var) {
   // JavaScript template - just pass through for now
+  return DefaultTemplatingWrapper(var);
+}
+
+String HMConfigTemplatingWrapper(const String& var) {
+  if (var == "H2TITLE") return String("HMConfig State");
+  if (var == "BODY") {
+    HMConfig& c = HMConfig::instance();
+    String html;
+    html.reserve(1024);
+    html +=
+        F("<div class='w3-container'><h4>HMConfig</h4><table class='w3-table "
+          "w3-striped w3-small'>");
+    html += F("<tr><td>Version</td><td>");
+    html += c.version;
+    html += F("</td></tr>");
+    html += F("<tr><td>Run Modus</td><td>");
+    html += c.runmod2string(c.run_modus);
+    html += F("</td></tr>");
+    html += F("<tr><td>Filling Status</td><td>");
+    html += c.fillingstatus2string(c.fs);
+    html += F("</td></tr>");
+    // Force integer rendering (no decimals) for consistency with UI request
+    html += F("<tr><td>Gewicht aktuell</td><td>");
+    html += String((int)c.weight_current);
+    html += F(" g</td></tr>");
+    html += F("<tr><td>Gewicht Ziel</td><td>");
+    html += String((int)c.weight_filling);
+    html += F(" g</td></tr>");
+    html += F("<tr><td>Gewicht Fein</td><td>");
+    html += String((int)c.weight_fine);
+    html += F(" g</td></tr>");
+    html += F("<tr><td>Glas leer</td><td>");
+    html += String((int)c.glass_empty);
+    html += F(" g</td></tr>");
+    html += F("<tr><td>Gläser gezählt</td><td>");
+    html += String(c.glass_count);
+    html += F("</td></tr>");
+    html += F("<tr><td>LOS Nummer</td><td>");
+    html += c.los_number;
+    html += F("</td></tr>");
+    html += F("<tr><td>Datum Füllung</td><td>");
+    html += c.date_filling;
+    html += F("</td></tr>");
+    html += F("<tr><td>Beekeeping</td><td>");
+    html += c.beekeeping;
+    html += F("</td></tr>");
+    html += F("<tr><td>Servo Min</td><td>");
+    html += String(c.servodata.angle_min);
+    html += F("</td></tr>");
+    html += F("<tr><td>Servo Max</td><td>");
+    html += String(c.servodata.angle_max);
+    html += F("</td></tr>");
+    html += F("<tr><td>Servo Fine</td><td>");
+    html += String(c.servodata.angle_fine);
+    html += F("</td></tr>");
+    html += F("<tr><td>WiFi IP</td><td>");
+    html += c.localIP;
+    html += F("</td></tr>");
+    html += F("</table></div>");
+    return html;
+  }
   return DefaultTemplatingWrapper(var);
 }
 
