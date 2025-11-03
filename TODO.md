@@ -1,4 +1,4 @@
-# uHuFiMa TODOs:
+# Simple Automatic Honey Filling Machine TODOs:
 
 - [ ] WiFi-Manager
 - [ ] EEPORM
@@ -10,6 +10,7 @@
 - [ ] I18N
 
 # Buttons on scale:
+
 - [ ] Start
 - [ ] Fine
 - [ ] Stop
@@ -28,7 +29,6 @@
 - [ ] weight
 - [ ] count
 
-
 # Params
 
 ## run
@@ -45,53 +45,70 @@
 ## Setup
 
 - [ ] Beekeepers name
+
 - [ ] angle_min_hard
+
 - [ ] angle_max_hard
+
 - [ ] angle_max
+
 - [ ] angle_min
 
 - [ ] angle_fine
+
 - [ ] calibrate_weight
+
 - [ ] glass_tolerance
-
-
 
 ## Request routes GET
 
 ### filling
+
 ### SetupWlan
+
 ### UpdateFirmware
+
 ### systeminfo
+
 ### reboot
 
 ### setup
-* beekeeping
-* angle_max_hard
-* angle_min_hard
-* angle_max
-* angle_min
-* angle_fine
-* glass_tolerance
+
+- beekeeping
+- angle_max_hard
+- angle_min_hard
+- angle_max
+- angle_min
+- angle_fine
+- glass_tolerance
 
 ### calibrate
 
-
 ### setupfilling
-* weight_filling
-* weight_empty
-* los_number
-* date_filling
+
+- weight_filling
+- weight_empty
+- los_number
+- date_filling
 
 ## Request routes POST
 
 ### start
+
 ### stop
+
 ### hand
+
 ### auto
 
 ### amg
+
 ### aml
+
 ### afg
+
 ### afl
+
 ### wfg
+
 ### wfl

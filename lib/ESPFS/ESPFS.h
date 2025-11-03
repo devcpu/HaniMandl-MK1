@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: /ESPFS.h
- * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/ESPFS
+Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-12 17:43
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-05 13:45
+ * Last Modified: 2025-11-03 17:39
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -29,8 +29,8 @@ class ESPFS {
  public:
   bool mounted = false;
   ESPFS();
-  String readString(const String &path);
-  void writeString(const String &path, const String &data);
+  String readString(const String& path);
+  void writeString(const String& path, const String& data);
   bool setup();
 
  private:

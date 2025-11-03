@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: /ESPFS.cpp
- * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/ESPFS
+Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-12 17:47
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2023-09-05 13:49
+ * Last Modified: 2025-11-03 17:39
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -56,7 +56,7 @@ bool ESPFS::isMounted() {
  *
  * @return The function `readSPIFFS2String` returns a `String` object.
  */
-String ESPFS::readString(const String &path) {
+String ESPFS::readString(const String& path) {
   if (!isMounted()) {
     return String("");
   }
@@ -81,7 +81,7 @@ String ESPFS::readString(const String &path) {
   return fileContent;
 }
 
-void ESPFS::writeString(const String &path, const String &data) {
+void ESPFS::writeString(const String& path, const String& data) {
   if (!isMounted()) {
     return;
   }

@@ -2,8 +2,8 @@
 <form action="setupwlan" class="w3-container w3-left-align  w3-margin">
     <fieldset>
         <legend>Wlan Modus:</legend>
-                <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_sta" checked onClick="showHide('id_wlan_modus_sta', 'id_wlan_modus_ap')"><label>mit Router verbunden (im heimischen Netzwerk)</label><br />
-                <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_ap" onClick="showHide('id_wlan_modus_ap', 'id_wlan_modus_sta')"><label>Hanimanl ist Accresspoint</label>
+                <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_sta" checked onClick="showHide('id_wlan_modus_sta', 'id_wlan_modus_ap')"><label>Mit Router verbunden (im heimischen Netzwerk)</label><br />
+                <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_ap" onClick="showHide('id_wlan_modus_ap', 'id_wlan_modus_sta')"><label>Ist Accesspoint</label>
                 <!-- <br /><br /><input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen"> -->
     </fieldset>
 
@@ -47,7 +47,7 @@
 <form id="id_ip_address_fix" action="setupwlan" class="w3-container w3-left-align w3-margin"  style="display: none;">
 <fieldset>
     <legend>Fixe IP-Adressen:</legend>
-    <label>IP-Adresse uHuFiMa:</label>
+    <label>IP-Adresse Simple Automatic Honey Filling Machine:</label>
     <input type="text" class="w3-input" name="ip_local" value="%ip_local%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
     <br />
     <label>IP-Adresse Gateway:</label>

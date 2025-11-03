@@ -1,7 +1,7 @@
 /**
  * @file WebServerX.h
- * @brief High level web / WebSocket interface for the Honey Filling Machine
- * (HaniMandl).
+ * @brief High level web / WebSocket interface for the Simple Automatic Honey
+ * Filling Machine
  *
  * Provides HTTP routes, OTA update support and a small multi-client WebSocket
  * hub (up to 3 concurrent UI clients). It encapsulates parameter formatting,

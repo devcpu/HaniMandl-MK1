@@ -3,14 +3,14 @@
  * License MIT License
  * -----
  * File: /HMController.h
- * Project: /home/janusz/git/esp32/HaniMandl-MK1/lib/HMController
+ * Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-15 03:08
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-08-30 00:24
- * Modified By: Johannes G.  Arlt
+ * Last Modified: 2025-11-03 17:34
+ * Modified By: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_HMCONTROLLER_HMCONTROLLER_H_

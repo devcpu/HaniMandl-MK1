@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: /Config.cpp
- * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/Config
+Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-12 20:30
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2025-10-03 19:24
+ * Last Modified: 2025-11-03 17:39
  * Modified By: Johannes G.  Arlt (janusz)
  */
 

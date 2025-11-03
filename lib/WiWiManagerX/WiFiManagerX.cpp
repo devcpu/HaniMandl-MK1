@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: /WiFiManagerX.cpp
- * Project: /home/jan/git/esp32/HaniMandl-MK1/lib/WiWiManagerX
+Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-12 15:55
  * Author: Johannes G.  Arlt
  * -----
- * Last Modified: 2024-04-29 17:27
+ * Last Modified: 2025-11-03 17:39
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -108,7 +108,7 @@ bool setupWifi() {
 }
 
 String getNTPDate(int16_t gmt_offset_sec, int16_t daylight_offset_sec,
-                  const char *ntpserver) {
+                  const char* ntpserver) {
   uint8_t retry = 0;
   struct tm timeinfo;
   do {

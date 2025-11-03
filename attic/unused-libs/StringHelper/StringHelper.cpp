@@ -3,7 +3,7 @@
  * License MIT License
  * -----
  * File: StringHelper.cpp
- * Project: HaniMandl-MK1
+ * Project: Simple Automatic Honey Filling Machine
  * Description: Helper functions to replace Arduino String with char arrays
  * -----
  * Created Date: 2025-10-02

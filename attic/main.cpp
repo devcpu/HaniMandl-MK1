@@ -3,13 +3,13 @@
  *  All rights reserved
  * -----
  * File: /main.cpp
- * Project: /home/janusz/git/privat/esp32/HaniMandl-MK1/attic
+Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2025-10-03 11:31
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-10-03 11:37
+ * Last Modified: 2025-11-03 17:39
  * Modified By: Johannes G.  Arlt (janusz)
  */
 

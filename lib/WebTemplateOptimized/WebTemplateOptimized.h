@@ -3,7 +3,7 @@
  * License MIT License
  * -----
  * File: WebTemplateOptimized.h
- * Project: HaniMandl-MK1
+ * Project: Simple Automatic Honey Filling Machine
  * Description: Optimized version of WebTemplate without String usage
  * -----
  * Created Date: 2025-10-02

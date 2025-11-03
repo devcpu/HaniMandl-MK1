@@ -1,4 +1,4 @@
-# uHuFiMa
+# Simple Automatic Honey Filling Machine
 
 ## Configuration & Calibration Persistence
 
@@ -119,7 +119,7 @@ for:
    doxygen -g Doxyfile
    ```
 1. Recommended minimal edits in `Doxyfile`:
-   - `PROJECT_NAME           = "HaniMandl"`
+   - `PROJECT_NAME           = "Simple Automatic Honey Filling Machine"`
    - `OUTPUT_DIRECTORY       = docs/doxygen`
    - `INPUT                  = src lib include` (add others if needed)
    - `FILE_PATTERNS          = *.h *.hpp *.cpp`

@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: /ESPHelper.h
- * Project: /home/janusz/git/esp32/HaniMandl-MK1/lib/ESPHelper
+ * Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2023-09-05 13:22
+ * Last Modified: 2025-11-03 17:34
  * Modified By: Johannes G.  Arlt (janusz)
  */
 

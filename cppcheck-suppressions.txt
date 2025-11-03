@@ -1,4 +1,4 @@
-# cppcheck suppressions for HaniMandl-MK1
+# cppcheck suppressions for Simple Automatic Honey Filling Machine
 # Ziel: Nur echte, relevante Probleme sichtbar lassen.
 # Format: <id>[:<filename>[:<line>]]
 # Doku: https://cppcheck.sourceforge.io/manual.pdf

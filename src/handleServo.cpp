@@ -1,12 +1,12 @@
 /*
  * File: /handleServo.cpp
- * Project: /home/janusz/git/esp32/HaniMandl-MK1/src
+ * Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-11-03 17:06
+ * Last Modified: 2025-11-03 17:34
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany

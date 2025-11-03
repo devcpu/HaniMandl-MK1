@@ -3,13 +3,13 @@
  * License MIT License
  * -----
  * File: WebTemplate.h
- * Project: uHuFiMa
+ * Project: Simple Automatic Honey Filling Machine
  * Description:
  * -----
  * Created Date: 2023-08-16 23:33
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2024-10-05 00:00
+ * Last Modified: 2025-11-03 17:41
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
