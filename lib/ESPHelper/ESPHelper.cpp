@@ -9,7 +9,7 @@
  * Created Date: 2023-08-17 00:02
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-11-03 17:34
+ * Last Modified: 2025-11-03 17:57
  * Modified By: Johannes G.  Arlt (janusz)
  */
 
@@ -150,7 +150,7 @@ String ESPHelper::getShortId() {
   char buf[13];                      // 12 hex chars + NUL
 // Use inttypes.h macro for portability instead of hard-coded %llX
 #include <inttypes.h>
-  snprintf(buf, sizeof(buf), "%012" PRIX64, (uint64_t)mac & 0xFFFFFFFFFFFFULL);
+  snprintf(buf, sizeof(buf), "%012" PRIX64, (uint64_t)mac & 0xFFFFFFFFFFFFULL);   // flawfinder: ignore
   return String(buf);
 }
 
