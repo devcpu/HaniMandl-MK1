@@ -337,11 +337,14 @@ static bool pushEvent(const EventMessage& ev) {
 }
 
 bool emitWeight(float w) {
-  static float lastSent = -100000.f;
-  const float DELTA = 0.5f;  // 0.5g threshold
-  if (fabs(w - lastSent) < DELTA) return false;
-  lastSent = w;
-  EventMessage ev{EventType::WeightDelta, millis()};
+  static uint32_t lastEmitTime = 0;
+  const uint32_t EMIT_INTERVAL_MS = 1000;  // 1 second interval
+
+  uint32_t now = millis();
+  if (now - lastEmitTime < EMIT_INTERVAL_MS) return false;
+
+  lastEmitTime = now;
+  EventMessage ev{EventType::WeightDelta, now};
   ev.data.fValue = w;
   return pushEvent(ev);
 }

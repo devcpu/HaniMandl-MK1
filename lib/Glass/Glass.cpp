@@ -28,9 +28,8 @@ void Glass::reset() {
   _is_glass_removed = false;
   _glass_in_work = false;
   _no_glass = true;
-  if (cutoff_weight == 0) {
-    cutoff_weight = HMConfig::instance().weight_filling;
-  }
+  // Always update cutoff_weight from current config on reset
+  cutoff_weight = HMConfig::instance().weight_filling;
 }
 
 void Glass::setTaraWeight(uint16_t tara_weight) { _glass_weight = tara_weight; }

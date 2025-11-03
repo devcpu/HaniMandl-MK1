@@ -19,7 +19,7 @@ const CLIENT_PING_INTERVAL_MS = 25000;  // eigenes leichtes Keepalive
 
 function markButtons(enabled) {
   const ids = [
-    'startbutton', 'finebutton', 'stopbutton', 'hand', 'auto'
+    'startbutton', 'finebutton', 'stopbutton', 'hand', 'auto', 'alarmstopbutton'
   ];  // relevante Haupt-Buttons
   ids.forEach(id => {
     const el = document.getElementById(id);

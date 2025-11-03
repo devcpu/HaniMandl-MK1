@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-10-04 01:23
+ * Last Modified: 2025-11-03 17:06
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
@@ -85,8 +85,8 @@ int handleWeightAndServo(float weight_scale_brutto) {
     static uint32_t openStateEnterMs = 0;         // when we entered OPEN/FINE
     static bool openWatchArmed = false;           // track open watchdog
     static float openStateWeightRef = 0.0f;       // reference weight at OPEN
-    const uint32_t OPEN_MAX_DURATION_MS = 30000;  // 30s max open
-    const uint32_t OPEN_MIN_PROGRESS_MS = 4000;   // after 4s expect progress
+    const uint32_t OPEN_MAX_DURATION_MS = 60000;  // 60s max open
+    const uint32_t OPEN_MIN_PROGRESS_MS = 10000;  // after 10s expect progress
     const float OPEN_PROGRESS_DELTA = 2.0f;       // grams minimal increase
     // fast early emergency re-check
     if (hmcfg.emergency_stop) {

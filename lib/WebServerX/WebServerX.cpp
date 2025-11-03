@@ -906,6 +906,11 @@ void onWsEvent(AsyncWebSocket* server, AsyncWebSocketClient* client,
           HMConfig::instance().emergency_stop =
               true;  // trigger immediate servo closure
 
+        } else if (rdata.keyValue[0].value == "close") {
+          log_d("[Close]");
+          HMConfig::instance().hm = HAND_MODE_CLOSED;
+          // Normal close - no emergency stop, stays in hand mode
+
         } else if (rdata.keyValue[0].value == "fine") {
           log_d("[Fine]");
           HMConfig::instance().hm = HAND_MODE_FINE;
