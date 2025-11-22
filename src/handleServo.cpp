@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 17:22
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-11-03 17:34
+ * Last Modified: 2025-11-22 16:18
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
@@ -82,12 +82,12 @@ int handleWeightAndServo(float weight_scale_brutto) {
    */
 
   if (hmcfg.run_modus == RUN_MODUS_AUTO) {
-    static uint32_t openStateEnterMs = 0;         // when we entered OPEN/FINE
-    static bool openWatchArmed = false;           // track open watchdog
-    static float openStateWeightRef = 0.0f;       // reference weight at OPEN
-    const uint32_t OPEN_MAX_DURATION_MS = 60000;  // 60s max open
-    const uint32_t OPEN_MIN_PROGRESS_MS = 10000;  // after 10s expect progress
-    const float OPEN_PROGRESS_DELTA = 2.0f;       // grams minimal increase
+    static uint32_t openStateEnterMs = 0;          // when we entered OPEN/FINE
+    static bool openWatchArmed = false;            // track open watchdog
+    static float openStateWeightRef = 0.0f;        // reference weight at OPEN
+    const uint32_t OPEN_MAX_DURATION_MS = 120000;  // 180s max open
+    const uint32_t OPEN_MIN_PROGRESS_MS = 10000;   // after 10s expect progress
+    const float OPEN_PROGRESS_DELTA = 2.0f;        // grams minimal increase
     // fast early emergency re-check
     if (hmcfg.emergency_stop) {
       servo.write(hmcfg.servodata.angle_min);
@@ -95,7 +95,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
       hmcfg.fs = FILLING_STATUS_STOPPED;
       hmcfg.hm = HAND_MODE_CLOSED;
       hmcfg.emergency_stop = false;
-      log_w("[EMERGENCY STOP] (auto early) close");
+      log_e("hmcfg.emergency_stop");
       return 0;  // RET_EM_FAST
     }
     if (glass.isGlassRemoved() &&
@@ -110,19 +110,20 @@ int handleWeightAndServo(float weight_scale_brutto) {
     if (hmcfg.run_modus == RUN_MODUS_STOPPED) {  // TODO - move up?
       servo.write(hmcfg.servodata.angle_min);
       hmcfg.fs = FILLING_STATUS_STOPPED;
-      log_e("hmcfg.fs = FILLING_STATUS_CLOSED");
+      log_e("hmcfg.run_modus == RUN_MODUS_STOPPED");
       // log_event(weight_scale_brutto, weight_scale_brutto, hmcfg.fs,
       // hmcfg.run_modus);
       return 0;
     }
 
+    // FIXME - redundant emergency stop checks
     if (hmcfg.emergency_stop) {
       servo.write(hmcfg.servodata.angle_min);
       hmcfg.run_modus = RUN_MODUS_STOPPED;
       hmcfg.fs = FILLING_STATUS_STOPPED;
       hmcfg.hm = HAND_MODE_CLOSED;
       hmcfg.emergency_stop = false;
-      log_w("[EMERGENCY STOP] (auto pre-loop) close");
+      log_w("hmcfg.emergency_stop");
       return 0;
     }
 
@@ -177,13 +178,14 @@ int handleWeightAndServo(float weight_scale_brutto) {
       return 0;
     }
 
+    // FIXME - redundant emergency stop checks
     if (hmcfg.emergency_stop) {
       servo.write(hmcfg.servodata.angle_min);
       hmcfg.run_modus = RUN_MODUS_STOPPED;
       hmcfg.fs = FILLING_STATUS_STOPPED;
       hmcfg.hm = HAND_MODE_CLOSED;
       hmcfg.emergency_stop = false;
-      log_w("[EMERGENCY STOP] (post-fine) close");
+      log_w("hmcfg.emergency_stop");
       return 0;
     }
 
@@ -196,13 +198,14 @@ int handleWeightAndServo(float weight_scale_brutto) {
       return 0;
     }
 
+    // FIXME - redundant emergency stop checks
     if (hmcfg.emergency_stop) {
       servo.write(hmcfg.servodata.angle_min);
       hmcfg.run_modus = RUN_MODUS_STOPPED;
       hmcfg.fs = FILLING_STATUS_STOPPED;
       hmcfg.hm = HAND_MODE_CLOSED;
       hmcfg.emergency_stop = false;
-      log_w("[EMERGENCY STOP] (post-full) close");
+      log_w("hmcfg.emergency_stop");
       return 0;
     }
 
@@ -216,6 +219,8 @@ int handleWeightAndServo(float weight_scale_brutto) {
         first_run = false;
         patternQueued = false;
       }
+
+      // FIXME - redundant emergency stop checks
       if (hmcfg.emergency_stop) {
         servo.write(hmcfg.servodata.angle_min);
         hmcfg.run_modus = RUN_MODUS_STOPPED;
@@ -224,7 +229,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
         hmcfg.emergency_stop = false;
         patternQueued = false;
         first_run = true;
-        log_w("[EMERGENCY STOP] (follow-up) close");
+        log_w("hmcfg.emergency_stop");
         return 0;
       }
       if (!patternQueued && millis() - follow_tRef >= FOLLOW_WAIT_MS) {
@@ -265,7 +270,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
       uint32_t dt = millis() - openStateEnterMs;
       float delta = weight_scale_brutto - openStateWeightRef;
       if (dt > OPEN_MIN_PROGRESS_MS && delta < OPEN_PROGRESS_DELTA) {
-        log_w("OPEN WD warn dt=%lu d=%.1f", (unsigned long)dt, delta);
+        log_e("OPEN WD warn dt=%lu d=%.1f", (unsigned long)dt, delta);
       }
       if (dt > OPEN_MAX_DURATION_MS) {
         log_e("OPEN WD timeout dt=%lu d=%.1f -> FORCE CLOSE", (unsigned long)dt,

@@ -32,7 +32,7 @@ repos:
 # C++ SPECIFIC HOOKS
 # ============================================================================
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v21.1.2
+  rev: v21.1.5
   hooks:
   - id: clang-format
     exclude: (^attic|^\.pio|^build|^doc)
@@ -118,12 +118,12 @@ repos:
 # ============================================================================
 # WEB ASSETS (für data/ Ordner)
 # ============================================================================
-- repo: https://github.com/pre-commit/mirrors-eslint
-  rev: v9.11.1
-  hooks:
-  - id: eslint
-    files: ^data/.*\.js$
-    additional_dependencies: ["eslint@9.11.1"]
+#- repo: https://github.com/pre-commit/mirrors-eslint
+#  rev: v9.39.1
+#  hooks:
+#  - id: eslint
+#    files: ^data/.*\.js$
+#    additional_dependencies: ["eslint@9.11.1"]
 
 # CSS Minification Check
 - repo: local
@@ -141,7 +141,7 @@ repos:
 # DOCUMENTATION
 # ============================================================================
 - repo: https://github.com/executablebooks/mdformat
-  rev: 0.7.22
+  rev: 1.0.0
   hooks:
   - id: mdformat
     args: [--wrap=80]

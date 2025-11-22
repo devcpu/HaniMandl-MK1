@@ -6,7 +6,7 @@
  * Created Date: 2023-08-22 00:19
  * Author: Johannes G.  Arlt (janusz)
  * -----
- * Last Modified: 2025-11-03 17:34
+ * Last Modified: 2025-11-17 22:30
  * Modified By: Johannes G.  Arlt (janusz)
  * -----
  * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany

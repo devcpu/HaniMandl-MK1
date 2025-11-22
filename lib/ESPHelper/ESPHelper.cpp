@@ -150,7 +150,8 @@ String ESPHelper::getShortId() {
   char buf[13];                      // 12 hex chars + NUL
 // Use inttypes.h macro for portability instead of hard-coded %llX
 #include <inttypes.h>
-  snprintf(buf, sizeof(buf), "%012" PRIX64, (uint64_t)mac & 0xFFFFFFFFFFFFULL);   // flawfinder: ignore
+  snprintf(buf, sizeof(buf), "%012" PRIX64,
+           (uint64_t)mac & 0xFFFFFFFFFFFFULL);  // flawfinder: ignore
   return String(buf);
 }
 

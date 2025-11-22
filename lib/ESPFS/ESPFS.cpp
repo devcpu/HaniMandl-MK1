@@ -56,7 +56,7 @@ bool ESPFS::isMounted() {
  *
  * @return The function `readSPIFFS2String` returns a `String` object.
  */
-String ESPFS::readString(const String &path) {
+String ESPFS::readString(const String& path) {
   if (!isMounted()) {
     return String("");
   }
@@ -81,7 +81,7 @@ String ESPFS::readString(const String &path) {
   return fileContent;
 }
 
-void ESPFS::writeString(const String &path, const String &data) {
+void ESPFS::writeString(const String& path, const String& data) {
   if (!isMounted()) {
     return;
   }
