@@ -40,7 +40,7 @@ void IRAM_ATTR isrStop();
 #endif
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(921600);
   delay(1000);
 #ifdef ESP32
   // Re-enable touch interrupt for emergency stop (T7 -> GPIO27)
@@ -58,6 +58,10 @@ void setup() {
   espfs.setup();
   log_i("SETUP: readJsonConfig()");
   HMConfig::instance().readJsonConfig();
+  // Reset glass after config is loaded to initialize cutoff_weight correctly
+  glass.reset();
+  log_i("SETUP: glass.reset() after config load - cutoff_weight=%d",
+        glass.cutoff_weight);
   log_i("SETUP: setupWifi()");
   setupWifi();
   log_i("SETUP: WebserverStart()");

@@ -12,6 +12,7 @@ let lastMessageTs = Date.now();
 let lastHeartbeatTs = Date.now();
 let lastWeightTs = Date.now();
 let connectionWarned = false;
+let connectionDead = false;    // Track if we already showed dead warning
 const RELOAD_DEAD_MS = 60000;  // 60s ohne Nachricht -> reload
 const WARN_AFTER_MS = 20000;   // 20s Warnung
 const STALE_WEIGHT_MS = 5000;  // nach 5s ohne Update als stale markieren
@@ -40,7 +41,11 @@ function openSocket() {
     console.log('WS connected');
     reconnectAttempts = 0;
     connectionWarned = false;
+    connectionDead = false;  // Reset dead flag on reconnect
     markButtons(true);
+    // Remove any dead connection overlay if present
+    const overlay = document.getElementById('connection-overlay');
+    if (overlay) overlay.style.display = 'none';
   };
   socket.onclose = (ev) => {
     console.warn('WS closed code=' + ev.code + ' reason=' + (ev.reason || ''));
@@ -68,6 +73,36 @@ function scheduleReconnect() {
   }, delay);
 }
 
+// Show non-blocking connection lost overlay
+function showConnectionOverlay() {
+  let overlay = document.getElementById('connection-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'connection-overlay';
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; color: white; font-size: 1.5em;
+    `;
+    overlay.innerHTML = `
+      <div style="text-align: center; padding: 20px; background: #d32f2f; border-radius: 10px; max-width: 400px;">
+        <h2>⚠️ Verbindung verloren</h2>
+        <p>Keine Verbindung zur Honey Filling Machine</p>
+        <button onclick="location.reload()" style="margin: 10px; padding: 10px 20px; font-size: 1em; cursor: pointer;">
+          Seite neu laden
+        </button>
+        <button onclick="document.getElementById('connection-overlay').style.display='none'"
+                style="margin: 10px; padding: 10px 20px; font-size: 1em; cursor: pointer;">
+          Ignorieren
+        </button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+}
+
 // Client Ping (falls sonst keine Aktivität) – verhindert Idle Drops auf einigen
 // Setups
 setInterval(() => {
@@ -89,9 +124,11 @@ setInterval(() => {
     console.warn('Verbindung verzögert (' + since + 'ms)');
     connectionWarned = true;
   }
-  if (since > RELOAD_DEAD_MS) {
-    alert('Keine Verbindung mehr zur Honey Filling Machine MK I');
-    location.reload();
+  if (since > RELOAD_DEAD_MS && !connectionDead) {
+    connectionDead = true;
+    console.error('Verbindung tot - zeige Overlay');
+    // Show overlay instead of blocking alert
+    showConnectionOverlay();
   }
   // Heartbeat Latenz-Anzeige
   const hbEl = document.getElementById('hb_latency');
