@@ -10,16 +10,16 @@
  */
 
 #include "MQTTHelper.h"
-#include <time.h>
-#include <sys/time.h>
 
-MQTTHelper::MQTTHelper() 
-  : wifiClient(), wifiClientSecure(), mqttClient(wifiClient) {
-}
+#include <sys/time.h>
+#include <time.h>
+
+MQTTHelper::MQTTHelper()
+    : wifiClient(), wifiClientSecure(), mqttClient(wifiClient) {}
 
 void MQTTHelper::begin() {
   HMConfig& cfg = HMConfig::instance();
-  
+
   // Check if MQTT is configured
   if (strlen(cfg.mqtt_server.server_ip) == 0) {
     log_w("MQTT server IP not configured");
@@ -28,16 +28,17 @@ void MQTTHelper::begin() {
   }
 
   useTLS = cfg.mqtt_server.server_tls;
-  
+
   // Configure appropriate client based on TLS setting
   if (useTLS) {
     log_i("MQTT: Using TLS (insecure mode - no certificate validation)");
-    wifiClientSecure.setInsecure(); // No certificate validation as requested
-    wifiClientSecure.setTimeout(SOCKET_TIMEOUT_MS / 1000); // Set socket timeout
+    wifiClientSecure.setInsecure();  // No certificate validation as requested
+    wifiClientSecure.setTimeout(SOCKET_TIMEOUT_MS /
+                                1000);  // Set socket timeout
     mqttClient.setClient(wifiClientSecure);
   } else {
     log_i("MQTT: Using plain TCP");
-    wifiClient.setTimeout(SOCKET_TIMEOUT_MS / 1000); // Set socket timeout
+    wifiClient.setTimeout(SOCKET_TIMEOUT_MS / 1000);  // Set socket timeout
     mqttClient.setClient(wifiClient);
   }
 
@@ -51,12 +52,12 @@ void MQTTHelper::begin() {
 
   log_i("MQTT: Configuring server %s:%d", cfg.mqtt_server.server_ip, port);
   mqttClient.setServer(cfg.mqtt_server.server_ip, port);
-  
+
   // Set buffer size for JSON payload (default 256 is too small)
   mqttClient.setBufferSize(512);
-  
+
   initialized = true;
-  
+
   // Try initial connection
   reconnect();
 }
@@ -83,21 +84,19 @@ bool MQTTHelper::reconnect() {
   }
 
   HMConfig& cfg = HMConfig::instance();
-  
+
   log_i("MQTT: Attempting connection to %s...", cfg.mqtt_server.server_ip);
-  
+
   // Generate unique client ID
   String clientId = "HaniMandl-";
   clientId += String((uint32_t)ESP.getEfuseMac(), HEX);
-  
+
   bool connected = false;
   if (strlen(cfg.mqtt_server.server_user) > 0) {
     // Connect with credentials
-    connected = mqttClient.connect(
-      clientId.c_str(),
-      cfg.mqtt_server.server_user,
-      cfg.mqtt_server.server_passwd
-    );
+    connected =
+        mqttClient.connect(clientId.c_str(), cfg.mqtt_server.server_user,
+                           cfg.mqtt_server.server_passwd);
   } else {
     // Connect without credentials
     connected = mqttClient.connect(clientId.c_str());
@@ -114,7 +113,7 @@ bool MQTTHelper::reconnect() {
 
 String MQTTHelper::getISOTimestamp() {
   struct tm timeinfo;
-  
+
   if (!getLocalTime(&timeinfo)) {
     // Fallback if NTP not synced
     log_w("Failed to get time, using millis");
@@ -122,14 +121,15 @@ String MQTTHelper::getISOTimestamp() {
     snprintf(buf, sizeof(buf), "1970-01-01 00:00:%lu", millis() / 1000);
     return String(buf);
   }
-  
+
   // Format: "YYYY-MM-DD HH:MM:SS" - readable for humans and MySQL
   char buf[32];
   strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
   return String(buf);
 }
 
-bool MQTTHelper::sendFillingData(uint16_t weight_actual, uint16_t weight_target, uint32_t glassCount) {
+bool MQTTHelper::sendFillingData(uint16_t weight_actual, uint16_t weight_target,
+                                 uint32_t glassCount) {
   if (!isActive()) {
     log_w("MQTT not active, skipping send");
     return false;
@@ -146,25 +146,25 @@ bool MQTTHelper::sendFillingData(uint16_t weight_actual, uint16_t weight_target,
 
   // Build JSON payload
   StaticJsonDocument<384> doc;
-  
+
   doc["fillingdate"] = getISOTimestamp();
-  
+
   // bucket is nullable - send null if -1
   if (cfg.bucket_number >= 0) {
     doc["bucket"] = cfg.bucket_number;
   } else {
-    doc["bucket"] = (char*)nullptr; // JSON null
+    doc["bucket"] = (char*)nullptr;  // JSON null
   }
-  
-  doc["weight_actual"] = weight_actual;     // Tatsächliches Gewicht nach 5s
-  doc["weight_target"] = weight_target;     // Konfiguriertes Soll-Gewicht
-  doc["count"] = 1;  // Always 1 per message as requested
-  
+
+  doc["weight_actual"] = weight_actual;  // Tatsächliches Gewicht nach 5s
+  doc["weight_target"] = weight_target;  // Konfiguriertes Soll-Gewicht
+  doc["count"] = 1;                      // Always 1 per message as requested
+
   // Calculate batch_number from date_filling + 2 years
   char batch_buf[16];
   cfg.getBatchNumber(batch_buf, sizeof(batch_buf));
-  doc["batch_number"] = batch_buf;          // Chargennummer (Batch/Los)
-  
+  doc["batch_number"] = batch_buf;  // Chargennummer (Batch/Los)
+
   doc["harvestdate"] = cfg.harvest_date;
   doc["harvestnumber"] = cfg.harvest_number;
 
@@ -184,14 +184,16 @@ bool MQTTHelper::sendFillingData(uint16_t weight_actual, uint16_t weight_target,
   uint32_t tStart = millis();
   bool success = mqttClient.publish(topic, payload.c_str(), true);
   uint32_t duration = millis() - tStart;
-  
+
   if (success) {
-    log_i("MQTT: Message sent successfully in %lums (QoS=1, retain=true)", duration);
+    log_i("MQTT: Message sent successfully in %lums (QoS=1, retain=true)",
+          duration);
     if (duration > 1000) {
       log_w("MQTT: Publish took %lums (slow network?)", duration);
     }
   } else {
-    log_e("MQTT: Failed to send message after %lums, state=%d", duration, mqttClient.state());
+    log_e("MQTT: Failed to send message after %lums, state=%d", duration,
+          mqttClient.state());
   }
 
   return success;

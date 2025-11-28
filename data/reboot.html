@@ -6,7 +6,7 @@
         <header class="w3-container w3-orange">
             <h2>System Neustart</h2>
         </header>
-        
+
         <div class="w3-container" style="padding: 40px;">
             <p><i class="w3-xxlarge">&#9881;</i></p>
             <h3>Das System wird neu gestartet...</h3>
@@ -29,7 +29,7 @@
     let attempt = 0;
     const maxAttempts = 5;
     const retryDelay = 5000; // 5 seconds between attempts
-    
+
     // Initial countdown
     const countdownInterval = setInterval(function() {
         countdown--;
@@ -37,19 +37,19 @@
         if (countdownEl) {
             countdownEl.textContent = countdown;
         }
-        
+
         if (countdown <= 0) {
             clearInterval(countdownInterval);
             document.getElementById('countdown-text').textContent = 'Verbindung wird hergestellt...';
             tryConnect();
         }
     }, 1000);
-    
+
     function tryConnect() {
         attempt++;
         const statusText = document.getElementById('status-text');
         statusText.textContent = 'Versuch ' + attempt + ' von ' + maxAttempts + '...';
-        
+
         // Try to fetch root or any lightweight endpoint
         fetch('/', {
             method: 'GET',
@@ -67,7 +67,7 @@
             handleFailedAttempt();
         });
     }
-    
+
     function handleFailedAttempt() {
         if (attempt >= maxAttempts) {
             // Show error after all attempts failed
@@ -88,4 +88,3 @@
     }
 })();
 </script>
-

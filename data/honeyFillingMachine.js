@@ -228,7 +228,7 @@ function showFlashWarning(message) {
   }
   flash.textContent = message;
   flash.style.display = 'block';
-  
+
   // Auto-hide after 3 seconds
   setTimeout(function() {
     flash.style.animation = 'flashFadeOut 0.3s ease-out';
@@ -369,7 +369,7 @@ function sendButton(name) {
     showFlashWarning('⚠️ Bitte Glas von der Waage nehmen!');
     return;
   }
-  
+
   sendValue('button=' + name);
   console.log('sendButton :' + name);
 }
@@ -445,17 +445,18 @@ function show(key, show_element_id) {
 function openSidebar() {
   const sidebar = document.getElementById('mySidebar');
   if (!sidebar) return;
-  
+
   // Create overlay if not exists
   let overlay = document.getElementById('sidebar-overlay');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'sidebar-overlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:998;display:none;';
+    overlay.style.cssText =
+        'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:998;display:none;';
     overlay.onclick = closeSidebar;
     document.body.appendChild(overlay);
   }
-  
+
   sidebar.style.display = 'block';
   sidebar.style.zIndex = '999';
   overlay.style.display = 'block';
@@ -464,7 +465,7 @@ function openSidebar() {
 function closeSidebar() {
   const sidebar = document.getElementById('mySidebar');
   const overlay = document.getElementById('sidebar-overlay');
-  
+
   if (sidebar) {
     sidebar.style.display = 'none';
   }

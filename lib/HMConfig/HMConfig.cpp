@@ -350,13 +350,13 @@ bool HMConfig::validateAndFix() {
 
 bool HMConfig::getBatchNumber(char* buffer, size_t bufferSize) const {
   if (!buffer || bufferSize < 11) return false;  // Need at least "DD.MM.YYYY\0"
-  
+
   // Check if date_filling is set and valid (format: YYYY-MM-DD)
   if (!date_filling || strlen(date_filling) < 10) {
     strlcpy(buffer, "__.__.____", bufferSize);
     return false;
   }
-  
+
   // Parse date_filling (YYYY-MM-DD)
   struct tm timeinfo = {};
   int year, month, day;
@@ -364,13 +364,13 @@ bool HMConfig::getBatchNumber(char* buffer, size_t bufferSize) const {
     strlcpy(buffer, "__.__.____", bufferSize);
     return false;
   }
-  
+
   timeinfo.tm_year = year - 1900 + 2;  // Add 2 years
   timeinfo.tm_mon = month - 1;
   timeinfo.tm_mday = day;
   mktime(&timeinfo);  // Normalize the date
-  
-  snprintf(buffer, bufferSize, "%02d.%02d.%04d",
-           timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+
+  snprintf(buffer, bufferSize, "%02d.%02d.%04d", timeinfo.tm_mday,
+           timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
   return true;
 }

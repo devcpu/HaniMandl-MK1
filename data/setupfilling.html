@@ -50,7 +50,7 @@ window.addEventListener('DOMContentLoaded', function() {
         var dd = String(today.getDate()).padStart(2, '0');
         dateFillingInput.value = yyyy + '-' + mm + '-' + dd;
     }
-    
+
     // Initialize batch date picker to date_filling + 2 years and batch_number
     updateBatchDatePicker();
 });
@@ -74,16 +74,16 @@ function updateBatchDatePicker() {
     var dateFillingInput = document.getElementById('date_filling');
     var datePicker = document.getElementById('batch_date_picker');
     var batchInput = document.getElementById('batch_number');
-    
+
     if (dateFillingInput.value) {
         var fillingDate = new Date(dateFillingInput.value);
         fillingDate.setFullYear(fillingDate.getFullYear() + 2);
-        
+
         var yyyy = fillingDate.getFullYear();
         var mm = String(fillingDate.getMonth() + 1).padStart(2, '0');
         var dd = String(fillingDate.getDate()).padStart(2, '0');
         datePicker.value = yyyy + '-' + mm + '-' + dd;
-        
+
         // Also update batch_number field in DD.MM.YYYY format
         batchInput.value = dd + '.' + mm + '.' + yyyy;
     }

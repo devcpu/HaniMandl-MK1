@@ -12,9 +12,9 @@
  * Copyright (c) 2023 - 2025 Johannes Arlt (devcpu) Berlin, Germany
  */
 
+#include <MQTTHelper.h>
 #include <handleServo.h>
 #include <loadcell.h>  // for safeGetUnits
-#include <MQTTHelper.h>
 
 #include "persistence.h"
 
@@ -188,7 +188,7 @@ int handleWeightAndServo(float weight_scale_brutto) {
       // Nicht-blockierende Follow-Up Sequenz (ersetzt delay(5000) + 2x400ms)
       static bool patternQueued = false;
       static bool mqttSent = false;
-      const uint32_t FOLLOW_WAIT_MS = 5000;  // TODO: konfigurierbar
+      const uint32_t FOLLOW_WAIT_MS = 5000;              // TODO: konfigurierbar
       const uint32_t BEEP_PATTERN_MS = 3 * (200 + 400);  // 3x(beep+gap)
       static uint32_t follow_tRef = 0;
       if (first_run) {
@@ -211,8 +211,8 @@ int handleWeightAndServo(float weight_scale_brutto) {
           log_i("Sending MQTT filling data: actual=%d target=%d count=%u",
                 hmcfg.weight_honey, hmcfg.weight_filling, hmcfg.glass_count);
           MQTTHelper::instance().sendFillingData(
-              hmcfg.weight_honey,      // actual weight after 5s
-              hmcfg.weight_filling,    // configured target weight
+              hmcfg.weight_honey,    // actual weight after 5s
+              hmcfg.weight_filling,  // configured target weight
               hmcfg.glass_count);
           mqttSent = true;
         }

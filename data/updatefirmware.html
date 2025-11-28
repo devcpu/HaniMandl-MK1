@@ -14,13 +14,13 @@
     </header>
     <div class="w3-container">
         <p>Laden Sie hier die neue Firmware-Datei hoch (firmware.bin)</p>
-        
+
         <form id="firmwareForm" enctype="multipart/form-data">
             <input type="file" id="firmwareFile" name="firmware" accept=".bin" class="w3-input w3-border" onchange="fileSelected('firmware')">
             <p id="firmwareFilename" class="w3-small"></p>
             <button type="button" class="w3-button w3-teal w3-margin-top" id="firmwareUploadBtn" onclick="uploadFirmware()" disabled>🚀 Firmware hochladen</button>
         </form>
-        
+
         <div id="firmwareProgress" class="w3-margin-top" style="display:none;">
             <div class="w3-light-grey w3-round">
                 <div id="firmwareProgressBar" class="w3-container w3-teal w3-round" style="width:0%">0%</div>
@@ -37,13 +37,13 @@
     <div class="w3-container">
         <p>Laden Sie hier das neue Filesystem-Image hoch (spiffs.bin)<br>
         <small>Enthält alle Webseiten und Konfigurationsdateien</small></p>
-        
+
         <form id="filesystemForm" enctype="multipart/form-data">
             <input type="file" id="filesystemFile" name="filesystem" accept=".bin" class="w3-input w3-border" onchange="fileSelected('filesystem')">
             <p id="filesystemFilename" class="w3-small"></p>
             <button type="button" class="w3-button w3-blue w3-margin-top" id="filesystemUploadBtn" onclick="uploadFilesystem()" disabled>📂 Filesystem hochladen</button>
         </form>
-        
+
         <div id="filesystemProgress" class="w3-margin-top" style="display:none;">
             <div class="w3-light-grey w3-round">
                 <div id="filesystemProgressBar" class="w3-container w3-blue w3-round" style="width:0%">0%</div>
@@ -58,7 +58,7 @@ function fileSelected(type) {
     const fileInput = document.getElementById(type + 'File');
     const filenameDisplay = document.getElementById(type + 'Filename');
     const uploadBtn = document.getElementById(type + 'UploadBtn');
-    
+
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
         filenameDisplay.textContent = '📄 ' + file.name + ' (' + formatBytes(file.size) + ')';
@@ -89,24 +89,24 @@ function uploadFile(type, endpoint) {
     const progressContainer = document.getElementById(type + 'Progress');
     const progressBar = document.getElementById(type + 'ProgressBar');
     const message = document.getElementById(type + 'Message');
-    
+
     if (fileInput.files.length === 0) {
         showMessage(message, 'w3-pale-red', 'Bitte wählen Sie zuerst eine Datei aus!');
         return;
     }
-    
+
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append('file', file);
-    
+
     uploadBtn.disabled = true;
     progressContainer.style.display = 'block';
     progressBar.style.width = '0%';
     progressBar.textContent = '0%';
     message.style.display = 'none';
-    
+
     const xhr = new XMLHttpRequest();
-    
+
     xhr.upload.addEventListener('progress', function(e) {
         if (e.lengthComputable) {
             const percent = Math.round((e.loaded / e.total) * 100);
@@ -114,14 +114,14 @@ function uploadFile(type, endpoint) {
             progressBar.textContent = percent + '%';
         }
     });
-    
+
     xhr.addEventListener('load', function() {
         if (xhr.status === 200) {
             progressBar.style.width = '100%';
             progressBar.textContent = '100%';
-            showMessage(message, 'w3-pale-green', 
+            showMessage(message, 'w3-pale-green',
                 '✅ Upload erfolgreich! Das Gerät startet in wenigen Sekunden neu...');
-            
+
             let countdown = 10;
             const countdownInterval = setInterval(function() {
                 countdown--;
@@ -136,24 +136,24 @@ function uploadFile(type, endpoint) {
                 }
             }, 1000);
         } else {
-            showMessage(message, 'w3-pale-red', 
+            showMessage(message, 'w3-pale-red',
                 '❌ Upload fehlgeschlagen: ' + xhr.statusText);
             uploadBtn.disabled = false;
         }
     });
-    
+
     xhr.addEventListener('error', function() {
-        showMessage(message, 'w3-pale-red', 
+        showMessage(message, 'w3-pale-red',
             '❌ Verbindungsfehler beim Upload!');
         uploadBtn.disabled = false;
     });
-    
+
     xhr.addEventListener('abort', function() {
-        showMessage(message, 'w3-pale-yellow', 
+        showMessage(message, 'w3-pale-yellow',
             '⚠️ Upload abgebrochen!');
         uploadBtn.disabled = false;
     });
-    
+
     xhr.open('POST', endpoint, true);
     xhr.send(formData);
 }

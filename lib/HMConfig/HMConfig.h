@@ -203,7 +203,7 @@ class HMConfig {
   void writeJsonConfig();
   void readJsonConfig();
   bool validateAndFix();
-  
+
   /// @brief Calculate batch number from date_filling + 2 years
   /// @param buffer Output buffer for DD.MM.YYYY formatted date
   /// @param bufferSize Size of output buffer

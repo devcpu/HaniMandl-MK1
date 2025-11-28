@@ -33,7 +33,7 @@ const char* DefaultTemplatingOptimized(const char* var) {
   }
   if (strcmp(var, "batch_number") == 0) {
     // Calculate date_filling + 2 years in DD.MM.YYYY format
-    HMConfig::instance().getBatchNumber(template_response_buffer, 
+    HMConfig::instance().getBatchNumber(template_response_buffer,
                                         sizeof(template_response_buffer));
     return template_response_buffer;
   }

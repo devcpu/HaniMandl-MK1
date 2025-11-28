@@ -4,9 +4,9 @@
 #include <Glass.h>
 #include <HMConfig.h>
 #include <HX711.h>
+#include <MQTTHelper.h>
 #include <WebServerX.h>  // for AsyncWebSocketClient definition
 #include <WiFi.h>
-#include <MQTTHelper.h>
 #include <appconfig.h>
 #include <handleServo.h>
 #include <loadcell.h>  // safeGetUnits prototype
@@ -66,7 +66,8 @@ uint32_t ntpRef = 0;
 uint8_t ntpRetries = 0;
 struct tm timeinfo;
 const uint32_t NTP_WAIT_MS = 2000;  // previously blocking delay(2000)
-const uint32_t NTP_RETRY_INTERVAL_MS = 300000;  // Retry after 5 minutes if failed
+const uint32_t NTP_RETRY_INTERVAL_MS =
+    300000;  // Retry after 5 minutes if failed
 }  // namespace
 
 void tickNTP() {
@@ -222,7 +223,8 @@ static void wifiTask(void* p) {
 
   // Check if WiFi is already connected (by WiFiManager in setup)
   if (WiFi.status() == WL_CONNECTED) {
-    log_i("[WiFi] Already connected at task start: %s", WiFi.localIP().toString().c_str());
+    log_i("[WiFi] Already connected at task start: %s",
+          WiFi.localIP().toString().c_str());
     xEventGroupSetBits(egSystem, EV_WIFI_CONNECTED);
     strlcpy(HMConfig::instance().localIP, WiFi.localIP().toString().c_str(),
             sizeof(HMConfig::instance().localIP));
@@ -299,7 +301,8 @@ static void wifiTask(void* p) {
         // WiFi connected but no EV_WIFI_CONNECTED bit?
         static uint32_t lastNoEvLog = 0;
         if (millis() - lastNoEvLog > 10000) {
-          log_w("[WiFi] Connected but EV_WIFI_CONNECTED not set? bits=0x%x", bits);
+          log_w("[WiFi] Connected but EV_WIFI_CONNECTED not set? bits=0x%x",
+                bits);
           lastNoEvLog = millis();
         }
       }
@@ -523,7 +526,8 @@ static void wsDispatchTask(void* p) {
           doc["h"] = static_cast<int>(
               HMConfig::instance()
                   .weight_honey);  // integer honey weight (netto)
-          doc["glass_on_scale"] = !glass.isNoGlass();  // Add glass status to weight updates
+          doc["glass_on_scale"] =
+              !glass.isNoGlass();  // Add glass status to weight updates
           break;
         case EventType::FillingStatusChange:
           doc["t"] = "fs";
@@ -549,7 +553,8 @@ static void wsDispatchTask(void* p) {
           // Send updated batch_number (date_filling + 2 years) after NTP sync
           {
             char batch_buf[16];
-            if (HMConfig::instance().getBatchNumber(batch_buf, sizeof(batch_buf))) {
+            if (HMConfig::instance().getBatchNumber(batch_buf,
+                                                    sizeof(batch_buf))) {
               doc["batch_number"] = batch_buf;
             }
           }

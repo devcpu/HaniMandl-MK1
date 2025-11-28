@@ -21,9 +21,9 @@ Project: Simple Automatic Honey Filling Machine
  * (WS:LIMIT)
  */
 
-#include <WebServerX.h>
 #include <MQTTHelper.h>
 #include <Update.h>
+#include <WebServerX.h>
 
 #include "freertos_setup.h"  // system task & event interfaces
 extern volatile uint32_t
@@ -205,7 +205,8 @@ void WebserverStart(void) {
       String bucket_number_S = getWebParam(request, "bucket_number");
       if (isNumber(bucket_number_S)) {
         int val = bucket_number_S.toInt();
-        HMConfig::instance().bucket_number = (val == 0) ? -1 : val;  // 0 -> NULL
+        HMConfig::instance().bucket_number =
+            (val == 0) ? -1 : val;  // 0 -> NULL
         changed = true;
       }
 
@@ -513,7 +514,8 @@ void WebserverStart(void) {
     request->send(200, "application/json", json);
   });
 
-  /* ----------------------------- OTA Update Handlers ---------------------------- */
+  /* ----------------------------- OTA Update Handlers
+   * ---------------------------- */
   // Firmware Update Handler
   WebServer->on(
       "/update/firmware", HTTP_POST,
@@ -523,7 +525,7 @@ void WebserverStart(void) {
             200, "text/plain", updateSuccess ? "OK" : "FAIL");
         response->addHeader("Connection", "close");
         request->send(response);
-        
+
         if (updateSuccess) {
           log_i("Firmware update successful, restarting...");
           delay(1000);
@@ -541,12 +543,12 @@ void WebserverStart(void) {
             Update.printError(Serial);
           }
         }
-        
+
         if (Update.write(data, len) != len) {
           log_e("Update.write failed");
           Update.printError(Serial);
         }
-        
+
         if (final) {
           if (Update.end(true)) {
             log_i("Firmware update finished: %u bytes", index + len);
@@ -566,7 +568,7 @@ void WebserverStart(void) {
             200, "text/plain", updateSuccess ? "OK" : "FAIL");
         response->addHeader("Connection", "close");
         request->send(response);
-        
+
         if (updateSuccess) {
           log_i("Filesystem update successful, restarting...");
           delay(1000);
@@ -584,12 +586,12 @@ void WebserverStart(void) {
             Update.printError(Serial);
           }
         }
-        
+
         if (Update.write(data, len) != len) {
           log_e("Update.write failed");
           Update.printError(Serial);
         }
-        
+
         if (final) {
           if (Update.end(true)) {
             log_i("Filesystem update finished: %u bytes", index + len);
@@ -1032,7 +1034,8 @@ void onWsEvent(AsyncWebSocket* server, AsyncWebSocketClient* client,
               HMConfig::instance().weight_honey,      // actual weight
               HMConfig::instance().weight_filling,    // target weight
               HMConfig::instance().glass_count + 1);  // next count
-          log_i("Manual filling booked: weight=%d", HMConfig::instance().weight_honey);
+          log_i("Manual filling booked: weight=%d",
+                HMConfig::instance().weight_honey);
 
         } else if (rdata.keyValue[0].value == "fine") {
           log_d("[Fine]");
