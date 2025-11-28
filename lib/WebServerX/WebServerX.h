@@ -29,7 +29,6 @@
 #include <ArduinoJson.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <ElegantOTA.h>
 #include <Glass.h>
 #include <HMConfig.h>
 #include <SPIFFS.h>

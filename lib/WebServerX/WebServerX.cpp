@@ -22,6 +22,8 @@ Project: Simple Automatic Honey Filling Machine
  */
 
 #include <WebServerX.h>
+#include <MQTTHelper.h>
+#include <Update.h>
 
 #include "freertos_setup.h"  // system task & event interfaces
 extern volatile uint32_t
@@ -191,10 +193,36 @@ void WebserverStart(void) {
               sizeof(HMConfig::instance().date_filling));
       if (temp_date.length() > 0) changed = true;
 
-      String temp_los = getWebParam(request, "los_number");
-      strlcpy(HMConfig::instance().los_number, temp_los.c_str(),
-              sizeof(HMConfig::instance().los_number));
-      if (temp_los.length() > 0) changed = true;
+      // batch_number is not saved to config - it's transient
+      String temp_batch = getWebParam(request, "batch_number");
+      if (temp_batch.length() > 0) {
+        strlcpy(HMConfig::instance().batch_number, temp_batch.c_str(),
+                sizeof(HMConfig::instance().batch_number));
+        // Don't set changed flag - batch_number is not persisted
+      }
+
+      // New fields for MQTT data
+      String bucket_number_S = getWebParam(request, "bucket_number");
+      if (isNumber(bucket_number_S)) {
+        int val = bucket_number_S.toInt();
+        HMConfig::instance().bucket_number = (val == 0) ? -1 : val;  // 0 -> NULL
+        changed = true;
+      }
+
+      String harvest_date_S = getWebParam(request, "harvest_date");
+      if (harvest_date_S.length() > 0) {
+        strlcpy(HMConfig::instance().harvest_date, harvest_date_S.c_str(),
+                sizeof(HMConfig::instance().harvest_date));
+        changed = true;
+      }
+
+      String harvest_number_S = getWebParam(request, "harvest_number");
+      if (harvest_number_S.length() > 0) {
+        strlcpy(HMConfig::instance().harvest_number, harvest_number_S.c_str(),
+                sizeof(HMConfig::instance().harvest_number));
+        changed = true;
+      }
+
       if (changed) {
         HMConfig::instance().writeJsonConfig();
       }
@@ -485,7 +513,93 @@ void WebserverStart(void) {
     request->send(200, "application/json", json);
   });
 
-  ElegantOTA.begin(WebServer);
+  /* ----------------------------- OTA Update Handlers ---------------------------- */
+  // Firmware Update Handler
+  WebServer->on(
+      "/update/firmware", HTTP_POST,
+      [](AsyncWebServerRequest* request) {
+        bool updateSuccess = !Update.hasError();
+        AsyncWebServerResponse* response = request->beginResponse(
+            200, "text/plain", updateSuccess ? "OK" : "FAIL");
+        response->addHeader("Connection", "close");
+        request->send(response);
+        
+        if (updateSuccess) {
+          log_i("Firmware update successful, restarting...");
+          delay(1000);
+          ESP.restart();
+        } else {
+          log_e("Firmware update failed!");
+        }
+      },
+      [](AsyncWebServerRequest* request, String filename, size_t index,
+         uint8_t* data, size_t len, bool final) {
+        if (!index) {
+          log_i("Firmware update start: %s", filename.c_str());
+          if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
+            log_e("Update.begin failed");
+            Update.printError(Serial);
+          }
+        }
+        
+        if (Update.write(data, len) != len) {
+          log_e("Update.write failed");
+          Update.printError(Serial);
+        }
+        
+        if (final) {
+          if (Update.end(true)) {
+            log_i("Firmware update finished: %u bytes", index + len);
+          } else {
+            log_e("Update.end failed");
+            Update.printError(Serial);
+          }
+        }
+      });
+
+  // Filesystem Update Handler
+  WebServer->on(
+      "/update/filesystem", HTTP_POST,
+      [](AsyncWebServerRequest* request) {
+        bool updateSuccess = !Update.hasError();
+        AsyncWebServerResponse* response = request->beginResponse(
+            200, "text/plain", updateSuccess ? "OK" : "FAIL");
+        response->addHeader("Connection", "close");
+        request->send(response);
+        
+        if (updateSuccess) {
+          log_i("Filesystem update successful, restarting...");
+          delay(1000);
+          ESP.restart();
+        } else {
+          log_e("Filesystem update failed!");
+        }
+      },
+      [](AsyncWebServerRequest* request, String filename, size_t index,
+         uint8_t* data, size_t len, bool final) {
+        if (!index) {
+          log_i("Filesystem update start: %s", filename.c_str());
+          if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_SPIFFS)) {
+            log_e("Update.begin failed");
+            Update.printError(Serial);
+          }
+        }
+        
+        if (Update.write(data, len) != len) {
+          log_e("Update.write failed");
+          Update.printError(Serial);
+        }
+        
+        if (final) {
+          if (Update.end(true)) {
+            log_i("Filesystem update finished: %u bytes", index + len);
+          } else {
+            log_e("Update.end failed");
+            Update.printError(Serial);
+          }
+        }
+      });
+
   WebServer->begin();
   log_e("HTTP WebServer started");
 }
@@ -910,6 +1024,15 @@ void onWsEvent(AsyncWebSocket* server, AsyncWebSocketClient* client,
           log_d("[Close]");
           HMConfig::instance().hm = HAND_MODE_CLOSED;
           // Normal close - no emergency stop, stays in hand mode
+
+        } else if (rdata.keyValue[0].value == "manual_filling") {
+          log_d("[Manual Filling - Glas buchen]");
+          // Send MQTT for manual filling with current weight
+          MQTTHelper::instance().sendFillingData(
+              HMConfig::instance().weight_honey,      // actual weight
+              HMConfig::instance().weight_filling,    // target weight
+              HMConfig::instance().glass_count + 1);  // next count
+          log_i("Manual filling booked: weight=%d", HMConfig::instance().weight_honey);
 
         } else if (rdata.keyValue[0].value == "fine") {
           log_d("[Fine]");

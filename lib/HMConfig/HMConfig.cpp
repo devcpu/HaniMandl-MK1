@@ -64,7 +64,9 @@ void HMConfig::writeJsonConfig() {
   servodata_json["angle_min"] = servodata.angle_min;
   servodata_json["angle_fine"] = servodata.angle_fine;
 
-  doc_json["los_number"] = los_number;
+  doc_json["bucket_number"] = bucket_number;
+  doc_json["harvest_date"] = harvest_date;
+  doc_json["harvest_number"] = harvest_number;
   doc_json["date_filling"] = date_filling;
   doc_json["weight_filling"] = weight_filling;
   doc_json["weight_fine"] = weight_fine;
@@ -80,6 +82,7 @@ void HMConfig::writeJsonConfig() {
   mqtt_server_json["server_ip"] = mqtt_server.server_ip;
   mqtt_server_json["server_port"] = mqtt_server.server_port;
   mqtt_server_json["server_token"] = mqtt_server.server_token;
+  mqtt_server_json["server_topic"] = mqtt_server.server_topic;
   mqtt_server_json["server_tls"] = mqtt_server.server_tls;
 
   JsonObject api_server_json = doc_json.createNestedObject("api_server");
@@ -160,8 +163,13 @@ void HMConfig::readJsonConfig() {
   servodata.angle_min = servodata_json["angle_min"].as<unsigned int>();  // 10
   servodata.angle_fine = servodata_json["angle_fine"].as<unsigned int>();  // 45
 
-  const char* temp_los = doc_json["los_number"] | "L001-02";
-  strlcpy(los_number, temp_los, sizeof(los_number));
+  bucket_number = doc_json["bucket_number"] | -1;
+
+  const char* temp_harvest_date = doc_json["harvest_date"] | "";
+  strlcpy(harvest_date, temp_harvest_date, sizeof(harvest_date));
+
+  const char* temp_harvest_number = doc_json["harvest_number"] | "";
+  strlcpy(harvest_number, temp_harvest_number, sizeof(harvest_number));
 
   const char* temp_date = doc_json["date_filling"] | "";
   strlcpy(date_filling, temp_date, sizeof(date_filling));
@@ -191,6 +199,10 @@ void HMConfig::readJsonConfig() {
   const char* temp_token = mqtt_server_json["server_token"] | "";
   strlcpy(mqtt_server.server_token, temp_token,
           sizeof(mqtt_server.server_token));
+
+  const char* temp_topic = mqtt_server_json["server_topic"] | "bienen/sahfm";
+  strlcpy(mqtt_server.server_topic, temp_topic,
+          sizeof(mqtt_server.server_topic));
 
   mqtt_server.server_tls = mqtt_server_json["server_tls"].as<bool>();
 
@@ -334,4 +346,31 @@ bool HMConfig::validateAndFix() {
   }
 
   return changed;
+}
+
+bool HMConfig::getBatchNumber(char* buffer, size_t bufferSize) const {
+  if (!buffer || bufferSize < 11) return false;  // Need at least "DD.MM.YYYY\0"
+  
+  // Check if date_filling is set and valid (format: YYYY-MM-DD)
+  if (!date_filling || strlen(date_filling) < 10) {
+    strlcpy(buffer, "__.__.____", bufferSize);
+    return false;
+  }
+  
+  // Parse date_filling (YYYY-MM-DD)
+  struct tm timeinfo = {};
+  int year, month, day;
+  if (sscanf(date_filling, "%d-%d-%d", &year, &month, &day) != 3) {
+    strlcpy(buffer, "__.__.____", bufferSize);
+    return false;
+  }
+  
+  timeinfo.tm_year = year - 1900 + 2;  // Add 2 years
+  timeinfo.tm_mon = month - 1;
+  timeinfo.tm_mday = day;
+  mktime(&timeinfo);  // Normalize the date
+  
+  snprintf(buffer, bufferSize, "%02d.%02d.%04d",
+           timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+  return true;
 }

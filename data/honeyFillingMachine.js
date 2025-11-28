@@ -4,6 +4,18 @@
  * diagnostics.
  */
 
+// Disable "Glas buchen" button if no MQTT/API configured
+function disableManualFillingButton() {
+  var mqttApiEnabled = '%mqtt_api_enabled%' === 'true';
+  var btn = document.getElementById('manualfilling');
+  if (btn && !mqttApiEnabled) {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+    btn.title = 'MQTT/API-Server nicht konfiguriert - siehe Setup WLAN';
+  }
+}
+
 // window.onload
 
 let socket = null;
@@ -13,6 +25,7 @@ let lastHeartbeatTs = Date.now();
 let lastWeightTs = Date.now();
 let connectionWarned = false;
 let connectionDead = false;    // Track if we already showed dead warning
+let glassOnScale = false;      // Track if glass is on scale
 const RELOAD_DEAD_MS = 60000;  // 60s ohne Nachricht -> reload
 const WARN_AFTER_MS = 20000;   // 20s Warnung
 const STALE_WEIGHT_MS = 5000;  // nach 5s ohne Update als stale markieren
@@ -198,6 +211,51 @@ function asInt(value) {
   return Math.round(n);
 }
 
+function showFlashWarning(message) {
+  // Create or reuse flash warning element
+  let flash = document.getElementById('flash-warning');
+  if (!flash) {
+    flash = document.createElement('div');
+    flash.id = 'flash-warning';
+    flash.style.cssText = `
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: #ff9800; color: white; padding: 15px 30px;
+      border-radius: 8px; z-index: 10000; font-size: 1.1em;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      animation: flashFadeIn 0.3s ease-out;
+    `;
+    document.body.appendChild(flash);
+  }
+  flash.textContent = message;
+  flash.style.display = 'block';
+  
+  // Auto-hide after 3 seconds
+  setTimeout(function() {
+    flash.style.animation = 'flashFadeOut 0.3s ease-out';
+    setTimeout(function() {
+      flash.style.display = 'none';
+      flash.style.animation = '';
+    }, 300);
+  }, 3000);
+}
+
+// Add CSS animation
+if (!document.getElementById('flash-warning-style')) {
+  const style = document.createElement('style');
+  style.id = 'flash-warning-style';
+  style.textContent = `
+    @keyframes flashFadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes flashFadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function handleMessage(evt) {
   lastMessageTs = Date.now();
   let msg;
@@ -215,6 +273,7 @@ function handleMessage(evt) {
     setText('honey_gewicht', asInt(msg.weight_honey || 0));
     setText('run_modus', msg.run_modus);
     setText('glass_count', msg.glass_count);
+    glassOnScale = msg.glass_on_scale || false;
     // Optional: weitere Felder (servo, wifi)
     return;
   }
@@ -228,6 +287,10 @@ function handleMessage(evt) {
         if (msg.h !== undefined) {
           setText('honey_gewicht', asInt(msg.h));
           lastWeightTs = Date.now();
+        }
+        // Update glass on scale status from weight updates
+        if (msg.glass_on_scale !== undefined) {
+          glassOnScale = msg.glass_on_scale;
         }
         break;
       case 'fs':
@@ -244,7 +307,10 @@ function handleMessage(evt) {
         }
         break;
       case 'ntp':
-        // ntp synced indicator optional
+        // ntp synced - update batch_number if provided
+        if (msg.batch_number) {
+          setText('batch_number', msg.batch_number);
+        }
         break;
       case 'hb':
         lastHeartbeatTs = Date.now();
@@ -298,6 +364,12 @@ function value_change(key, direction, min, max) {
 
 
 function sendButton(name) {
+  // Check if trying to switch to auto or hand mode with glass on scale
+  if ((name === 'auto' || name === 'hand') && glassOnScale) {
+    showFlashWarning('⚠️ Bitte Glas von der Waage nehmen!');
+    return;
+  }
+  
   sendValue('button=' + name);
   console.log('sendButton :' + name);
 }
@@ -371,11 +443,34 @@ function show(key, show_element_id) {
 }
 
 function openSidebar() {
-  document.getElementById('mySidebar').style.display = 'block';
+  const sidebar = document.getElementById('mySidebar');
+  if (!sidebar) return;
+  
+  // Create overlay if not exists
+  let overlay = document.getElementById('sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:998;display:none;';
+    overlay.onclick = closeSidebar;
+    document.body.appendChild(overlay);
+  }
+  
+  sidebar.style.display = 'block';
+  sidebar.style.zIndex = '999';
+  overlay.style.display = 'block';
 }
 
 function closeSidebar() {
-  document.getElementById('mySidebar').style.display = 'none';
+  const sidebar = document.getElementById('mySidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  
+  if (sidebar) {
+    sidebar.style.display = 'none';
+  }
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
 }
 
 //     var time = document.getElementById("time");
@@ -398,3 +493,10 @@ function closeSidebar() {
 //         date.innerHTML = "Date: " + data.date;
 //     }
 // };
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', disableManualFillingButton);
+} else {
+  disableManualFillingButton();
+}

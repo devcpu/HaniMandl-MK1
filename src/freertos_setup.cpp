@@ -1,10 +1,12 @@
 #include "freertos_setup.h"
 
 #include <ArduinoJson.h>
+#include <Glass.h>
 #include <HMConfig.h>
 #include <HX711.h>
 #include <WebServerX.h>  // for AsyncWebSocketClient definition
 #include <WiFi.h>
+#include <MQTTHelper.h>
 #include <appconfig.h>
 #include <handleServo.h>
 #include <loadcell.h>  // safeGetUnits prototype
@@ -26,6 +28,7 @@ TaskHandle_t taskWsDispatchHandle = nullptr;
 // extern globals from main
 extern HX711 scale;                         // provided in main.cpp
 extern float weight_current;                // global cache in main.cpp
+extern Glass glass;                         // glass state tracker from main.cpp
 extern AsyncWebSocketClient* globalClient;  // from WebServerX.cpp
 
 // Forward declarations for event push helpers
@@ -57,19 +60,22 @@ static uint32_t g_lastScaleTimeoutStreak =
 
 // ---------------- NTP FSM -----------------
 namespace {
-enum class NTPState { Idle, Request, Wait };
+enum class NTPState { Idle, Request, Wait, Failed };
 NTPState ntpState = NTPState::Idle;
 uint32_t ntpRef = 0;
 uint8_t ntpRetries = 0;
 struct tm timeinfo;
 const uint32_t NTP_WAIT_MS = 2000;  // previously blocking delay(2000)
+const uint32_t NTP_RETRY_INTERVAL_MS = 300000;  // Retry after 5 minutes if failed
 }  // namespace
 
 void tickNTP() {
   switch (ntpState) {
     case NTPState::Idle:
+      log_i("[NTP] Starting sync with pool.ntp.org");
       configTime(3600, 3600, "pool.ntp.org");  // TODO: move to config
       ntpRef = millis();
+      ntpRetries = 0;  // Reset retry counter
       ntpState = NTPState::Wait;
       break;
     case NTPState::Wait:
@@ -77,6 +83,7 @@ void tickNTP() {
         // success
         char buffer[32];
         strftime(buffer, sizeof(buffer), "%Y-%m-%d", &timeinfo);
+        log_i("[NTP] Synced successfully: %s", buffer);
         strlcpy(HMConfig::instance().date_filling, buffer,
                 sizeof(HMConfig::instance().date_filling));
         xEventGroupSetBits(egSystem, EV_NTP_SYNCED);
@@ -84,8 +91,11 @@ void tickNTP() {
         ntpState = NTPState::Idle;  // could stay synced
       } else if (millis() - ntpRef >= NTP_WAIT_MS) {
         if (++ntpRetries >= 10) {
-          ntpState = NTPState::Idle;  // give up for now
+          log_w("[NTP] Failed after 10 retries, will retry in 5 minutes");
+          ntpState = NTPState::Failed;
+          ntpRef = millis();  // Start fail cooldown timer
         } else {
+          log_d("[NTP] Retry %d/10", ntpRetries);
           ntpState = NTPState::Request;  // retry
         }
       }
@@ -94,6 +104,13 @@ void tickNTP() {
       configTime(3600, 3600, "pool.ntp.org");
       ntpRef = millis();
       ntpState = NTPState::Wait;
+      break;
+    case NTPState::Failed:
+      // Wait 5 minutes before retrying
+      if (millis() - ntpRef >= NTP_RETRY_INTERVAL_MS) {
+        log_i("[NTP] Retrying after cooldown period");
+        ntpState = NTPState::Idle;  // Try again
+      }
       break;
   }
 }
@@ -201,7 +218,21 @@ static void wifiTask(void* p) {
   static uint32_t lastReconnectAttempt = 0;
   static bool apMode = false;
   const uint32_t WIFI_TIMEOUT_MS = 15000;
-  const uint32_t WIFI_RETRY_INTERVAL_MS = 30000;  // retry every 30s if failed
+  const uint32_t WIFI_RETRY_INTERVAL_MS = 30000;
+
+  // Check if WiFi is already connected (by WiFiManager in setup)
+  if (WiFi.status() == WL_CONNECTED) {
+    log_i("[WiFi] Already connected at task start: %s", WiFi.localIP().toString().c_str());
+    xEventGroupSetBits(egSystem, EV_WIFI_CONNECTED);
+    strlcpy(HMConfig::instance().localIP, WiFi.localIP().toString().c_str(),
+            sizeof(HMConfig::instance().localIP));
+    emitWifiState(true, false);
+    tickNTP();  // Start NTP immediately (only in STA mode with internet)
+  } else if (WiFi.getMode() == WIFI_AP || WiFi.getMode() == WIFI_AP_STA) {
+    log_i("[WiFi] Running in AP mode - NTP will not be available");
+    apMode = true;
+    xEventGroupSetBits(egSystem, EV_WIFI_AP_MODE);
+  }
 
   for (;;) {
     EventBits_t bits = xEventGroupGetBits(egSystem);
@@ -257,7 +288,23 @@ static void wifiTask(void* p) {
       // Maintain NTP sync attempts
       if ((bits & EV_WIFI_CONNECTED) && !(bits & EV_NTP_SYNCED)) {
         tickNTP();
+      } else if (bits & EV_NTP_SYNCED) {
+        // Already synced, log once per minute
+        static uint32_t lastNtpOkLog = 0;
+        if (millis() - lastNtpOkLog > 60000) {
+          log_d("[NTP] Already synced, time=%ld", (long)time(nullptr));
+          lastNtpOkLog = millis();
+        }
+      } else {
+        // WiFi connected but no EV_WIFI_CONNECTED bit?
+        static uint32_t lastNoEvLog = 0;
+        if (millis() - lastNoEvLog > 10000) {
+          log_w("[WiFi] Connected but EV_WIFI_CONNECTED not set? bits=0x%x", bits);
+          lastNoEvLog = millis();
+        }
       }
+      // Process MQTT loop when connected
+      MQTTHelper::instance().loop();
     } else {
       // idle failed state, wait for retry interval
       if (millis() - lastReconnectAttempt > WIFI_RETRY_INTERVAL_MS) {
@@ -421,7 +468,7 @@ static void buildSnapshot(String& out) {
   doc["glass_empty"] = c.glass_empty;
   doc["glass_count"] = c.glass_count;
   doc["date_filling"] = c.date_filling;
-  doc["los_number"] = c.los_number;
+  doc["batch_number"] = c.batch_number;
   JsonObject servo = doc.createNestedObject("servo");
   servo["min"] = c.servodata.angle_min;
   servo["max"] = c.servodata.angle_max;
@@ -432,6 +479,7 @@ static void buildSnapshot(String& out) {
   wifi["ap_mode"] = (bits & EV_WIFI_AP_MODE) != 0;
   wifi["ip"] = c.localIP;
   doc["scale_timeout_streak"] = g_lastScaleTimeoutStreak;
+  doc["glass_on_scale"] = !glass.isNoGlass();
   serializeJson(doc, out);
 }
 
@@ -475,6 +523,7 @@ static void wsDispatchTask(void* p) {
           doc["h"] = static_cast<int>(
               HMConfig::instance()
                   .weight_honey);  // integer honey weight (netto)
+          doc["glass_on_scale"] = !glass.isNoGlass();  // Add glass status to weight updates
           break;
         case EventType::FillingStatusChange:
           doc["t"] = "fs";
@@ -497,6 +546,13 @@ static void wsDispatchTask(void* p) {
         case EventType::NtpSynced:
           doc["t"] = "ntp";
           doc["synced"] = true;
+          // Send updated batch_number (date_filling + 2 years) after NTP sync
+          {
+            char batch_buf[16];
+            if (HMConfig::instance().getBatchNumber(batch_buf, sizeof(batch_buf))) {
+              doc["batch_number"] = batch_buf;
+            }
+          }
           break;
         case EventType::GlassCount:
           doc["t"] = "gc";

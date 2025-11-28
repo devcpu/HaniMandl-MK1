@@ -1,18 +1,91 @@
-<!DOCTYPE html>
-<html lang="de">
+<meta charset="utf-8">
+<link rel="stylesheet" href="honeyFillingMachine.css">
 
-<head>
-    <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-    <meta http-equiv="refresh" content="20; URL=/">
-    <title>Reboot Simple Automatic Honey Filling Machine</title>
-</head>
-
-<body>
-    <div style='text-align:left;display:inline-block;min-width:340px; background-color: red;'>
-        <div>
-            <h1>Reboot Simple Automatic Honey Filling Machine</h1>
+<div class="w3-container w3-center" style="margin-top: 50px;">
+    <div class="w3-card-4" style="max-width: 500px; margin: 0 auto;">
+        <header class="w3-container w3-orange">
+            <h2>System Neustart</h2>
+        </header>
+        
+        <div class="w3-container" style="padding: 40px;">
+            <p><i class="w3-xxlarge">&#9881;</i></p>
+            <h3>Das System wird neu gestartet...</h3>
+            <p id="countdown-text">Weiterleitung in <span id="countdown">10</span> Sekunden</p>
+            <p id="status-text" style="color: #666; margin-top: 20px;"></p>
+            <div id="error-box" class="w3-panel w3-red" style="display: none; margin-top: 20px;">
+                <h4>Fehler bei der Verbindung</h4>
+                <p id="error-message"></p>
+                <button onclick="window.location.href='/filling'" class="w3-button w3-white w3-border">
+                    Erneut versuchen
+                </button>
+            </div>
         </div>
-
     </div>
-</body>
+</div>
+
+<script>
+(function() {
+    let countdown = 10;
+    let attempt = 0;
+    const maxAttempts = 5;
+    const retryDelay = 5000; // 5 seconds between attempts
+    
+    // Initial countdown
+    const countdownInterval = setInterval(function() {
+        countdown--;
+        const countdownEl = document.getElementById('countdown');
+        if (countdownEl) {
+            countdownEl.textContent = countdown;
+        }
+        
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            document.getElementById('countdown-text').textContent = 'Verbindung wird hergestellt...';
+            tryConnect();
+        }
+    }, 1000);
+    
+    function tryConnect() {
+        attempt++;
+        const statusText = document.getElementById('status-text');
+        statusText.textContent = 'Versuch ' + attempt + ' von ' + maxAttempts + '...';
+        
+        // Try to fetch root or any lightweight endpoint
+        fetch('/', {
+            method: 'GET',
+            cache: 'no-cache'
+        })
+        .then(response => {
+            // Any response (even 404) means server is up
+            statusText.textContent = 'Verbindung erfolgreich! Weiterleitung...';
+            setTimeout(function() {
+                window.location.href = '/filling';
+            }, 500);
+        })
+        .catch(error => {
+            // Network error means server not ready
+            handleFailedAttempt();
+        });
+    }
+    
+    function handleFailedAttempt() {
+        if (attempt >= maxAttempts) {
+            // Show error after all attempts failed
+            document.getElementById('countdown-text').style.display = 'none';
+            document.getElementById('status-text').style.display = 'none';
+            const errorBox = document.getElementById('error-box');
+            const errorMsg = document.getElementById('error-message');
+            errorBox.style.display = 'block';
+            errorMsg.textContent = 'Das System reagiert nicht nach ' + maxAttempts + ' Versuchen. ' +
+                'Möglicherweise dauert der Neustart länger als erwartet. ' +
+                'Bitte warten Sie einige Sekunden und versuchen Sie es dann erneut.';
+        } else {
+            // Retry after delay
+            const statusText = document.getElementById('status-text');
+            statusText.textContent = 'Versuch fehlgeschlagen. Nächster Versuch in 5 Sekunden...';
+            setTimeout(tryConnect, retryDelay);
+        }
+    }
+})();
+</script>
+

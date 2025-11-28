@@ -6,8 +6,17 @@ select {
     font-size: 1em;
 }
 
-input {
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"] {
     width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+input {
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -187,4 +196,8 @@ a {
     color: #b30000 !important;
     font-weight: bold;
     text-shadow: 0 0 4px rgba(255,0,0,0.4);
+}
+
+.std_input {
+    width: 30%;
 }

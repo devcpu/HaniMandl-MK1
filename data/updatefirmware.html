@@ -1,1 +1,166 @@
-<h3>Kommt später mal</h3>
+<link rel="stylesheet" href="honeyFillingMachine.css">
+
+<div class="w3-panel w3-pale-red w3-leftbar w3-border-red">
+    <p><strong>⚠️ Wichtiger Hinweis:</strong><br>
+    Während des Updates darf die Stromversorgung nicht unterbrochen werden!<br>
+    Das Gerät startet nach erfolgreichem Update automatisch neu.<br><br>
+    <strong>🛡️ Rollback-Schutz aktiv:</strong><br>
+    Bei fehlerhaftem Update erfolgt automatischer Rollback zur vorherigen Version nach 30 Sekunden.</p>
+</div>
+
+<div class="w3-card-4 w3-margin">
+    <header class="w3-container w3-teal">
+        <h3>🔧 Firmware Update</h3>
+    </header>
+    <div class="w3-container">
+        <p>Laden Sie hier die neue Firmware-Datei hoch (firmware.bin)</p>
+        
+        <form id="firmwareForm" enctype="multipart/form-data">
+            <input type="file" id="firmwareFile" name="firmware" accept=".bin" class="w3-input w3-border" onchange="fileSelected('firmware')">
+            <p id="firmwareFilename" class="w3-small"></p>
+            <button type="button" class="w3-button w3-teal w3-margin-top" id="firmwareUploadBtn" onclick="uploadFirmware()" disabled>🚀 Firmware hochladen</button>
+        </form>
+        
+        <div id="firmwareProgress" class="w3-margin-top" style="display:none;">
+            <div class="w3-light-grey w3-round">
+                <div id="firmwareProgressBar" class="w3-container w3-teal w3-round" style="width:0%">0%</div>
+            </div>
+        </div>
+        <div id="firmwareMessage" class="w3-panel" style="display:none;"></div>
+    </div>
+</div>
+
+<div class="w3-card-4 w3-margin">
+    <header class="w3-container w3-blue">
+        <h3>📁 Filesystem Update</h3>
+    </header>
+    <div class="w3-container">
+        <p>Laden Sie hier das neue Filesystem-Image hoch (spiffs.bin)<br>
+        <small>Enthält alle Webseiten und Konfigurationsdateien</small></p>
+        
+        <form id="filesystemForm" enctype="multipart/form-data">
+            <input type="file" id="filesystemFile" name="filesystem" accept=".bin" class="w3-input w3-border" onchange="fileSelected('filesystem')">
+            <p id="filesystemFilename" class="w3-small"></p>
+            <button type="button" class="w3-button w3-blue w3-margin-top" id="filesystemUploadBtn" onclick="uploadFilesystem()" disabled>📂 Filesystem hochladen</button>
+        </form>
+        
+        <div id="filesystemProgress" class="w3-margin-top" style="display:none;">
+            <div class="w3-light-grey w3-round">
+                <div id="filesystemProgressBar" class="w3-container w3-blue w3-round" style="width:0%">0%</div>
+            </div>
+        </div>
+        <div id="filesystemMessage" class="w3-panel" style="display:none;"></div>
+    </div>
+</div>
+
+<script>
+function fileSelected(type) {
+    const fileInput = document.getElementById(type + 'File');
+    const filenameDisplay = document.getElementById(type + 'Filename');
+    const uploadBtn = document.getElementById(type + 'UploadBtn');
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        filenameDisplay.textContent = '📄 ' + file.name + ' (' + formatBytes(file.size) + ')';
+        uploadBtn.disabled = false;
+    } else {
+        filenameDisplay.textContent = '';
+        uploadBtn.disabled = true;
+    }
+}
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function uploadFirmware() {
+    uploadFile('firmware', '/update/firmware');
+}
+
+function uploadFilesystem() {
+    uploadFile('filesystem', '/update/filesystem');
+}
+
+function uploadFile(type, endpoint) {
+    const fileInput = document.getElementById(type + 'File');
+    const uploadBtn = document.getElementById(type + 'UploadBtn');
+    const progressContainer = document.getElementById(type + 'Progress');
+    const progressBar = document.getElementById(type + 'ProgressBar');
+    const message = document.getElementById(type + 'Message');
+    
+    if (fileInput.files.length === 0) {
+        showMessage(message, 'w3-pale-red', 'Bitte wählen Sie zuerst eine Datei aus!');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    uploadBtn.disabled = true;
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.textContent = '0%';
+    message.style.display = 'none';
+    
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+        }
+    });
+    
+    xhr.addEventListener('load', function() {
+        if (xhr.status === 200) {
+            progressBar.style.width = '100%';
+            progressBar.textContent = '100%';
+            showMessage(message, 'w3-pale-green', 
+                '✅ Upload erfolgreich! Das Gerät startet in wenigen Sekunden neu...');
+            
+            let countdown = 10;
+            const countdownInterval = setInterval(function() {
+                countdown--;
+                if (countdown > 0) {
+                    message.textContent = '✅ Upload erfolgreich! Neustart in ' + countdown + ' Sekunden...';
+                } else {
+                    clearInterval(countdownInterval);
+                    message.textContent = '🔄 Verbindung wird wiederhergestellt...';
+                    setTimeout(function() {
+                        window.location.href = '/';
+                    }, 2000);
+                }
+            }, 1000);
+        } else {
+            showMessage(message, 'w3-pale-red', 
+                '❌ Upload fehlgeschlagen: ' + xhr.statusText);
+            uploadBtn.disabled = false;
+        }
+    });
+    
+    xhr.addEventListener('error', function() {
+        showMessage(message, 'w3-pale-red', 
+            '❌ Verbindungsfehler beim Upload!');
+        uploadBtn.disabled = false;
+    });
+    
+    xhr.addEventListener('abort', function() {
+        showMessage(message, 'w3-pale-yellow', 
+            '⚠️ Upload abgebrochen!');
+        uploadBtn.disabled = false;
+    });
+    
+    xhr.open('POST', endpoint, true);
+    xhr.send(formData);
+}
+
+function showMessage(element, cssClass, text) {
+    element.className = 'w3-panel ' + cssClass;
+    element.textContent = text;
+    element.style.display = 'block';
+}
+</script>

@@ -1,5 +1,5 @@
 {
-  "config_version": 1,
+  "config_version": 2,
   "servodata": {
     "angle_max_hard": 120,
     "angle_min_hard": 0,
@@ -7,7 +7,6 @@
     "angle_min": 3,
     "angle_fine": 45
   },
-  "los_number": "L001-02",
   "date_filling": "",
   "weight_filling": 500,
   "weight_fine": 450,
@@ -22,6 +21,7 @@
     "server_ip": "",
     "server_port": "",
     "server_token": "",
+    "server_topic": "bienen/sahfm",
     "server_tls": false
   },
   "api_server": {

@@ -14,6 +14,7 @@
 
 #include <handleServo.h>
 #include <loadcell.h>  // for safeGetUnits
+#include <MQTTHelper.h>
 
 #include "persistence.h"
 
@@ -186,12 +187,15 @@ int handleWeightAndServo(float weight_scale_brutto) {
     if (hmcfg.fs == FILLING_STATUS_FOLLOW_UP) {
       // Nicht-blockierende Follow-Up Sequenz (ersetzt delay(5000) + 2x400ms)
       static bool patternQueued = false;
+      static bool mqttSent = false;
       const uint32_t FOLLOW_WAIT_MS = 5000;  // TODO: konfigurierbar
+      const uint32_t BEEP_PATTERN_MS = 3 * (200 + 400);  // 3x(beep+gap)
       static uint32_t follow_tRef = 0;
       if (first_run) {
         follow_tRef = millis();
         first_run = false;
         patternQueued = false;
+        mqttSent = false;
       }
       if (!patternQueued && millis() - follow_tRef >= FOLLOW_WAIT_MS) {
         glass.setFollowUpAdjustment();
@@ -200,9 +204,20 @@ int handleWeightAndServo(float weight_scale_brutto) {
         patternQueued = true;
       }
       if (patternQueued) {
-        // Warten bis Pattern durchgelaufen ist: konservativ 3*(duration+gap)
-        if (millis() - follow_tRef >=
-            FOLLOW_WAIT_MS + (3 * (200 + 400) + 200)) {
+        // Send MQTT during beep pattern (non-blocking, uses gaps between beeps)
+        if (!mqttSent && millis() - follow_tRef >= FOLLOW_WAIT_MS + 500) {
+          // Start MQTT send 500ms after beeps started (during first gap)
+          // weight_honey is measured AFTER 5s settle time = actual weight
+          log_i("Sending MQTT filling data: actual=%d target=%d count=%u",
+                hmcfg.weight_honey, hmcfg.weight_filling, hmcfg.glass_count);
+          MQTTHelper::instance().sendFillingData(
+              hmcfg.weight_honey,      // actual weight after 5s
+              hmcfg.weight_filling,    // configured target weight
+              hmcfg.glass_count);
+          mqttSent = true;
+        }
+        // Warten bis Pattern durchgelaufen ist
+        if (millis() - follow_tRef >= FOLLOW_WAIT_MS + BEEP_PATTERN_MS + 200) {
           hmcfg.fs = FILLING_STATUS_CLOSED;
           // Increment glass counter persistence hook
           hmcfg.glass_count++;

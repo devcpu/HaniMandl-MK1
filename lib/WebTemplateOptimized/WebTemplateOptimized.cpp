@@ -13,6 +13,7 @@
 #include "WebTemplateOptimized.h"
 
 #include <ESPHelper.h>
+#include <time.h>
 
 // Static buffer for template responses
 char template_response_buffer[512];
@@ -30,11 +31,27 @@ const char* DefaultTemplatingOptimized(const char* var) {
   if (strcmp(var, "H3TITLE") == 0) {
     return PROGRAMM_NAME;
   }
-  if (strcmp(var, "los_number") == 0) {
-    return HMConfig::instance().los_number;
+  if (strcmp(var, "batch_number") == 0) {
+    // Calculate date_filling + 2 years in DD.MM.YYYY format
+    HMConfig::instance().getBatchNumber(template_response_buffer, 
+                                        sizeof(template_response_buffer));
+    return template_response_buffer;
   }
   if (strcmp(var, "date_filling") == 0) {
     return HMConfig::instance().date_filling;
+  }
+  if (strcmp(var, "bucket_number") == 0) {
+    if (HMConfig::instance().bucket_number < 0) {
+      return "";  // NULL/not set
+    }
+    formatIntToBuffer(HMConfig::instance().bucket_number);
+    return template_response_buffer;
+  }
+  if (strcmp(var, "harvest_date") == 0) {
+    return HMConfig::instance().harvest_date;
+  }
+  if (strcmp(var, "harvest_number") == 0) {
+    return HMConfig::instance().harvest_number;
   }
   if (strcmp(var, "beekeeping") == 0) {
     return HMConfig::instance().beekeeping;
@@ -72,6 +89,12 @@ const char* DefaultTemplatingOptimized(const char* var) {
   if (strcmp(var, "glass_count") == 0) {
     formatIntToBuffer(HMConfig::instance().glass_count);
     return template_response_buffer;
+  }
+  if (strcmp(var, "mqtt_api_enabled") == 0) {
+    // Check if MQTT or API server is configured
+    bool mqtt_enabled = strlen(HMConfig::instance().mqtt_server.server_ip) > 0;
+    bool api_enabled = strlen(HMConfig::instance().api_server.server_ip) > 0;
+    return (mqtt_enabled || api_enabled) ? "true" : "false";
   }
   if (strcmp(var, "glass_tolerance") == 0) {
     formatIntToBuffer(HMConfig::instance().glass_tolerance);
@@ -260,7 +283,7 @@ String HMConfigTemplatingWrapper(const String& var) {
     html += String(c.glass_count);
     html += F("</td></tr>");
     html += F("<tr><td>LOS Nummer</td><td>");
-    html += c.los_number;
+    html += c.batch_number;
     html += F("</td></tr>");
     html += F("<tr><td>Datum Füllung</td><td>");
     html += c.date_filling;

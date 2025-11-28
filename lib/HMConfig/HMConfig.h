@@ -35,6 +35,7 @@ struct MQTTServerData {
   char server_ip[16];     // IPv4: xxx.xxx.xxx.xxx
   char server_port[6];    // Port: 65535
   char server_token[64];  // Token can be longer
+  char server_topic[64];  // MQTT topic for publishing
   bool server_tls;
 };
 
@@ -113,7 +114,7 @@ class HMConfig {
     return _instance;
   }
   // Increment this when JSON schema / semantics change
-  static const uint16_t CONFIG_VERSION = 1;
+  static const uint16_t CONFIG_VERSION = 2;
   static const char* runmod2string(RunModus modus);
   static const char* fillingstatus2string(FillingStatus status);
   const char* version = SOFTWARE_VERSION;  // TODO(janusz)
@@ -124,8 +125,17 @@ class HMConfig {
 
   HandMode hm = HAND_MODE_CLOSED;
 
-  /// @brief Los Number for this honey and filling
-  char los_number[16] = "L001-02";
+  /// @brief Batch Number (Los Nummer/Chargennummer)
+  char batch_number[16] = "L001-02";
+
+  /// @brief Bucket number (optional, nullable)
+  int32_t bucket_number = -1;  // -1 means NULL/not set
+
+  /// @brief Harvest date
+  char harvest_date[16] = "";  // YYYY-MM-DD format
+
+  /// @brief Harvest number
+  char harvest_number[32] = "";
 
   /// @brief current date
   char date_filling[32] = "";
@@ -193,6 +203,12 @@ class HMConfig {
   void writeJsonConfig();
   void readJsonConfig();
   bool validateAndFix();
+  
+  /// @brief Calculate batch number from date_filling + 2 years
+  /// @param buffer Output buffer for DD.MM.YYYY formatted date
+  /// @param bufferSize Size of output buffer
+  /// @return true if successful, false if date_filling not set
+  bool getBatchNumber(char* buffer, size_t bufferSize) const;
 
   /// @brief schema / semantics version of persisted config
   uint16_t config_version = CONFIG_VERSION;
@@ -201,7 +217,10 @@ class HMConfig {
   HMConfig()
       : servodata(),
         hm(HAND_MODE_CLOSED),
-        los_number{"L001-02"},
+        batch_number{"L001-02"},
+        bucket_number(-1),
+        harvest_date{""},
+        harvest_number{""},
         date_filling{""},
         weight_filling(500),
         weight_current(0),

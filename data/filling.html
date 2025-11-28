@@ -1,25 +1,31 @@
+<link rel="stylesheet" href="honeyFillingMachine.css">
+
 <table class="w3-table-all w3-bordered w3-striped w3-border w3-hoverable w3-table w3-centered" style="color:#000;">
-    <tr class="w3-green">
-        <th>Run Mode</th>
-        <th>Honig in g:</th>
-        <th>Summe in g:</th>
-    </tr>
-    <tr>
-        <td id="run_modus">%run_modus%</td>
-        <td id="honey_gewicht">%honey_gewicht%</td>
-        <td id="waagen_gewicht">%waagen_gewicht%</td>
-    </tr>
+    <thead>
+        <tr>
+            <th>Run Mode</th>
+            <th>Honig in g</th>
+            <th>Summe in g</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="run_modus">%run_modus%</td>
+            <td id="honey_gewicht">%honey_gewicht%</td>
+            <td id="waagen_gewicht">%waagen_gewicht%</td>
+        </tr>
+    </tbody>
 </table>
 
 <table class="w3-table-all w3-bordered w3-striped w3-border w3-hoverable w3-table w3-centered" style="color:#000;">
     <tr class="w3-green">
-        <th>Los-Nr:</th>
+        <th>Charge-Nr:</th>
         <th>Datum:</th>
         <th>Gewicht:</th>
         <th>Anzahl</th>
     </tr>
     <tr>
-        <td>%los_number%</td>
+        <td id="batch_number">%batch_number%</td>
         <td>%date_filling%</td>
         <td>%weight_filling%g</td>
         <td id="glass_count">%glass_count%</td>
@@ -29,36 +35,46 @@
 <fieldset>
     <input type="button" id="startbutton" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('start')" value="Start" >
     <input type="button" id="finebutton" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('fine')" value="Fine" >
-    <input type="button" id="stopbutton" class="w3-button w3-round-xlarge w3-green" onclick="sendButton('close')" value="Stop">
+    <input type="button" id="stopbutton" class="w3-button w3-round-xlarge w3-green" onclick="sendButton('close')" value="Stop" >
+    <input type="button" id="manualfilling" class="w3-button w3-round-xlarge w3-blue" onclick="sendButton('manual_filling')" value="Glas buchen" >
 </fieldset>
 
 <fieldset>
     <legend>Modi:</legend>
-    <input type="button" id="hand" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('hand')" value="Handbetrieb" >
-    <input type="button" id="alarmstopbutton" class="w3-button w3-round-xlarge w3-red" onclick="sendButton('stop')" value="ALARM STOP">
-    <input type="button" id="auto" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('auto')" value="Automatik" >
+    <input type="button" id="hand" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('hand')" value="Handbetrieb" style="margin: 5px;">
+    <input type="button" id="alarmstopbutton" class="w3-button w3-round-xlarge w3-red" onclick="sendButton('stop')" value="ALARM STOP" style="margin: 5px;">
+    <input type="button" id="auto" class="w3-button w3-round-xlarge w3-teal" onclick="sendButton('auto')" value="Automatik" style="margin: 5px;">
 </fieldset>
 
 <fieldset>
     <legend>Nachjustierung Füllwinkel Hauptfüllung:</legend>
-    <input type="button" id="btn_angle_max_down" class="w3-button w3-round w3-khaki" onclick="value_change('angle_max', 'down', %angle_min_hard%, %angle_max_hard%)" value=" - ">
-    <input type="number" id="angle_max" min="%angle_min_hard%" max="%angle_max_hard%" class="w3-border  w3-round" oninput="set_value('angle_max', 0, 180)" value="%angle_max%" />
-    <input type="button" id="btn_angle_max_up" class="w3-button w3-round w3-khaki" onclick="value_change('angle_max', 'up', %angle_min_hard%, %angle_max_hard%)" value="+">
+    <div style="text-align: center;">
+        <input type="button" id="btn_angle_max_down" class="w3-button w3-round-large" onclick="value_change('angle_max', 'down', %angle_min_hard%, %angle_max_hard%)" value="− 10"  style="margin: 3px; font-size: 18px; font-weight: bold; background-color: #ff9800; color: white;" />
+        <input type="button" id="btn_angle_max_up" class="w3-button w3-round-large" onclick="value_change('angle_max', 'up', %angle_min_hard%, %angle_max_hard%)" value="+ 10" style="margin: 3px; font-size: 18px; font-weight: bold; background-color: #8bc34a; color: white; " />
+    </div>
+    <div style="text-align: center; margin-top: 10px;">
+        <input type="number" id="angle_max" min="%angle_min_hard%" max="%angle_max_hard%" class="w3-border w3-round std_input" oninput="set_value('angle_max', 0, 180)" value="%angle_max%" />
+    </div>
 </fieldset>
-
 
 <fieldset>
     <legend>Nachjustierung Füllwinkel Feinfüllung:</legend>
-    <input type="button" id="btn_angle_fine_down" class="w3-button w3-round w3-khaki" onclick="value_change('angle_fine', 'down', %angle_min_hard%, %angle_max_hard%)" value=" - ">
-    <input type="number" id="angle_fine" class="w3-border  w3-round" value="%angle_fine%" />
-    <input type="button" id="btn_angle_fine_up" class="w3-button w3-round w3-khaki" onclick="value_change('angle_fine', 'up', %angle_min_hard%, %angle_max_hard%)" value="+">
+    <div style="text-align: center;">
+        <input type="button" id="btn_angle_fine_down" class="w3-button w3-round-large" onclick="value_change('angle_fine', 'down', %angle_min_hard%, %angle_max_hard%)" value="− 10"  style="margin: 3px; font-size: 18px; font-weight: bold; background-color: #ff9800; color: white;" />
+        <input type="button" id="btn_angle_fine_up" class="w3-button w3-round-large" onclick="value_change('angle_fine', 'up', %angle_min_hard%, %angle_max_hard%)" value="+ 10" style="margin: 3px; font-size: 18px; font-weight: bold; background-color: #8bc34a; color: white; " />
+    </div>
+    <div style="text-align: center; margin-top: 10px;">
+        <input type="number" id="angle_fine" class="w3-border w3-round std_input" value="%angle_fine%" />
+    </div>
 </fieldset>
-
-
 
 <fieldset>
     <legend>Nachjustierung Gewicht Feinfüllung:</legend>
-    <input type="button" id="btn_weight_fine_down" class="w3-button w3-round w3-khaki" onclick="value_change('weight_fine', 'down', 0, %weight_filling%)" value=" - ">
-    <input type="number" id="weight_fine" class="w3-border  w3-round" value="%weight_fine%" />
-    <input type="button" id="btn_weight_fine_up" class="w3-button w3-round w3-khaki" onclick="value_change('weight_fine', 'up', 0, %weight_filling%)" value="+">
+    <div style="text-align: center;">
+        <input type="button" id="btn_weight_fine_down" class="w3-button w3-round-large" onclick="value_change('weight_fine', 'down', 0, %weight_filling%)" value="− 10"  style="margin: 3px; font-size: 18px; font-weight: bold; background-color: #ff9800; color: white;" />
+        <input type="button" id="btn_weight_fine_up" class="w3-button w3-round-large" onclick="value_change('weight_fine', 'up', 0, %weight_filling%)" value="+ 10" style="margin: 3px; font-size: 18px; font-weight: bold; background-color: #8bc34a; color: white; " />
+    </div>
+    <div style="text-align: center; margin-top: 10px;">
+        <input type="number" id="weight_fine" class="w3-border w3-round std_input" value="%weight_fine%" />
+    </div>
 </fieldset>

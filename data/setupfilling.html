@@ -1,22 +1,91 @@
+<link rel="stylesheet" href="honeyFillingMachine.css">
+
 <form action="setupfilling" class="w3-container">
 <fieldset>
     <legend>Abfüllung:</legend>
-    <label>Füllgewicht:
+    <label>Füllgewicht (Gramm):
         <input type="number" id="weight_filling" class="w3-input" min=10 max=5000 name="weight_filling" value="%weight_filling%" />
     </label>
     <br />
-    <label>Glas Leergewicht (Tara für Auto-Erkennung):
+    <label>Glas Leergewicht (Tara):
         <input type="number" id="glass_empty" class="w3-input" min="0" max="5000" name="glass_empty" value="%glass_empty%" required>
     </label>
     <br />
-    <label>Los Nummer:
-        <input type="text" id="los_number" class="w3-input" maxlength="18" name="los_number" value="%los_number%" required><br />
+    <label>Chargennummer (Batch/Los):
+        <div style="display: flex; gap: 5px; align-items: center;">
+            <input type="text" id="batch_number" class="w3-input" maxlength="18" name="batch_number" value="%batch_number%" required style="flex: 1;">
+            <input type="date" id="batch_date_picker" class="w3-input" style="width: 150px;" onchange="updateBatchNumber()">
+        </div>
+        <small style="color: #666;">Freitext oder Datum wählen (wird in Feld übernommen)</small>
     </label>
     <br />
-    <label>Datum:
-        <input type="date" id="date_filling" class="w3-input" maxlength="18" name="date_filling" value="%date_filling%" required><br />
+    <label>Datum Abfüllung:
+        <input type="date" id="date_filling" class="w3-input" maxlength="18" name="date_filling" value="%date_filling%" required onchange="updateBatchDatePicker()"><br />
+    </label>
+    <br />
+    <label>Eimernummer (optional):
+        <input type="number" id="bucket_number" class="w3-input" min="0" max="999999" name="bucket_number" value="%bucket_number%"><br />
+    </label>
+    <br />
+    <label>Erntedatum:
+        <input type="date" id="harvest_date" class="w3-input" maxlength="18" name="harvest_date" value="%harvest_date%" required><br />
+    </label>
+    <br />
+    <label>Erntenummer:
+        <input type="text" id="harvest_number" class="w3-input" maxlength="32" name="harvest_number" value="%harvest_number%" required><br />
     </label>
     <br />
     <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
 </fieldset>
 </form>
+
+<script>
+// Initialize date_filling with today's date if empty
+window.addEventListener('DOMContentLoaded', function() {
+    var dateFillingInput = document.getElementById('date_filling');
+    if (!dateFillingInput.value || dateFillingInput.value === '') {
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        dateFillingInput.value = yyyy + '-' + mm + '-' + dd;
+    }
+    
+    // Initialize batch date picker to date_filling + 2 years and batch_number
+    updateBatchDatePicker();
+});
+
+// Update batch_number when date picker is used
+function updateBatchNumber() {
+    var datePicker = document.getElementById('batch_date_picker');
+    var batchInput = document.getElementById('batch_number');
+    if (datePicker.value) {
+        // Convert to DD.MM.YYYY format
+        var date = new Date(datePicker.value);
+        var yyyy = date.getFullYear();
+        var mm = String(date.getMonth() + 1).padStart(2, '0');
+        var dd = String(date.getDate()).padStart(2, '0');
+        batchInput.value = dd + '.' + mm + '.' + yyyy;
+    }
+}
+
+// Update batch date picker to date_filling + 2 years and batch_number field
+function updateBatchDatePicker() {
+    var dateFillingInput = document.getElementById('date_filling');
+    var datePicker = document.getElementById('batch_date_picker');
+    var batchInput = document.getElementById('batch_number');
+    
+    if (dateFillingInput.value) {
+        var fillingDate = new Date(dateFillingInput.value);
+        fillingDate.setFullYear(fillingDate.getFullYear() + 2);
+        
+        var yyyy = fillingDate.getFullYear();
+        var mm = String(fillingDate.getMonth() + 1).padStart(2, '0');
+        var dd = String(fillingDate.getDate()).padStart(2, '0');
+        datePicker.value = yyyy + '-' + mm + '-' + dd;
+        
+        // Also update batch_number field in DD.MM.YYYY format
+        batchInput.value = dd + '.' + mm + '.' + yyyy;
+    }
+}
+</script>
