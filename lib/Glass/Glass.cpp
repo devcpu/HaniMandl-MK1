@@ -32,7 +32,9 @@ void Glass::reset() {
   cutoff_weight = HMConfig::instance().weight_filling;
 }
 
-void Glass::setTaraWeight(uint16_t tara_weight) { _glass_weight = tara_weight; }
+void Glass::setTaraWeight(float tara_weight) {
+  _glass_weight = static_cast<int16_t>(tara_weight);
+}
 
 /**
  * This function is allways called from main loop and handle most processing

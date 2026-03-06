@@ -34,9 +34,6 @@ class ESPHelper {
   static String getBuildDateAndTime(void);
   static Table2RData* getSystemInfoTable(void);
   static String getResetReason(RESET_REASON reason);
-  //   static void reboot(AsyncWebServerRequest *request);
-  static void disconnect(void);
-  static void restartESP();
   static String getFlashMode();
 
   // Extended chip / platform helpers (ESP32 only - safe no-ops or simple

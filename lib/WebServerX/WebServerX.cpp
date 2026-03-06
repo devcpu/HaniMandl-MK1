@@ -122,7 +122,7 @@ void WebserverStart(void) {
   // nonstatic! because, it needs templating!
   WebServer->on(
       "/honeyFillingMachine.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-        log_e("/honeyFillingMachine.js");
+        log_d("/honeyFillingMachine.js");
         request->send(SPIFFS, "/honeyFillingMachine.js",
                       "application/javascript", false, JSTemplatingWrapper);
       });
@@ -226,6 +226,8 @@ void WebserverStart(void) {
 
       if (changed) {
         HMConfig::instance().writeJsonConfig();
+        request->redirect("/setupfilling?saved=1");
+        return;
       }
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
@@ -253,7 +255,7 @@ void WebserverStart(void) {
 #if CORE_DEBUG_LEVEL > 4
     showRequest(request);
 #endif
-    log_e("->on /setup");
+    log_d("->on /setup");
     String beekeeping = getWebParam(request, "beekeeping");
     bool changed = false;  // track any config field modifications (incl. servo
                            // & tolerance)
@@ -261,55 +263,56 @@ void WebserverStart(void) {
       strlcpy(HMConfig::instance().beekeeping, beekeeping.c_str(),
               sizeof(HMConfig::instance().beekeeping));
       changed = true;
-      log_e("saved data beekeeping: %s", HMConfig::instance().beekeeping);
+      log_i("saved data beekeeping: %s", HMConfig::instance().beekeeping);
     }
     // Additional future fields could be added here with changed=true when
     // modified
     String angle_max_hard_S = getWebParam(request, "angle_max_hard");
     if (isNumber(angle_max_hard_S)) {
       HMConfig::instance().servodata.angle_max_hard = angle_max_hard_S.toInt();
-      log_e("saved data angle_max_hard=%d",
+      log_i("saved data angle_max_hard=%d",
             HMConfig::instance().servodata.angle_max_hard);
       changed = true;
     }
     String angle_min_hard_S = getWebParam(request, "angle_min_hard");
     if (isNumber(angle_min_hard_S)) {
       HMConfig::instance().servodata.angle_min_hard = angle_min_hard_S.toInt();
-      log_e("saved data angle_min_hard=%d",
+      log_i("saved data angle_min_hard=%d",
             HMConfig::instance().servodata.angle_min_hard);
       changed = true;
     }
     String angle_max_S = getWebParam(request, "angle_max");
     if (isNumber(angle_max_S)) {
       HMConfig::instance().servodata.angle_max = angle_max_S.toInt();
-      log_e("saved data angle_max=%d",
+      log_i("saved data angle_max=%d",
             HMConfig::instance().servodata.angle_max);
       changed = true;
     }
     String angle_min_S = getWebParam(request, "angle_min");
     if (isNumber(angle_min_S)) {
       HMConfig::instance().servodata.angle_min = angle_min_S.toInt();
-      log_e("saved data angle_min=%d",
+      log_i("saved data angle_min=%d",
             HMConfig::instance().servodata.angle_min);
       changed = true;
     }
     String angle_fine_S = getWebParam(request, "angle_fine");
     if (isNumber(angle_fine_S)) {
       HMConfig::instance().servodata.angle_fine = angle_fine_S.toInt();
-      log_e("saved data angle_fine=%d",
+      log_i("saved data angle_fine=%d",
             HMConfig::instance().servodata.angle_fine);
       changed = true;
     }
     String glass_tolerance_S = getWebParam(request, "glass_tolerance");
     if (isNumber(glass_tolerance_S)) {
       HMConfig::instance().glass_tolerance = glass_tolerance_S.toInt();
-      log_e("saved data glass_tolerance=%d",
+      log_i("saved data glass_tolerance=%d",
             HMConfig::instance().glass_tolerance);
       changed = true;
     }
     if (changed) {
-      // Persist all aggregated changes once to minimize flash wear
       HMConfig::instance().writeJsonConfig();
+      request->redirect("/setup?saved=1");
+      return;
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
                   SetupTemplatingWrapper);
@@ -387,8 +390,9 @@ void WebserverStart(void) {
       }
     }
     if (changed) {
-      // Persist OFFSET, SCALE, weight_calibrate, glass_empty
       HMConfig::instance().writeJsonConfig();
+      request->redirect("/calibrate?saved=1");
+      return;
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
                   CalibrateTemplatingWrapper);
@@ -430,6 +434,59 @@ void WebserverStart(void) {
               sizeof(HMConfig::instance().wlan.dns2));
       changed = true;
     }
+    // MQTT server config
+    String mqtt_ip = getWebParam(request, "mqtt_ip");
+    if (mqtt_ip.length() > 0) {
+      strlcpy(HMConfig::instance().mqtt_server.server_ip, mqtt_ip.c_str(),
+              sizeof(HMConfig::instance().mqtt_server.server_ip));
+      changed = true;
+    }
+    String mqtt_user = getWebParam(request, "mqtt_user");
+    if (mqtt_user.length() > 0) {
+      strlcpy(HMConfig::instance().mqtt_server.server_user, mqtt_user.c_str(),
+              sizeof(HMConfig::instance().mqtt_server.server_user));
+      changed = true;
+    }
+    String mqtt_pass = getWebParam(request, "mqtt_pass");
+    if (mqtt_pass.length() > 0) {
+      strlcpy(HMConfig::instance().mqtt_server.server_passwd, mqtt_pass.c_str(),
+              sizeof(HMConfig::instance().mqtt_server.server_passwd));
+      changed = true;
+    }
+    String mqtt_topic = getWebParam(request, "mqtt_topic");
+    if (mqtt_topic.length() > 0) {
+      strlcpy(HMConfig::instance().mqtt_server.server_topic, mqtt_topic.c_str(),
+              sizeof(HMConfig::instance().mqtt_server.server_topic));
+      changed = true;
+    }
+    if (request->hasParam("mqtt_tls")) {
+      HMConfig::instance().mqtt_server.server_tls = true;
+      changed = true;
+    }
+    // API server config
+    String api_ip = getWebParam(request, "api_ip");
+    if (api_ip.length() > 0) {
+      strlcpy(HMConfig::instance().api_server.server_ip, api_ip.c_str(),
+              sizeof(HMConfig::instance().api_server.server_ip));
+      changed = true;
+    }
+    String api_user = getWebParam(request, "api_user");
+    if (api_user.length() > 0) {
+      strlcpy(HMConfig::instance().api_server.server_user, api_user.c_str(),
+              sizeof(HMConfig::instance().api_server.server_user));
+      changed = true;
+    }
+    String api_pass = getWebParam(request, "api_pass");
+    if (api_pass.length() > 0) {
+      strlcpy(HMConfig::instance().api_server.server_passwd, api_pass.c_str(),
+              sizeof(HMConfig::instance().api_server.server_passwd));
+      changed = true;
+    }
+    if (request->hasParam("api_tls")) {
+      HMConfig::instance().api_server.server_tls = true;
+      changed = true;
+    }
+    // NTP / Timezone
     String ntp_server_S = getWebParam(request, "ntp_server");
     if (ntp_server_S.length() > 0) {
       strlcpy(HMConfig::instance().ntp_server, ntp_server_S.c_str(),
@@ -446,6 +503,8 @@ void WebserverStart(void) {
     }
     if (changed) {
       HMConfig::instance().writeJsonConfig();
+      request->redirect("/setupwlan?saved=1");
+      return;
     }
     request->send(SPIFFS, "/master.html", "text/html", false,
                   SetupWlanTemplatingWrapper);
@@ -463,13 +522,13 @@ void WebserverStart(void) {
   /* ------------------------------- System Info ------------------------------
    */
   WebServer->on("/systeminfo", HTTP_GET, [](AsyncWebServerRequest* request) {
-    log_e("/systeminfo");
+    log_d("/systeminfo");
     request->send(SPIFFS, "/master.html", "text/html", false,
                   SystemInfoTemplatingWrapper);
   });
 
   WebServer->on("/hmconfig", HTTP_GET, [](AsyncWebServerRequest* request) {
-    log_e("/hmconfig");
+    log_d("/hmconfig");
     request->send(SPIFFS, "/master.html", "text/html", false,
                   HMConfigTemplatingWrapper);
   });
@@ -477,7 +536,7 @@ void WebserverStart(void) {
   /* --------------------------------- Reboot ---------------------------------
    */
   WebServer->on("/reboot", HTTP_GET, [](AsyncWebServerRequest* request) {
-    log_e("/reboot");
+    log_i("/reboot");
     request->send(SPIFFS, "/reboot.html", "text/html");
     // Delayed restart to allow page to be sent
     static Ticker rebootTicker;
@@ -613,7 +672,7 @@ void WebserverStart(void) {
       });
 
   WebServer->begin();
-  log_e("HTTP WebServer started");
+  log_i("HTTP WebServer started");
 }
 
 /*
@@ -808,10 +867,7 @@ KeyValueArray split(KeyValueArray rval, String wsdata) {
       // log_e("str_position=%d; key_value_idx=%d; i=%d; char: %c",
       // str_position,
       //       key_value_idx, i, wsdata[i]);
-      if (wsdata[i] == '=') {
-        // log_e("str_position=%d; key_value_idx=%d; i=%d; key: %s",
-        // str_position,
-        //       key_value_idx, i, wsdata.substring(str_position, i).c_str());
+      if (wsdata[i] == '=' && key_value_idx < 3) {
         rval.keyValue[key_value_idx].key =
             wsdata.substring(str_position, i).c_str();
         str_position = i;
@@ -886,19 +942,7 @@ void onWsEvent(AsyncWebSocket* server, AsyncWebSocketClient* client,
     addWsClient(client);
     log_d("Websocket client accepted (%u/%u) from %u.%u.%u.%u:%u", current + 1,
           MAX_WS_CLIENTS, rip[0], rip[1], rip[2], rip[3], rport);
-    // Initial Snapshot an nur diesen Client senden
-    // (sendSnapshotInternal() refactored later to broadcast; here we build
-    // once)
-    extern void buildSnapshot(
-        String &
-        out);  // forward (already static in other translation unit?) fallback
-    String snap;  // local snapshot because buildSnapshot is static in
-                  // freertos_setup.cpp; provide inline copy if linker complains
-    // We cannot call static buildSnapshot here directly (diff TU); reuse
-    // existing sendSnapshotInternal via broadcast wrapper later. For now call
-    // sendSnapshotInternal which will broadcast to all (acceptable) or
-    // reimplement minimal snapshot. Placeholder call - will be adapted after
-    // refactor.
+    // Send initial snapshot to new client (broadcasts to all connected)
     sendSnapshotInternal();
   } else if (type == WS_EVT_DISCONNECT) {
     uint32_t cid = client ? client->id() : 0;
@@ -917,9 +961,8 @@ void onWsEvent(AsyncWebSocket* server, AsyncWebSocketClient* client,
     log_d("Websocket client sended data");
     AwsFrameInfo* info = reinterpret_cast<AwsFrameInfo*>(arg);
     if (info->opcode == WS_TEXT) {
-      data[len] = 0;
-      log_d("%s\n", reinterpret_cast<char*>(data));
-      String wsdata = String(reinterpret_cast<char*>(data));
+      String wsdata;
+      wsdata.concat(reinterpret_cast<char*>(data), len);
       log_d("%s", wsdata.c_str());
       KeyValueArray rdata;
       rdata.count = 0;
@@ -991,6 +1034,14 @@ void onWsEvent(AsyncWebSocket* server, AsyncWebSocketClient* client,
           log_e("value of glass_tolerance is not a valid Int %s",
                 rdata.keyValue[0].value);
         }
+      }
+
+      // Validate all config values after WebSocket changes
+      if (rdata.keyValue[0].key == "angle_max" ||
+          rdata.keyValue[0].key == "angle_fine" ||
+          rdata.keyValue[0].key == "weight_fine" ||
+          rdata.keyValue[0].key == "glass_tolerance") {
+        HMConfig::instance().validateAndFix();
       }
 
       /*

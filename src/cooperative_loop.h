@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 STRATO AG Berlin, Germany
- *  All rights reserved
+ * Copyright (c) 2025 - 2026 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
  * -----
  * File: /cooperative_loop.h
  * Project: Simple Automatic Honey Filling Machine
@@ -13,7 +13,6 @@
 #ifndef SRC_COOPERATIVE_LOOP_H_
 #define SRC_COOPERATIVE_LOOP_H_
 
-#pragma once
 #include <Arduino.h>
 
 /**
@@ -104,14 +103,24 @@ bool emitScaleTimeout(uint32_t consecutiveTimeouts);
 // Monitoring counters
 extern volatile uint32_t g_eventQueueOverflows;
 
-// Cooperative loop functions
+/// @brief Initialize persistence layer. Call once from setup().
 void initCooperativeLoop();
+/// @brief Read HX711 at 10 Hz, moving average, emit weight events. Interval:
+/// 100ms.
 void tickSensor();
+/// @brief Run filling FSM (handleWeightAndServo), emit status changes. Every
+/// loop.
 void tickServo();
+/// @brief WiFi reconnect, AP fallback, NTP sync, MQTT loop. Interval: 500ms.
 void tickWiFi();
+/// @brief Non-blocking buzzer pattern player. Interval: 20ms.
 void tickBuzzer();
+/// @brief Drain event queue and broadcast JSON to WebSocket clients. Every
+/// loop.
 void tickWsDispatch();
+/// @brief Persistence tick, OTA validation, heap stats. Interval: 1000ms.
 void tickHousekeeping();
+/// @brief Non-blocking NTP sync FSM. Called from tickWiFi().
 void tickNTP();
 
 bool enqueueBuzzerPattern(uint16_t freq, uint16_t durationMs, uint8_t count,

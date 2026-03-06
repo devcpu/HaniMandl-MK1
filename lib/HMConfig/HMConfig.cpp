@@ -100,14 +100,15 @@ void HMConfig::writeJsonConfig() {
 }
 
 void HMConfig::readJsonConfig() {
+  bool seededFromTemplate = false;
   String input = espfs.readString("/hmconfig.json");
   if (input.length() <= 0) {
     // Try template fallback
     String tmpl = espfs.readString("/hmconfig_template.json");
     if (tmpl.length() > 0) {
       log_w("hmconfig.json missing -> seeding from hmconfig_template.json");
-      input =
-          tmpl;  // parse template, then persisted file will be written later
+      input = tmpl;
+      seededFromTemplate = true;
     } else {
       log_w(
           "hmconfig.json & template missing -> using compiled defaults and "
@@ -251,10 +252,8 @@ void HMConfig::readJsonConfig() {
   strlcpy(wlan.dns2, temp_wlan_dns2, sizeof(wlan.dns2));
 
   bool corrected = validateAndFix();
-  if (upgradeNeeded || corrected ||
-      input == espfs.readString("/hmconfig_template.json")) {
-    writeJsonConfig();  // persist derived runtime copy; template remains
-                        // untouched
+  if (upgradeNeeded || corrected || seededFromTemplate) {
+    writeJsonConfig();
   }
 }
 

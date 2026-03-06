@@ -7,7 +7,7 @@
  * Description: Optimized version of WebTemplate without String usage
  * -----
  * Created Date: 2025-10-02
- * Author: GitHub Copilot
+ * Author: Johannes G.  Arlt (janusz)
  */
 
 #ifndef LIB_WEBTEMPLATEOPTIMIZED_WEBTEMPLATEOPTIMIZED_H_

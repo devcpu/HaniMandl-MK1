@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2025 - 2026 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
+ * -----
+ * File: /persistence.cpp
+ * Project: Simple Automatic Honey Filling Machine
+ * Description: Glass count persistence via ESP32 Preferences (wear-leveled NVS)
+ * -----
+ * Created Date: 2025-10-03
+ * Author: Johannes G.  Arlt (janusz)
+ */
+
 #include "persistence.h"
 
 #include <HMConfig.h>

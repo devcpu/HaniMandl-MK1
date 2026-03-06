@@ -72,11 +72,7 @@ String ESPFS::readString(const String& path) {
     return error;
   }
 
-  String fileContent;
-  while (file.available()) {
-    fileContent += static_cast<char>(file.read());
-  }
-
+  String fileContent = file.readString();
   file.close();
   return fileContent;
 }

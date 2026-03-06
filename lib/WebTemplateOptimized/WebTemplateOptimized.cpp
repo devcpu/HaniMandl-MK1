@@ -7,7 +7,7 @@
  * Description: Optimized version of WebTemplate without String usage
  * -----
  * Created Date: 2025-10-02
- * Author: GitHub Copilot
+ * Author: Johannes G.  Arlt (janusz)
  */
 
 #include "WebTemplateOptimized.h"
@@ -15,7 +15,9 @@
 #include <ESPHelper.h>
 #include <time.h>
 
-// Static buffer for template responses
+// Static buffer for template responses.
+// NOTE: Not reentrant. Safe because ESPAsyncWebServer processes template
+// callbacks sequentially per response chunk (single-threaded event loop).
 char template_response_buffer[512];  // flawfinder: ignore
 
 const char* DefaultTemplatingOptimized(const char* var) {
@@ -127,9 +129,46 @@ const char* DefaultTemplatingOptimized(const char* var) {
     return template_response_buffer;
   }
 
+  if (strcmp(var, "VERSION") == 0) {
+    return HMConfig::instance().version;
+  }
+
   // NTP server
   if (strcmp(var, "ntp_server") == 0) {
     return HMConfig::instance().ntp_server;
+  }
+
+  // WLAN config
+  if (strcmp(var, "ip_address") == 0) {
+    return HMConfig::instance().wlan.ip_address;
+  }
+  if (strcmp(var, "net_mask") == 0) {
+    return HMConfig::instance().wlan.net_mask;
+  }
+  if (strcmp(var, "gw") == 0) {
+    return HMConfig::instance().wlan.gw;
+  }
+  if (strcmp(var, "dns1") == 0) {
+    return HMConfig::instance().wlan.dns1;
+  }
+
+  // MQTT server config
+  if (strcmp(var, "mqtt_ip") == 0) {
+    return HMConfig::instance().mqtt_server.server_ip;
+  }
+  if (strcmp(var, "mqtt_user") == 0) {
+    return HMConfig::instance().mqtt_server.server_user;
+  }
+  if (strcmp(var, "mqtt_topic") == 0) {
+    return HMConfig::instance().mqtt_server.server_topic;
+  }
+
+  // API server config
+  if (strcmp(var, "api_ip") == 0) {
+    return HMConfig::instance().api_server.server_ip;
+  }
+  if (strcmp(var, "api_user") == 0) {
+    return HMConfig::instance().api_server.server_user;
   }
 
   // Status strings

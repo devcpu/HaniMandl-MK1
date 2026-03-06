@@ -22,41 +22,7 @@
 #include <HX711.h>
 #include <appconfig.h>
 
-// TODO - make as class inherit from ESP32Servo
-
-// class HandleServo : public Servo {
-//  public:
-//   HandleServo();
-
-// TODO - move to HandleServo()
-//    void setupServo();
-
-//   int handleWeightAndServo(float weight_current);
-
-//   String runmod2string(RunModus mod);
-
-//   String fillingstatus2string(FillingStatus status);
-
-//   void open();
-
-//   void close();
-
-//   void stop();
-
-//   void fine();
-
-//  int config_test();
-
-//   #REVIEW - is used? nessary?
-//   int log_event(float weight_current, int16_t weight_fill_current,
-//                 FillingStatus status, uint16_t weight_last);
-// };
-
 void setupServo();
 int handleWeightAndServo(float weight_current);
-const char* runmod2string(RunModus mod);
-const char* fillingstatus2string(FillingStatus status);
-int log_event(float weight_current, int16_t weight_fill_current,
-              FillingStatus status, uint16_t weight_last);
 
 #endif  // SRC_HANDLESERVO_H_

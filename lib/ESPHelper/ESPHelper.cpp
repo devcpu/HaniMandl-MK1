@@ -280,18 +280,3 @@ String ESPHelper::getResetReason(RESET_REASON reason) {
   return retvar;
 }
 #endif
-
-// void ESPHelper::reboot(AsyncWebServerRequest *request) {
-//   request->redirect("/rebootinfo");  // TODO(janusz): refactor path
-//   delay(3000);
-//   ESPHelper::disconnect();
-//   ESPHelper::restartESP();
-// }
-
-void ESPHelper::disconnect() {
-  // Implement disconnect functionality here
-}
-
-void ESPHelper::restartESP() {
-  // ESP.restart(); // FIXME
-}

@@ -4,10 +4,11 @@
         <legend>Wlan Modus:</legend>
                 <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_sta" checked onClick="showHide('id_wlan_modus_sta', 'id_wlan_modus_ap')"><label>Mit Router verbunden (im heimischen Netzwerk)</label><br />
                 <input class="w3-radio" type="radio" name="wlan_modus" value="wlan_modus_ap" onClick="showHide('id_wlan_modus_ap', 'id_wlan_modus_sta')"><label>Ist Accesspoint</label>
-                <!-- <br /><br /><input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen"> -->
     </fieldset>
+</form>
 
-<dev id="id_wlan_modus_sta" class=" w3-margin" style="display: block;  background-color: #ff9800;">
+<div id="id_wlan_modus_sta" class="w3-margin" style="display: block; background-color: #ff9800;">
+    <form action="setupwlan" class="w3-container w3-left-align">
     <fieldset>
         <legend>Zugangsdaten Router:</legend>
         <label>SSID:</label>
@@ -18,23 +19,23 @@
         <br />
         <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
     </fieldset>
-</form>
-</dev>
+    </form>
+</div>
 
-
-<dev id="id_wlan_modus_ap" class=" w3-margin" style="display: none; background-color: #ff5722!important;">
-    <fieldset style="w3-deep-orange">
-        <legend>Zugangsdaten uHu-Honigabfüller AccessPoint:</legend>
+<div id="id_wlan_modus_ap" class="w3-margin" style="display: none; background-color: #ff5722!important;">
+    <form action="setupwlan" class="w3-container w3-left-align">
+    <fieldset>
+        <legend>Zugangsdaten Honigabfüller AccessPoint:</legend>
         <label>SSID:</label>
         <input type="text" class="w3-input" name="ap_user" value="%ap_user%">
         <br />
-        <label>Passwort uHu-Honigabfüller:</label>
+        <label>Passwort Honigabfüller:</label>
         <input type="password" class="w3-input" name="ap_pass">
         <br />
         <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
     </fieldset>
-</form>
-</dev>
+    </form>
+</div>
 
 <form action="setupwlan" class="w3-container w3-left-align w3-margin">
     <fieldset>
@@ -47,19 +48,19 @@
 <form id="id_ip_address_fix" action="setupwlan" class="w3-container w3-left-align w3-margin"  style="display: none;">
 <fieldset>
     <legend>Fixe IP-Adressen:</legend>
-    <label>IP-Adresse Simple Automatic Honey Filling Machine:</label>
-    <input type="text" class="w3-input" name="ip_local" value="%ip_local%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <label>IP-Adresse Honigabfüller:</label>
+    <input type="text" class="w3-input" name="ip_address" value="%ip_address%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
     <br />
     <label>IP-Adresse Gateway:</label>
-    <input type="text"  class="w3-input" name="ip_gw" value="%ip_gw%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <input type="text"  class="w3-input" name="gw" value="%gw%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
     <br />
     <label>DNS-Server:</label>
-    <input type="text"  class="w3-input" name="ip_dns" value="%ip_dns%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <input type="text"  class="w3-input" name="dns1" value="%dns1%" minlength="7" maxlength="15" size="15" placeholder="xxx.xxx.xxx.xxx" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
     <br />
-    <label>Netzwerk:</label>
-    <input type="text"  class="w3-input" name="ip_net" value="%ip_net%" minlength="7" maxlength="15" size="15" placeholder="255.255.255.0" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+    <label>Netzmaske:</label>
+    <input type="text"  class="w3-input" name="net_mask" value="%net_mask%" minlength="7" maxlength="15" size="15" placeholder="255.255.255.0" autocomplete="off" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
     <br />
-    <input type="submit" class="w3-btn w3-round w3-teal" name="ip_fix" value="Übernehmen">
+    <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
 
 </fieldset>
 </form>

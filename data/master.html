@@ -40,13 +40,21 @@
             <div><b>Gläser gesamt:</b> <span id="glass_count">0</span></div>
         </div>
     </div>
-    <div style='text-align:right;font-size:11px;'><a href='https://dl7uxa.de' target='_blank' style='color:#aaa;'>Simple Automatic Honey Filling Machine v 0.2 by Jan (DL7UXA)</a>
+    <div style='text-align:right;font-size:11px;'><a href='https://dl7uxa.de' target='_blank' style='color:#aaa;'>%H3TITLE% %VERSION% by Jan (DL7UXA)</a>
     </div>
     <script src="honeyFillingMachine.js"></script>
     <script>
         // Close sidebar on load
         if (typeof closeSidebar === 'function') {
             closeSidebar();
+        }
+        // Show save confirmation if ?saved=1 in URL
+        if (new URLSearchParams(window.location.search).has('saved')) {
+            var d = document.createElement('div');
+            d.className = 'w3-panel w3-green w3-round';
+            d.innerHTML = '<p>Einstellungen gespeichert.</p>';
+            document.body.insertBefore(d, document.querySelector('header').nextSibling);
+            setTimeout(function(){ d.style.display='none'; }, 3000);
         }
     </script>
 </body>

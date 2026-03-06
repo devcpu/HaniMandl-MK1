@@ -118,7 +118,8 @@ class HMConfig {
   static const char* runmod2string(RunModus modus);
   static const char* fillingstatus2string(FillingStatus status);
   const char* version = SOFTWARE_VERSION;  // TODO(janusz)
-  char beekeeping[64] = PROGRAMM_NAME;     // flawfinder: ignore
+  char beekeeping[64] =
+      "";  // flawfinder: ignore (empty triggers first-run wizard)
 
   /// @brief holds servo config
   ServoData servodata;
@@ -164,7 +165,7 @@ class HMConfig {
   /// exclusively via Preferences layer (see persistence.cpp) to reduce
   /// SPIFFS wear and avoid duplication of truth. The JSON field `glass_count`
   /// is intentionally omitted during read/write.
-  uint16_t glass_count = 0;
+  uint32_t glass_count = 0;
 
   /// @brief Emergency stop flag (volatile as it may be set from different task
   /// context)
@@ -243,9 +244,8 @@ class HMConfig {
         SCALE(346.023590),
         run_modus(RUN_MODUS_STOPPED),
         fs(FILLING_STATUS_CLOSED),
-        mqtt_server{// zero / defaults
-                    "", "", "", "", "", false},
-        api_server{"", "", "", "", "", false},
+        mqtt_server{},
+        api_server{},
         wlan{"", "", "", "", ""},
         utc_offset(60),
         ntp_server{"de.pool.ntp.org"} {

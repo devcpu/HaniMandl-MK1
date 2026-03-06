@@ -31,7 +31,7 @@ class Glass {
 
   /// @brief sets tara weight of this glass
   /// @param tara_weight
-  void setTaraWeight(uint16_t tara_weight);
+  void setTaraWeight(float tara_weight);
 
   /// @return true if glass is full
   bool isFull() { return _is_full; }

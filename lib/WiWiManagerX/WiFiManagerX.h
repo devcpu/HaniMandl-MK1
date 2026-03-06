@@ -31,7 +31,5 @@ Project: Simple Automatic Honey Filling Machine
 // void tick(void);
 // void configModeCallback(AsyncWiFiManager *myWiFiManager);
 bool setupWifi(void);
-String getNTPDate(int16_t gmt_offset_sec, int16_t daylight_offset_sec,
-                  const char* ntpserver);
 
 #endif  // LIB_WIWIMANAGERX_WIFIMANAGERX_H_

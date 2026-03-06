@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 STRATO AG Berlin, Germany
- *  All rights reserved
+ * Copyright (c) 2025 - 2026 Johannes G. Arlt - Berlin - Germany
+ * License MIT License
  * -----
  * File: /persistence.h
 Project: Simple Automatic Honey Filling Machine
