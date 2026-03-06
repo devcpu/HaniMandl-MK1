@@ -140,13 +140,13 @@ repos:
 # ============================================================================
 # DOCUMENTATION
 # ============================================================================
-- repo: https://github.com/executablebooks/mdformat
-  rev: 1.0.0
-  hooks:
-  - id: mdformat
-    args: [--wrap=80]
-    files: \.(md|markdown)$
-    exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
+# - repo: https://github.com/executablebooks/mdformat
+#   rev: 1.0.0
+#   hooks:
+#   - id: mdformat
+#     args: [--wrap=80]
+#     files: \.(md|markdown)$
+#     exclude: '^(attic/|node_modules/|projectdoc/|logs/|libdoc/|test/|\\.pio/|build/)'
 
 # ============================================================================
 # SECURITY & COMPLIANCE

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-tree:*)",
+      "Bash(pio run:*)",
+      "Bash(python3:*)",
+      "Bash(pio:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(flawfinder:*)"
+    ]
+  }
+}

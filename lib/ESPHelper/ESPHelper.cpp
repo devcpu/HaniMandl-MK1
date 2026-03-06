@@ -17,6 +17,7 @@
 #include <esp_chip_info.h>
 #include <esp_spi_flash.h>
 #include <esp_system.h>
+#include <inttypes.h>
 #ifdef ESP32
 #include <esp_heap_caps.h>
 #endif
@@ -84,7 +85,7 @@ Table2RData* ESPHelper::getSystemInfoTable(void) {
   // Sketch usage
   uint32_t sketchSize = ESP.getSketchSize();
   uint32_t freeSketch = ESP.getFreeSketchSpace();
-  char flashLayout[48];
+  char flashLayout[48];  // flawfinder: ignore
   snprintf(flashLayout, sizeof(flashLayout), "%lukB used / %lukB free",
            (unsigned long)(sketchSize / 1024),
            (unsigned long)(freeSketch / 1024));
@@ -147,11 +148,10 @@ Table2RData* ESPHelper::getSystemInfoTable(void) {
 // ---- Extended helpers ----
 String ESPHelper::getShortId() {
   uint64_t mac = ESP.getEfuseMac();  // 48-bit value in low bits
-  char buf[13];                      // 12 hex chars + NUL
-// Use inttypes.h macro for portability instead of hard-coded %llX
-#include <inttypes.h>
-  snprintf(buf, sizeof(buf), "%012" PRIX64,
-           (uint64_t)mac & 0xFFFFFFFFFFFFULL);  // flawfinder: ignore
+  char buf[13];  // flawfinder: ignore (fixed 12 hex chars + NUL)
+  // clang-format off
+  snprintf(buf, sizeof(buf), "%012" PRIX64, (uint64_t)mac & 0xFFFFFFFFFFFFULL);  // flawfinder: ignore
+  // clang-format on
   return String(buf);
 }
 

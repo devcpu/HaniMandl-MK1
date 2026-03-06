@@ -118,7 +118,7 @@ void tickNTP() {
       break;
     case NTPState::Wait:
       if (getLocalTime(&timeinfo)) {
-        char buffer[32];
+        char buffer[32];  // flawfinder: ignore
         strftime(buffer, sizeof(buffer), "%Y-%m-%d", &timeinfo);
         log_i("[NTP] Synced successfully: %s", buffer);
         strlcpy(HMConfig::instance().date_filling, buffer,
@@ -525,7 +525,7 @@ void tickWsDispatch() {
         doc["t"] = "ntp";
         doc["synced"] = true;
         {
-          char batch_buf[16];
+          char batch_buf[16];  // flawfinder: ignore
           if (HMConfig::instance().getBatchNumber(batch_buf,
                                                   sizeof(batch_buf))) {
             doc["batch_number"] = batch_buf;

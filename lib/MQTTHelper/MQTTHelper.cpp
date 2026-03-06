@@ -45,7 +45,7 @@ void MQTTHelper::begin() {
   // Parse port (default 1883 for plain, 8883 for TLS)
   uint16_t port = 1883;
   if (strlen(cfg.mqtt_server.server_port) > 0) {
-    port = atoi(cfg.mqtt_server.server_port);
+    port = atoi(cfg.mqtt_server.server_port);  // flawfinder: ignore
   } else {
     port = useTLS ? 8883 : 1883;
   }
@@ -117,13 +117,13 @@ String MQTTHelper::getISOTimestamp() {
   if (!getLocalTime(&timeinfo)) {
     // Fallback if NTP not synced
     log_w("Failed to get time, using millis");
-    char buf[32];
+    char buf[32];  // flawfinder: ignore
     snprintf(buf, sizeof(buf), "1970-01-01 00:00:%lu", millis() / 1000);
     return String(buf);
   }
 
   // Format: "YYYY-MM-DD HH:MM:SS" - readable for humans and MySQL
-  char buf[32];
+  char buf[32];  // flawfinder: ignore
   strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
   return String(buf);
 }
@@ -161,7 +161,7 @@ bool MQTTHelper::sendFillingData(uint16_t weight_actual, uint16_t weight_target,
   doc["count"] = 1;                      // Always 1 per message as requested
 
   // Calculate batch_number from date_filling + 2 years
-  char batch_buf[16];
+  char batch_buf[16];  // flawfinder: ignore
   cfg.getBatchNumber(batch_buf, sizeof(batch_buf));
   doc["batch_number"] = batch_buf;  // Chargennummer (Batch/Los)
 

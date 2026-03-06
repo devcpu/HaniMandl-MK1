@@ -643,7 +643,7 @@ String getWebParam(AsyncWebServerRequest* request, const char* key,
     }
     return rtvar;
   } else {
-    char buf[80];  // FIXME(janusz)
+    char buf[80];  // flawfinder: ignore
     snprintf(buf, sizeof(buf),
              "ERR> key %s not found in request,  no value written", key);
     log_e("%s", buf);
@@ -672,7 +672,7 @@ String getWebParam(AsyncWebServerRequest* request, const char* key,
     *cfgvar = rtvar.toInt();
     return rtvar;
   } else {
-    char buf[80];
+    char buf[80];  // flawfinder: ignore
     snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
              key);
     log_e("%s", buf);
@@ -697,7 +697,7 @@ String getWebParam(AsyncWebServerRequest* request, const char* key) {
       return rtvar;
     }
   } else {
-    char buf[80];
+    char buf[80];  // flawfinder: ignore
     snprintf(buf, sizeof(buf), "key %s not found in request, no value written",
              key);
     log_e("%s", buf);

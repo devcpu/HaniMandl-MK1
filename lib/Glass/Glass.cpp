@@ -64,8 +64,19 @@ void Glass::setScaleUnit(float sunits) {
 
   // glass full?
   if (_honey_in_glass_weight_filled >= cutoff_weight) {
+    log_e("Glass FULL check: honey=%d cutoff=%d -> TRUE",
+          _honey_in_glass_weight_filled, cutoff_weight);
     _is_full = true;
   } else {
+    // Log periodically when NOT full during filling
+    static uint32_t lastNotFullLog = 0;
+    if (HMConfig::instance().fs == FILLING_STATUS_FINE &&
+        millis() - lastNotFullLog >= 1000) {
+      log_e("Glass NOT full: honey=%d cutoff=%d glassTara=%d sunits=%.1f",
+            _honey_in_glass_weight_filled, cutoff_weight, _glass_weight,
+            sunits);
+      lastNotFullLog = millis();
+    }
     _is_full = false;
   }
 
@@ -137,6 +148,9 @@ void Glass::setFollowUpAdjustment() {
   _follow_up_adjustment =
       _honey_in_glass_weight_filled - HMConfig::instance().weight_filling;
   cutoff_weight = cutoff_weight - _follow_up_adjustment;  // FIXME - + or - ?
+  log_e("FollowUp adjustment: honey=%d target=%d adj=%d NEW_cutoff=%d",
+        _honey_in_glass_weight_filled, HMConfig::instance().weight_filling,
+        _follow_up_adjustment, cutoff_weight);
   _logFillingData();
   _is_full = true;
 }

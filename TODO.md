@@ -1,33 +1,41 @@
 # Simple Automatic Honey Filling Machine TODOs:
 
 - [ ] WiFi-Manager
-- [ ] EEPORM
-- [ ] Touch-Sensor
-- [ ] Display
+- ~~[ ] EEPORM~~
 - [X] Scale
 - [X] Servo
 - [ ] Documentation
 - [ ] I18N
+- [x] mqtt
+- [ ] api call
+- [ ] error beep
+- [x] mover to freertos
+- [ ] Presets (Akazie/Linde/Raps/Heide)
+- [ ] Config for setup-config vars (compile-time)
 
 # Buttons on scale:
 
-- [ ] Start
-- [ ] Fine
-- [ ] Stop
-- [ ] Hand | Auto (toggle)
+- [x] Start
+- [x] Fine
+- [ ] stop button every time!
 
-# LEDs:
+# LEDs (?):
 
 - [ ] on | dual error
 - [ ] filling | dual ready
 - [ ] auto | dual hand
 
-# Fields in EEPROM
+# Display
 
-- [ ] Los-Number
-- [ ] Date
-- [ ] weight
-- [ ] count
+- [ ] DHCP-IP
+- [ ] AP-IP + Password
+- [ ] state [hand, auto, stopp]
+
+# Hardware touch buttons
+
+- [x] emergency stop
+- [ ] reboot
+- [ ] start stop fine auto hand
 
 # Params
 
@@ -36,79 +44,61 @@
 - [x] los-number
 - [x] date if Wifi in AP mode
 - [x] weight_filling
-- [ ] angle_max
-- [ ] angle_fine
-- [ ] weight_fine
-- [ ] overfill
+- [x] angle_max
+- [x] angle_fine
+- [x] weight_fine
+- [ ] overfill (??)
 - [x] glass_weight
 
 ## Setup
 
-- [ ] Beekeepers name
-
-- [ ] angle_min_hard
-
-- [ ] angle_max_hard
-
-- [ ] angle_max
-
-- [ ] angle_min
-
-- [ ] angle_fine
-
-- [ ] calibrate_weight
-
-- [ ] glass_tolerance
-
-## Request routes GET
+- [x] Beekeepers name
+- [x] angle_min_hard
+- [x] angle_max_hard
+- [x] angle_max
+- [x] angle_min
+- [x] angle_fine
+- [x] calibrate_weight
+- [x] glass_tolerance
 
 ### filling
 
+- [ ] dynamic servo angle for different honey
+
 ### SetupWlan
 
-### UpdateFirmware
+- [ ] Wlan finder + QR - Code für http://<IP>
+- [ ] QR - Code AP mode
+
+### UpdateFirmware OTA
+
+- [x] done
 
 ### systeminfo
 
+- [x] done
+
 ### reboot
+
+- [x] done
 
 ### setup
 
-- beekeeping
-- angle_max_hard
-- angle_min_hard
-- angle_max
-- angle_min
-- angle_fine
-- glass_tolerance
+- [x] beekeeping
+- [x] angle_max_hard
+- [x] angle_min_hard
+- [x] angle_max
+- [x] angle_min
+- [x] angle_fine
+- [x] glass_tolerance
 
-### calibrate
+### auto calibrate
+
+- [x] done
 
 ### setupfilling
 
-- weight_filling
-- weight_empty
-- los_number
-- date_filling
-
-## Request routes POST
-
-### start
-
-### stop
-
-### hand
-
-### auto
-
-### amg
-
-### aml
-
-### afg
-
-### afl
-
-### wfg
-
-### wfl
+- [x] weight_filling
+- [x] weight_empty
+- [x] los_number
+- [x] date_filling

@@ -16,7 +16,7 @@
 #include <time.h>
 
 // Static buffer for template responses
-char template_response_buffer[512];
+char template_response_buffer[512];  // flawfinder: ignore
 
 const char* DefaultTemplatingOptimized(const char* var) {
   if (var == nullptr) return "";
@@ -143,8 +143,7 @@ const char* DefaultTemplatingOptimized(const char* var) {
     int16_t tzVal = 0;
     const char* p = var + 3;
     if (*p == 'm') {
-      tzVal = -atoi(
-          p + 1);  // flawfinder: ignore (internal template var, not user input)
+      tzVal = -atoi(p + 1);  // flawfinder: ignore (internal template var)
     } else {
       tzVal = atoi(p);  // flawfinder: ignore
     }

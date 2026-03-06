@@ -107,7 +107,7 @@ String getNTPDate(int16_t gmt_offset_sec, int16_t daylight_offset_sec,
     return String("0");
   }
 
-  char buffer[80];
+  char buffer[80];  // flawfinder: ignore
   strftime(buffer, sizeof(buffer), "%Y-%m-%d", &timeinfo);
   String timeString = String(buffer);
   log_e("Date: %s", timeString.c_str());

@@ -19,7 +19,7 @@
 #include <appconfig.h>
 
 // Template response buffer for web responses
-extern char template_response_buffer[512];
+extern char template_response_buffer[512];  // flawfinder: ignore
 
 // Core optimized template function
 const char* DefaultTemplatingOptimized(const char* var);

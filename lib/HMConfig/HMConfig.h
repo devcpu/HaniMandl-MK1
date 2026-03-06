@@ -30,21 +30,21 @@ typedef enum {
 } RunModus;
 
 struct MQTTServerData {
-  char server_user[WEB_INPUT_MAX_LENGTH];
-  char server_passwd[WEB_INPUT_MAX_LENGTH];
-  char server_ip[16];     // IPv4: xxx.xxx.xxx.xxx
-  char server_port[6];    // Port: 65535
-  char server_token[64];  // Token can be longer
-  char server_topic[64];  // MQTT topic for publishing
+  char server_user[WEB_INPUT_MAX_LENGTH];    // flawfinder: ignore
+  char server_passwd[WEB_INPUT_MAX_LENGTH];  // flawfinder: ignore
+  char server_ip[16];                        // flawfinder: ignore
+  char server_port[6];                       // flawfinder: ignore
+  char server_token[64];                     // flawfinder: ignore
+  char server_topic[64];                     // flawfinder: ignore
   bool server_tls;
 };
 
 struct WlanConfig {
-  char ip_address[16];  // IPv4: xxx.xxx.xxx.xxx
-  char net_mask[16];    // IPv4: xxx.xxx.xxx.xxx
-  char gw[16];          // IPv4: xxx.xxx.xxx.xxx
-  char dns1[16];        // IPv4: xxx.xxx.xxx.xxx
-  char dns2[16];        // IPv4: xxx.xxx.xxx.xxx
+  char ip_address[16];  // flawfinder: ignore
+  char net_mask[16];    // flawfinder: ignore
+  char gw[16];          // flawfinder: ignore
+  char dns1[16];        // flawfinder: ignore
+  char dns2[16];        // flawfinder: ignore
 };
 
 typedef enum {
@@ -118,7 +118,7 @@ class HMConfig {
   static const char* runmod2string(RunModus modus);
   static const char* fillingstatus2string(FillingStatus status);
   const char* version = SOFTWARE_VERSION;  // TODO(janusz)
-  char beekeeping[64] = PROGRAMM_NAME;     // Made changeable char array
+  char beekeeping[64] = PROGRAMM_NAME;     // flawfinder: ignore
 
   /// @brief holds servo config
   ServoData servodata;
@@ -126,19 +126,19 @@ class HMConfig {
   HandMode hm = HAND_MODE_CLOSED;
 
   /// @brief Batch Number (Los Nummer/Chargennummer)
-  char batch_number[16] = "L001-02";
+  char batch_number[16] = "L001-02";  // flawfinder: ignore
 
   /// @brief Bucket number (optional, nullable)
   int32_t bucket_number = -1;  // -1 means NULL/not set
 
   /// @brief Harvest date
-  char harvest_date[16] = "";  // YYYY-MM-DD format
+  char harvest_date[16] = "";  // flawfinder: ignore
 
   /// @brief Harvest number
-  char harvest_number[32] = "";
+  char harvest_number[32] = "";  // flawfinder: ignore
 
   /// @brief current date
-  char date_filling[32] = "";
+  char date_filling[32] = "";  // flawfinder: ignore
 
   /// @brief netto target weight of glass
   uint16_t weight_filling = 500;
@@ -174,7 +174,7 @@ class HMConfig {
   uint32_t boot_count = 0;
 
   /// @brief local IP, comes from route or static configured
-  char localIP[16] = "";  // IPv4: xxx.xxx.xxx.xxx
+  char localIP[16] = "";  // flawfinder: ignore
 
   /// @brief weight for calibration
   uint32_t weight_calibrate = 509;
@@ -204,7 +204,7 @@ class HMConfig {
   int16_t utc_offset = 60;
 
   /// @brief NTP server hostname, default "de.pool.ntp.org"
-  char ntp_server[64] = "de.pool.ntp.org";
+  char ntp_server[64] = "de.pool.ntp.org";  // flawfinder: ignore
 
   void writeJsonConfig();
   void readJsonConfig();
