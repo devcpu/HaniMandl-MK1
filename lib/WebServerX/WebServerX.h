@@ -9,7 +9,7 @@
  * heartbeat) via a lightweight broadcast API.
  *
  * Design goals:
- *  - Low coupling: core filling/business logic lives in FreeRTOS tasks &
+ *  - Low coupling: core filling/business logic lives in cooperative loop &
  * HMConfig; UI receives event-driven deltas.
  *  - Deterministic resource usage: fixed WS client cap (MAX 3) avoids heap
  * fragmentation.

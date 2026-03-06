@@ -22,12 +22,13 @@ Project: Simple Automatic Honey Filling Machine
  */
 
 #include <MQTTHelper.h>
+#include <Ticker.h>
 #include <Update.h>
 #include <WebServerX.h>
 
-#include "freertos_setup.h"  // system task & event interfaces
+#include "cooperative_loop.h"  // cooperative loop & event interfaces
 extern volatile uint32_t
-    g_eventQueueOverflows;  // overflow counter from freertos_setup.cpp
+    g_eventQueueOverflows;  // overflow counter from cooperative_loop.cpp
 // Include HX711 directly so we can call its methods (user request to use
 // "HX711.h")
 #include <loadcell.h>  // safeGetValue/safeGetUnits
@@ -44,7 +45,6 @@ extern Glass glass;
 AsyncWebServer* WebServer;
 AsyncWebSocket* ws;
 /** @brief Support up to 3 concurrent WebSocket clients. */
-static const uint8_t MAX_WS_CLIENTS = 3;
 AsyncWebSocketClient* wsClients[MAX_WS_CLIENTS] = {nullptr, nullptr, nullptr};
 
 /**
@@ -430,6 +430,20 @@ void WebserverStart(void) {
               sizeof(HMConfig::instance().wlan.dns2));
       changed = true;
     }
+    String ntp_server_S = getWebParam(request, "ntp_server");
+    if (ntp_server_S.length() > 0) {
+      strlcpy(HMConfig::instance().ntp_server, ntp_server_S.c_str(),
+              sizeof(HMConfig::instance().ntp_server));
+      changed = true;
+    }
+    String utc_offset_S = getWebParam(request, "utc_offset");
+    if (utc_offset_S.length() > 0) {
+      int val = utc_offset_S.toInt();
+      if (val >= -720 && val <= 840) {
+        HMConfig::instance().utc_offset = static_cast<int16_t>(val);
+        changed = true;
+      }
+    }
     if (changed) {
       HMConfig::instance().writeJsonConfig();
     }
@@ -466,12 +480,8 @@ void WebserverStart(void) {
     log_e("/reboot");
     request->send(SPIFFS, "/reboot.html", "text/html");
     // Delayed restart to allow page to be sent
-    xTaskCreate(
-        [](void*) {
-          vTaskDelay(pdMS_TO_TICKS(1500));
-          ESP.restart();
-        },
-        "rebootTask", 2048, nullptr, 1, nullptr);
+    static Ticker rebootTicker;
+    rebootTicker.once_ms(1500, []() { ESP.restart(); });
   });
 
   // Diagnostic endpoint: raw scale data (no templating)

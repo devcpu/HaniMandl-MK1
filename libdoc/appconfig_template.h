@@ -26,16 +26,10 @@ Project: Simple Automatic Honey Filling Machine
 #define WIFI_SSID ""
 #define WIFI_IP ""
 #define WIFI_GATEWAY ""
-#define WIFI_TIMESERVER "de.pool.ntp.org"
 
 /// data if accesspoint
 #define WIFI_AP_NAME = "Honey Filling Machine MKI";
 #define WIFI_AP_PASSWORD = "Honigkuchen";
-#define HONEY_FARM_NAME = "";
-
-// https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-#define WIFI_TIME_ZONE "CET-1CEST,M3.5.0,M10.5.0/3"
-
 // pin definition
 #define PIN_LOADCELL_DOUT 5;
 #define PIN_LOADCELL_SCK 17;

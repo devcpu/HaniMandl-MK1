@@ -26,7 +26,7 @@ const char* DefaultTemplatingOptimized(const char* var) {
     return HMConfig::instance().localIP;
   }
   if (strcmp(var, "HTMLTILE") == 0) {
-    return HONEY_FARM_NAME;
+    return PROGRAMM_NAME;
   }
   if (strcmp(var, "H3TITLE") == 0) {
     return PROGRAMM_NAME;
@@ -127,9 +127,28 @@ const char* DefaultTemplatingOptimized(const char* var) {
     return template_response_buffer;
   }
 
+  // NTP server
+  if (strcmp(var, "ntp_server") == 0) {
+    return HMConfig::instance().ntp_server;
+  }
+
   // Status strings
   if (strcmp(var, "run_modus") == 0) {
     return HMConfig::runmod2string(HMConfig::instance().run_modus);
+  }
+
+  // Timezone selection: tz_m720..tz_m60, tz_0, tz_60..tz_840 (minutes)
+  if (strncmp(var, "tz_", 3) == 0) {
+    int16_t current = HMConfig::instance().utc_offset;
+    int16_t tzVal = 0;
+    const char* p = var + 3;
+    if (*p == 'm') {
+      tzVal = -atoi(
+          p + 1);  // flawfinder: ignore (internal template var, not user input)
+    } else {
+      tzVal = atoi(p);  // flawfinder: ignore
+    }
+    return (tzVal == current) ? "selected" : "";
   }
 
   // Default return empty string

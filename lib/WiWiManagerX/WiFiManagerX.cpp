@@ -42,69 +42,54 @@ extern Ticker ticker;
 // }
 
 bool setupWifi() {
-  // pinMode(PIN_WIFI_LED, OUTPUT);
-  // ticker.attach(0.6, tick);
-  Serial.println("Starting WiFiManager");
-  // // log_i();
-  // // log_i();
-  // AsyncWiFiManager wifiManager(&server, &dns);
+  Serial.println("Starting WiFi setup");
 
-  // //   wifiManager.resetSettings();
+  // No SSID configured -> start directly in AP mode
+  if (strlen(WIFI_SSID) == 0) {
+    Serial.println("[WiFi] No SSID configured, starting AP mode");
+    WiFi.mode(WIFI_AP);
+    if (WiFi.softAP(WIFI_AP_NAME, WIFI_AP_PASSWORD, 1, 0, 1)) {
+      Serial.print("[WiFi] AP active, SSID=");
+      Serial.println(WIFI_AP_NAME);
+      Serial.print("[WiFi] AP IP: ");
+      Serial.println(WiFi.softAPIP());
+      strlcpy(HMConfig::instance().localIP, WiFi.softAPIP().toString().c_str(),
+              sizeof(HMConfig::instance().localIP));
+    }
+    return true;
+  }
 
-  // TODO(janusz) move to central config.h
+  // STA mode with configured credentials
   IPAddress _ip = IPAddress(WIFI_IP);
   IPAddress _gw = IPAddress(WIFI_GATEWAY);
   IPAddress _sn = IPAddress(WIFI_SUBNET);
   IPAddress _dns1 = IPAddress(WIFI_DNS1);
-  IPAddress _dns2 = IPAddress(WIFI_DNS2);
 
-  WiFi.config(_ip, _gw, _sn, _dns1);
+  // Only set static IP if a non-zero IP was configured
+  if ((uint32_t)_ip != 0) {
+    WiFi.config(_ip, _gw, _sn, _dns1);
+  }
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  // Wait up to 15s for connection, then let tickWiFi handle fallback
+  uint32_t start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) {
     Serial.print(".");
     delay(100);
   }
 
-  Serial.println("\nConnected to the WiFi network");
-  Serial.print("[+] ESP32 IP : ");
-  Serial.println(WiFi.localIP());
-  String temp_ip = WiFi.localIP().toString();
-  strlcpy(HMConfig::instance().localIP, temp_ip.c_str(),
-          sizeof(HMConfig::instance().localIP));
-  // // set callback that gets called when connecting to previous WiFi fails,
-  // and we need to start configuration mode
-  // wifiManager.setAPCallback(configModeCallback);
-
-  // // fetches ssid and pass from eeprom and tries to connect
-  // // if it does not connect it starts an access point with the specified name
-  // // here  "AutoConnectAP"
-  // // and goes into a blocking loop awaiting configuration
-  // // if you are connected to it at
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nConnected to WiFi");
+    Serial.print("[+] ESP32 IP : ");
+    Serial.println(WiFi.localIP());
+    strlcpy(HMConfig::instance().localIP, WiFi.localIP().toString().c_str(),
+            sizeof(HMConfig::instance().localIP));
+  } else {
+    Serial.println(
+        "\n[WiFi] STA connect timeout in setup, tickWiFi will retry");
+  }
 
   return true;
-
-  // wifiManager.setSTAStaticIPConfig(_ip, _gw, _sn, _dns1, _dns2);
-  // //   wifiManager.autoConnect("AutoConnectAP");
-  // if (!wifiManager.autoConnect(
-  //         WIFI_AP_NAME,
-  //         WIFI_AP_PASSWORD)) {
-  //   log_e("failed to connect, we should reset as see if it connects");
-  //   delay(3000);
-  //   ESP.restart();
-  //   delay(5000);
-  // }
-
-  // // if you get here you have connected to the WiFi
-  // log_i("connected...yeey :)");
-  // log_i("local ip");
-  // // log_i(WiFi.localIP().toString.c_str());
-  // HMConfig::instance().localIP = WiFi.localIP().toString();
-
-  // ticker.detach();
-  // // keep LED on
-  // digitalWrite(PIN_WIFI_LED, LOW);
-  // return true;
 }
 
 String getNTPDate(int16_t gmt_offset_sec, int16_t daylight_offset_sec,

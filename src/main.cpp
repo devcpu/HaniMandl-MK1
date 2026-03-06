@@ -23,7 +23,7 @@ Project: Simple Automatic Honey Filling Machine
 #include <main.h>
 // LED_BUILTIN optional: not required in normal mode
 
-#include "freertos_setup.h"
+#include "cooperative_loop.h"
 
 ESPFS espfs;
 HX711 scale;
@@ -33,9 +33,6 @@ Glass glass;
 Ticker ticker;
 
 #ifdef ESP32
-#ifndef TOUCH_THRESHOLD_DEFAULT
-#define TOUCH_THRESHOLD_DEFAULT 40  // empirical default; adjust in field
-#endif
 static const uint16_t touchThreshold = TOUCH_THRESHOLD_DEFAULT;
 // Forward declaration of ISR (placed before use for clarity)
 void IRAM_ATTR isrStop();
@@ -82,8 +79,8 @@ void setup() {
   pinMode(PIN_BUZZER, OUTPUT);
   log_i("SETUP: beekeeping=%s", HMConfig::instance().beekeeping);
   log_i("SETUP: startSystemTasks()");
-  startSystemTasks();
-  log_i("SETUP: Done - tasks started");
+  initCooperativeLoop();
+  log_i("SETUP: Done - cooperative loop initialized");
 
   // OTA Rollback Protection: Validate firmware after successful boot
   // Wait for critical systems to initialize (WiFi, WebServer, MQTT, Scale,
@@ -153,8 +150,14 @@ void IRAM_ATTR isrStop() {
 #endif
 
 void loop() {
+  tickSensor();
+  tickServo();
+  tickWiFi();
+  tickBuzzer();
+  tickWsDispatch();
+  tickHousekeeping();
   yield();
-  delay(2);
+  delay(5);
 }
 
 #endif

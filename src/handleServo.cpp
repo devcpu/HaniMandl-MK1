@@ -22,7 +22,7 @@ extern Servo servo;
 extern Glass glass;
 extern HX711 scale;
 
-// Forward declare buzzer enqueue (provided by freertos_setup.cpp)
+// Forward declare buzzer enqueue (provided by cooperative_loop.cpp)
 bool enqueueBuzzerPattern(uint16_t freq, uint16_t durationMs, uint8_t count,
                           uint16_t gapMs, uint32_t initialDelay = 0);
 bool emitGlassCount(uint32_t gc);

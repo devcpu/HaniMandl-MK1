@@ -200,6 +200,12 @@ class HMConfig {
 
   WlanConfig wlan;
 
+  /// @brief UTC offset in minutes (-720 to +840), default 60 (CET/UTC+1)
+  int16_t utc_offset = 60;
+
+  /// @brief NTP server hostname, default "de.pool.ntp.org"
+  char ntp_server[64] = "de.pool.ntp.org";
+
   void writeJsonConfig();
   void readJsonConfig();
   bool validateAndFix();
@@ -240,7 +246,9 @@ class HMConfig {
         mqtt_server{// zero / defaults
                     "", "", "", "", "", false},
         api_server{"", "", "", "", "", false},
-        wlan{"", "", "", "", ""} {
+        wlan{"", "", "", "", ""},
+        utc_offset(60),
+        ntp_server{"de.pool.ntp.org"} {
     // beekeeping + version already initialized inline
   }
   HMConfig(const HMConfig&);

@@ -21,7 +21,6 @@
 #include <HX711.h>
 #include <WebServerX.h>
 #include <WiFiManagerX.h>
-#include <freertos/FreeRTOS.h>
 // #include <HX711_ADC.h>
 #include <ESP32Servo.h>
 #include <Ticker.h>

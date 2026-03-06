@@ -75,6 +75,8 @@ void HMConfig::writeJsonConfig() {
   doc_json["boot_count"] = boot_count;
   doc_json["OFFSET"] = OFFSET;
   doc_json["SCALE"] = SCALE;
+  doc_json["utc_offset"] = utc_offset;
+  doc_json["ntp_server"] = ntp_server;
 
   JsonObject mqtt_server_json = doc_json.createNestedObject("mqtt_server");
   mqtt_server_json["server_user"] = mqtt_server.server_user;
@@ -179,8 +181,12 @@ void HMConfig::readJsonConfig() {
   glass_tolerance = doc_json["glass_tolerance"].as<unsigned int>();  // 22
   boot_count = doc_json["boot_count"].as<unsigned long>();           // 12000
   // OFFSET can be negative (tare baseline). Use signed long extraction.
-  OFFSET = doc_json["OFFSET"].as<long>();  // may be negative
-  SCALE = doc_json["SCALE"].as<double>();  // 346.02359
+  OFFSET = doc_json["OFFSET"].as<long>();    // may be negative
+  SCALE = doc_json["SCALE"].as<double>();    // 346.02359
+  utc_offset = doc_json["utc_offset"] | 60;  // default CET (UTC+1 = 60 min)
+
+  const char* temp_ntp = doc_json["ntp_server"] | "de.pool.ntp.org";
+  strlcpy(ntp_server, temp_ntp, sizeof(ntp_server));
 
   JsonObject mqtt_server_json = doc_json["mqtt_server"];
   const char* temp_user = mqtt_server_json["server_user"] | "";

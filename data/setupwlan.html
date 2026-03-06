@@ -64,6 +64,48 @@
 </fieldset>
 </form>
 
+<form action="setupwlan" class="w3-container w3-left-align w3-margin">
+    <fieldset>
+        <legend>Zeitzone / NTP:</legend>
+        <label>NTP Server:</label>
+        <input type="text" class="w3-input" name="ntp_server" value="%ntp_server%" placeholder="de.pool.ntp.org" maxlength="63">
+        <br />
+        <label>UTC Offset:</label>
+        <select class="w3-select" name="utc_offset">
+            <option value="-720" %tz_m720%>UTC-12 (Baker Island)</option>
+            <option value="-660" %tz_m660%>UTC-11 (Samoa)</option>
+            <option value="-600" %tz_m600%>UTC-10 (Hawaii)</option>
+            <option value="-540" %tz_m540%>UTC-9 (Alaska)</option>
+            <option value="-480" %tz_m480%>UTC-8 (Pacific)</option>
+            <option value="-420" %tz_m420%>UTC-7 (Mountain)</option>
+            <option value="-360" %tz_m360%>UTC-6 (Central US)</option>
+            <option value="-300" %tz_m300%>UTC-5 (Eastern US)</option>
+            <option value="-240" %tz_m240%>UTC-4 (Atlantic)</option>
+            <option value="-180" %tz_m180%>UTC-3 (Argentina)</option>
+            <option value="-120" %tz_m120%>UTC-2 (South Georgia)</option>
+            <option value="-60" %tz_m60%>UTC-1 (Azores)</option>
+            <option value="0" %tz_0%>UTC+0 (GMT/London)</option>
+            <option value="60" %tz_60%>UTC+1 (Mitteleuropa/Berlin)</option>
+            <option value="120" %tz_120%>UTC+2 (Osteuropa/Helsinki)</option>
+            <option value="180" %tz_180%>UTC+3 (Moskau)</option>
+            <option value="240" %tz_240%>UTC+4 (Gulf/Dubai)</option>
+            <option value="300" %tz_300%>UTC+5 (Pakistan)</option>
+            <option value="330" %tz_330%>UTC+5:30 (Indien)</option>
+            <option value="360" %tz_360%>UTC+6 (Bangladesh/Dhaka)</option>
+            <option value="420" %tz_420%>UTC+7 (Indochina)</option>
+            <option value="480" %tz_480%>UTC+8 (China)</option>
+            <option value="540" %tz_540%>UTC+9 (Japan)</option>
+            <option value="600" %tz_600%>UTC+10 (Australien Ost)</option>
+            <option value="660" %tz_660%>UTC+11 (Solomon)</option>
+            <option value="720" %tz_720%>UTC+12 (Neuseeland)</option>
+            <option value="780" %tz_780%>UTC+13 (Tonga)</option>
+            <option value="840" %tz_840%>UTC+14 (Line Islands)</option>
+        </select>
+        <br /><br />
+        <input type="submit" class="w3-btn w3-round w3-teal" value="Übernehmen">
+    </fieldset>
+</form>
+
 <div class="w3-margin">
 <div class="w3-card-4">
     <header class="w3-container w3-blue">
